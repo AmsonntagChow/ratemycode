@@ -1,9 +1,9 @@
 ---
-name: vibe-code-jury
-description: "Audit, grade, stress-test, red-team, or issue a ship/no-ship verdict on a vibe-coded, AI-built, rapidly built, prototype, or MVP app, repository, or live deployment. Use for Staff-level product audits; strict-professor grading; picky-user or adversarial testing; skeptical-VC reviews grounded in product evidence; release-readiness, payment-safety, security, data-integrity, and reliability checks; oral defense or one-question-at-a-time interviews about the product; prioritized fix prompts or requested fixes; and same-rubric re-reviews with score deltas. Trigger for equivalent wording such as would you ship this, try to break it, roast my app, 挑刺, 答辩, 能上线或能收钱吗, or VC 打分. Require an actual product artifact or concrete product evidence, including the current workspace. Do not use for isolated snippets, routine bug fixing, generic code review, generic startup advice, job-interview prep, or teaching software fundamentals unless the user is evaluating the product itself."
+name: ratemycode
+description: "Use this skill to rate, audit, grade, stress-test, red-team, or issue a ship/no-ship verdict on a vibe-coded, AI-built, prototype, or MVP app, repository, or live deployment. Use for Staff-level product audits; strict-professor grading; picky-user or adversarial testing; skeptical-VC reviews grounded in product evidence; release-readiness, payment-safety, security, data-integrity, and reliability checks; oral defense or one-question-at-a-time interviews about the product; prioritized fix prompts or requested fixes; and same-rubric re-reviews with score deltas. Trigger for equivalent wording such as rate my code, rate my app, would you ship this, try to break it, roast my app, 挑刺, 答辩, 能上线或能收钱吗, or VC 打分. Require an actual product artifact or concrete product evidence, including the current workspace. Do not use for isolated snippets, routine bug fixing, generic code review, generic startup advice, job-interview prep, or teaching software fundamentals unless the user is evaluating the product itself."
 ---
 
-# Vibe Code Jury
+# RateMyCode
 
 | User intent | Primary route | Required references |
 |---|---|---|

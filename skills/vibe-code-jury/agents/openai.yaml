@@ -1,7 +1,0 @@
-interface:
-  display_name: "Vibe Code Jury"
-  short_description: "Staff-level product review for vibe-coded apps"
-  brand_color: "#D84A32"
-  default_prompt: "Use $vibe-code-jury to audit this product, identify release blockers, and give me the fastest defensible path to ship."
-policy:
-  allow_implicit_invocation: true

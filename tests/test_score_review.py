@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = ROOT / "skills" / "vibe-code-jury" / "scripts" / "score_review.py"
+SCRIPT = ROOT / "skills" / "ratemycode" / "scripts" / "score_review.py"
 SPEC = importlib.util.spec_from_file_location("score_review", SCRIPT)
 score_review = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None

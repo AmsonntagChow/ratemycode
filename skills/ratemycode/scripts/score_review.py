@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate and score a Vibe Code Jury review using only the standard library."""
+"""Validate and score a RateMyCode review using only the standard library."""
 
 from __future__ import annotations
 

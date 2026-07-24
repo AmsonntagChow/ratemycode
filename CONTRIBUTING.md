@@ -1,6 +1,6 @@
 # Contributing
 
-Vibe Code Jury is one focused skill: evidence-grounded product judgment for built software. New reviewer modes may fit; unrelated skills do not. Please fork the repository for a different job-to-be-done rather than adding another top-level skill directory.
+RateMyCode is one focused skill: evidence-grounded product judgment for built software. New reviewer modes may fit; unrelated skills do not. Please fork the repository for a different job-to-be-done rather than adding another top-level skill directory.
 
 ## Evidence required for a pull request
 

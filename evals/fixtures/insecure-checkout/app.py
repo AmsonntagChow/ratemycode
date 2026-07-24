@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deliberately flawed local fixture for Vibe Code Jury execution evals."""
+"""Deliberately flawed local fixture for RateMyCode execution evals."""
 
 import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer

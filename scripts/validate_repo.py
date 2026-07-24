@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILL_DIR = ROOT / "skills" / "vibe-code-jury"
+SKILL_DIR = ROOT / "skills" / "ratemycode"
 SKILL_FILE = SKILL_DIR / "SKILL.md"
 NAME_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 PATH_PATTERN = re.compile(r"`((?:references|scripts)/[A-Za-z0-9_.-]+)`")
@@ -111,8 +111,8 @@ def validate_skill(errors: list[str]) -> None:
     metadata_path = SKILL_DIR / "agents" / "openai.yaml"
     if not metadata_path.is_file():
         errors.append("missing agents/openai.yaml")
-    elif "$vibe-code-jury" not in metadata_path.read_text(encoding="utf-8"):
-        errors.append("agents/openai.yaml default prompt must mention $vibe-code-jury")
+    elif "$ratemycode" not in metadata_path.read_text(encoding="utf-8"):
+        errors.append("agents/openai.yaml default prompt must mention $ratemycode")
 
 
 def load_json(relative: str, errors: list[str]):

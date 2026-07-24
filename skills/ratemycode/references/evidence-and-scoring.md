@@ -100,7 +100,7 @@ Minimal shape:
 {
   "schema_version": "1",
   "mode": "ship-fast",
-  "rubric_id": "vibe-code-jury/default-v1",
+  "rubric_id": "ratemycode/default-v1",
   "release_target": "public-launch",
   "dimensions": [
     {

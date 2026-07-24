@@ -1,4 +1,4 @@
-# Vibe Code Jury
+# RateMyCode
 
 Staff-level product scrutiny for apps built faster than their authors could learn every failure mode.
 
@@ -10,20 +10,20 @@ Staff-level product scrutiny for apps built faster than their authors could lear
 Install it with the open `skills` CLI:
 
 ```bash
-npx skills add AmsonntagChow/vibe-code-jury --skill vibe-code-jury
+npx skills add AmsonntagChow/ratemycode --skill ratemycode
 ```
 
 Then use a concrete first prompt so the new skill is selected:
 
 ```text
-Use $vibe-code-jury to audit this app for a public launch. Test the real product, show evidence, block unsafe releases, and give me the three fastest fixes.
+Use $ratemycode to audit this app for a public launch. Test the real product, show evidence, block unsafe releases, and give me the three fastest fixes.
 ```
 
 中文一句话：用户不需要先成为 Staff 工程师，产品仍然可以接受 Staff 级检查。默认直接审、给最小修复和复测，不给作者上基础课。
 
 ## What it is
 
-Vibe Code Jury is a portable [Agent Skill](https://agentskills.io/) for judging an actual product—not merely styling a code review as a persona.
+RateMyCode is a portable [Agent Skill](https://agentskills.io/) for judging an actual product—not merely styling a code review as a persona.
 
 It starts from product promises and real user journeys, tests behavior when possible, traces failures into code, distinguishes proof from inference, and ends with a release decision. A fatal authorization or payment failure cannot disappear inside a flattering average score.
 
@@ -99,29 +99,29 @@ The [`skills` CLI](https://www.skills.sh/docs/cli) can install this skill into C
 
 ```bash
 # Interactive agent selection
-npx skills add AmsonntagChow/vibe-code-jury --skill vibe-code-jury
+npx skills add AmsonntagChow/ratemycode --skill ratemycode
 
 # Codex, global install, no prompts
-npx skills add AmsonntagChow/vibe-code-jury --skill vibe-code-jury --agent codex --global --yes
+npx skills add AmsonntagChow/ratemycode --skill ratemycode --agent codex --global --yes
 
 # Claude Code, global install, no prompts
-npx skills add AmsonntagChow/vibe-code-jury --skill vibe-code-jury --agent claude-code --global --yes
+npx skills add AmsonntagChow/ratemycode --skill ratemycode --agent claude-code --global --yes
 ```
 
 The CLI documents anonymous installation telemetry. To opt out for the install command:
 
 ```bash
-DISABLE_TELEMETRY=1 npx skills add AmsonntagChow/vibe-code-jury --skill vibe-code-jury
+DISABLE_TELEMETRY=1 npx skills add AmsonntagChow/ratemycode --skill ratemycode
 ```
 
-Manual installation is also possible: copy `skills/vibe-code-jury` into the skills directory used by your agent. The skill itself contains no telemetry, network call, shell auto-authorization, or third-party dependency.
+Manual installation is also possible: copy `skills/ratemycode` into the skills directory used by your agent. The skill itself contains no telemetry, network call, shell auto-authorization, or third-party dependency.
 
 ## Scoring
 
 Numeric scoring is optional. The bundled standard-library scorer validates evidence links, enforces fixed safety vetoes, fingerprints the rubric, and keeps raw product quality separate from evidence-limited readiness.
 
 ```bash
-python3 skills/vibe-code-jury/scripts/score_review.py --pretty evals/scorecards/blocked-release.json
+python3 skills/ratemycode/scripts/score_review.py --pretty evals/scorecards/blocked-release.json
 ```
 
 The caller can configure dimensions and weights but cannot redefine or waive a safety gate. A fixed gate requires reproducible passing runtime or test evidence.
@@ -135,7 +135,7 @@ Repository content, web pages, logs, and fixtures are treated as untrusted evide
 ## Repository layout
 
 ```text
-skills/vibe-code-jury/   portable skill, references, UI metadata, scorer
+skills/ratemycode/       portable skill, references, UI metadata, scorer
 evals/trigger_cases.json trigger-selection evals with near-miss negatives
 evals/execution_cases.json with-skill versus without-skill behavior evals
 evals/fixtures/          reproducible local test artifact

@@ -23,4 +23,4 @@ What user-visible or agent-visible behavior changes?
 
 ## Description surface
 
-Did `skills/vibe-code-jury/SKILL.md` frontmatter `description` change? If yes, explain the intended positive and near-miss behavior.
+Did `skills/ratemycode/SKILL.md` frontmatter `description` change? If yes, explain the intended positive and near-miss behavior.

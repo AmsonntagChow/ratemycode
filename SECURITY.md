@@ -4,7 +4,7 @@
 
 An agent skill runs inside an agent session that may be able to read code, execute tools, or mutate systems under the user's existing permissions. Installing a skill should therefore be treated like installing executable guidance, even when most of the package is Markdown.
 
-Vibe Code Jury is designed to minimize that trust surface:
+RateMyCode is designed to minimize that trust surface:
 
 - no `allowed-tools` or shell auto-authorization
 - no network calls or telemetry in the skill or scorer
@@ -18,7 +18,7 @@ The installation CLI, agent client, model provider, and tools available to the a
 
 ## Before installing
 
-Review `skills/vibe-code-jury/SKILL.md`, every file under `references/`, and `scripts/score_review.py`. Run:
+Review `skills/ratemycode/SKILL.md`, every file under `references/`, and `scripts/score_review.py`. Run:
 
 ```bash
 python3 scripts/validate_repo.py
