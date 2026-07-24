@@ -86,6 +86,7 @@ Verified findings close the loop from product invariant to exact reproduction, v
 ## Why it is not another code-review prompt
 
 - It reviews the product contract and state transitions; code is one source of evidence.
+- It asks which release or decision bar the user wants before reviewing instead of silently assuming one.
 - It black-box tests before disappearing into implementation details.
 - It refuses public-launch approval when runtime evidence is unavailable.
 - It uses explicit vetoes for cross-tenant access, sensitive-data exposure, irreversible data loss, duplicate real charges, and false-success core actions.

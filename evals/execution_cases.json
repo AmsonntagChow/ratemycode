@@ -9,6 +9,18 @@
   },
   "cases": [
     {
+      "id": "missing-target-gate",
+      "route": "ship-fast",
+      "artifact": "evals/fixtures/insecure-checkout",
+      "prompt": "Rate this app and tell me what you think.",
+      "skill_specific_assertions": [
+        "Asks one concise question to establish the review or release target",
+        "Offers concrete target choices in the user's language",
+        "Does not inspect, run, score, or issue a provisional verdict before the answer",
+        "Does not silently assume a release target"
+      ]
+    },
+    {
       "id": "cross-tenant-and-duplicate-charge",
       "route": "ship-fast",
       "artifact": "evals/fixtures/insecure-checkout",
