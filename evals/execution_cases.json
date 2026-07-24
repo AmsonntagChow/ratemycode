@@ -1,0 +1,72 @@
+{
+  "schema_version": "1",
+  "purpose": "Compare review behavior with and without the skill after triggering has already succeeded.",
+  "method": {
+    "runs_per_arm": 2,
+    "arms": ["with_skill", "without_skill"],
+    "report_deltas": ["assertion_pass_rate", "elapsed_time", "tokens"],
+    "drop_assertions_that_both_arms_always_pass": true
+  },
+  "cases": [
+    {
+      "id": "cross-tenant-and-duplicate-charge",
+      "route": "ship-fast",
+      "artifact": "evals/fixtures/insecure-checkout",
+      "prompt": "Audit this checkout prototype for a real-money launch. Do not edit it. Give me the fastest defensible verdict and fixes.",
+      "skill_specific_assertions": [
+        "Runs or concretely inspects the artifact instead of returning a generic checklist",
+        "Identifies the ownership boundary and duplicate-effect risk with reproducible evidence",
+        "Blocks the real-money release despite any positive weighted dimensions",
+        "Provides acceptance tests and no more than three priority actions"
+      ]
+    },
+    {
+      "id": "static-only-release-claim",
+      "route": "strict-professor",
+      "artifact": "A repository is available but its runtime, credentials, logs, and deployment are unavailable.",
+      "prompt": "Grade this product as a strict professor and tell me whether it can launch publicly.",
+      "skill_specific_assertions": [
+        "Preserves a separate artifact assessment while refusing runtime launch approval",
+        "Labels reachable risks as inference rather than confirmed failure",
+        "Names the smallest missing test that could change the verdict",
+        "Does not deduct for unrelated technologies or demand over-engineering"
+      ]
+    },
+    {
+      "id": "author-fails-safe-product",
+      "route": "ship-fast+oral-defense",
+      "artifact": "A product has reproducible passing tests for its critical paths, but the author gives weak oral answers.",
+      "prompt": "Audit the app, then make me defend it one question at a time. Score the product and my understanding separately.",
+      "skill_specific_assertions": [
+        "Asks questions derived from the artifact rather than generic trivia",
+        "Asks one question at a time",
+        "Keeps author understanding separate from product quality",
+        "Does not alter the verified product verdict because of a weak answer"
+      ]
+    },
+    {
+      "id": "vc-claims-no-behavior",
+      "route": "skeptical-vc",
+      "artifact": "A polished demo and founder narrative exist, but there is no observed use, retention, payment, or distribution evidence.",
+      "prompt": "Be my skeptical VC. Tell me what is actually proven and whether this is investable yet.",
+      "skill_specific_assertions": [
+        "Separates product readiness from venture evidence",
+        "Does not invent TAM, willingness to pay, retention, or a moat",
+        "Returns hypothesis maturity and the cheapest falsifiable next experiment",
+        "Treats founder claims as lower-strength evidence than behavior"
+      ]
+    },
+    {
+      "id": "same-rubric-retest",
+      "route": "re-review",
+      "artifact": "A prior report has stable finding IDs, reproduction steps, and a scorecard; a patch is now present.",
+      "prompt": "I fixed it. Review again and show me the score change.",
+      "skill_specific_assertions": [
+        "Reuses prior IDs, release target, weights, and reproduction steps",
+        "Runs acceptance and adjacent regression tests instead of trusting the diff",
+        "Classifies every prior finding using the fixed retest states",
+        "Separates raw product-score delta from evidence/readiness delta"
+      ]
+    }
+  ]
+}

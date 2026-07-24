@@ -1,0 +1,149 @@
+{
+  "schema_version": "1",
+  "purpose": "Measure whether the skill is selected, independently from review quality.",
+  "runs_per_case": 3,
+  "trigger_rate_threshold": 0.5,
+  "selection_rule": "product artifact or current workspace plus product-level judgment, adversarial testing, release decision, re-review, or artifact-grounded defense intent",
+  "cases": [
+    {
+      "id": "p01",
+      "split": "train",
+      "prompt": "Audit this vibe-coded SaaS repo and deployed URL before I open it to users. Give me a ship/no-ship verdict and the three biggest blockers.",
+      "should_trigger": true,
+      "expected_route": "ship-fast"
+    },
+    {
+      "id": "p02",
+      "split": "train",
+      "prompt": "我用 Cursor 两天做了这个支付 App，别教我基础知识，按 Staff 标准挑刺，看现在敢不敢收真钱。",
+      "should_trigger": true,
+      "expected_route": "ship-fast"
+    },
+    {
+      "id": "p03",
+      "split": "train",
+      "prompt": "Act like a strict professor: grade the product in this workspace, cite evidence from the app and repo, and tell me what would fail the defense.",
+      "should_trigger": true,
+      "expected_route": "strict-professor"
+    },
+    {
+      "id": "p04",
+      "split": "train",
+      "prompt": "Be a hostile first-time user and try to break signup, checkout, account recovery, and cancellation on this deployment.",
+      "should_trigger": true,
+      "expected_route": "hostile-user"
+    },
+    {
+      "id": "p05",
+      "split": "train",
+      "prompt": "Pretend you're a skeptical VC. Review the demo, usage CSV, and repo; separate what is proven from founder claims and score the product.",
+      "should_trigger": true,
+      "expected_route": "skeptical-vc"
+    },
+    {
+      "id": "p06",
+      "split": "train",
+      "prompt": "I fixed the blockers from your last audit. Re-run the same rubric, retest the flows, and show the score delta.",
+      "should_trigger": true,
+      "expected_route": "re-review"
+    },
+    {
+      "id": "p07",
+      "split": "holdout",
+      "prompt": "Interview me one question at a time about why this AI-generated app is safe under retries and concurrent requests; base the questions on its code.",
+      "should_trigger": true,
+      "expected_route": "oral-defense"
+    },
+    {
+      "id": "p08",
+      "split": "holdout",
+      "prompt": "Would you ship this weekend-built marketplace to real users? Check authorization boundaries, data integrity, false-success states, and recovery.",
+      "should_trigger": true,
+      "expected_route": "ship-fast"
+    },
+    {
+      "id": "p09",
+      "split": "holdout",
+      "prompt": "Roast my Lovable prototype, but make every criticism reproducible and turn the top findings into implementation prompts.",
+      "should_trigger": true,
+      "expected_route": "hostile-user"
+    },
+    {
+      "id": "p10",
+      "split": "holdout",
+      "prompt": "这个 App 已经写完了。现在让我参加答辩：问我它最可能怎么死，答完再分别给产品和我的理解打分。",
+      "should_trigger": true,
+      "expected_route": "oral-defense"
+    },
+    {
+      "id": "n01",
+      "split": "train",
+      "prompt": "Review this 20-line function for naming, complexity, and idiomatic TypeScript.",
+      "should_trigger": false,
+      "reason": "isolated snippet review"
+    },
+    {
+      "id": "n02",
+      "split": "train",
+      "prompt": "The checkout test fails with ECONNRESET. Debug it and patch the bug.",
+      "should_trigger": false,
+      "reason": "routine diagnosis and repair"
+    },
+    {
+      "id": "n03",
+      "split": "train",
+      "prompt": "Explain ACID and HTTP statelessness to me like I'm a junior backend developer.",
+      "should_trigger": false,
+      "reason": "general teaching"
+    },
+    {
+      "id": "n04",
+      "split": "train",
+      "prompt": "Act as a strict professor and grade my psychology essay.",
+      "should_trigger": false,
+      "reason": "persona keyword but no software product"
+    },
+    {
+      "id": "n05",
+      "split": "train",
+      "prompt": "Run a mock Staff backend interview and ask me distributed-systems questions.",
+      "should_trigger": false,
+      "reason": "job interview rather than product defense"
+    },
+    {
+      "id": "n06",
+      "split": "train",
+      "prompt": "Help me write a VC pitch deck for an idea; I do not have a prototype, product evidence, or users yet.",
+      "should_trigger": false,
+      "reason": "generic fundraising assistance"
+    },
+    {
+      "id": "n07",
+      "split": "holdout",
+      "prompt": "Review this pull request for code style and suggest refactors.",
+      "should_trigger": false,
+      "reason": "ordinary diff review"
+    },
+    {
+      "id": "n08",
+      "split": "holdout",
+      "prompt": "Create a QA test plan for signup and checkout; do not inspect or score the current app.",
+      "should_trigger": false,
+      "reason": "test-plan authoring rather than product judgment"
+    },
+    {
+      "id": "n09",
+      "split": "holdout",
+      "prompt": "Assess whether this public company is investable from its annual report and market valuation.",
+      "should_trigger": false,
+      "reason": "financial due diligence rather than a built-product review"
+    },
+    {
+      "id": "n10",
+      "split": "holdout",
+      "prompt": "Rate these five landing-page headlines for clarity and conversion.",
+      "should_trigger": false,
+      "reason": "narrow copy critique"
+    }
+  ]
+}

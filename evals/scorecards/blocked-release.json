@@ -1,0 +1,93 @@
+{
+  "schema_version": "1",
+  "mode": "ship-fast",
+  "rubric_id": "vibe-code-jury/default-v1",
+  "release_target": "real-money",
+  "dimensions": [
+    {
+      "id": "product-promise-and-scope",
+      "weight": 10,
+      "score": 60,
+      "verification": "partial",
+      "evidence_ids": ["e-checkout"]
+    },
+    {
+      "id": "critical-user-journeys",
+      "weight": 20,
+      "score": 45,
+      "verification": "partial",
+      "evidence_ids": ["e-checkout"]
+    },
+    {
+      "id": "ux-and-accessibility",
+      "weight": 10,
+      "score": 40,
+      "verification": "unverified",
+      "evidence_ids": []
+    },
+    {
+      "id": "data-and-state-integrity",
+      "weight": 15,
+      "score": 20,
+      "verification": "verified",
+      "evidence_ids": ["e-duplicate"]
+    },
+    {
+      "id": "security-and-privacy",
+      "weight": 15,
+      "score": 10,
+      "verification": "verified",
+      "evidence_ids": ["e-orders"]
+    },
+    {
+      "id": "reliability-and-operations",
+      "weight": 10,
+      "score": 35,
+      "verification": "partial",
+      "evidence_ids": ["e-code"]
+    },
+    {
+      "id": "change-safety",
+      "weight": 10,
+      "score": 50,
+      "verification": "partial",
+      "evidence_ids": ["e-code"]
+    },
+    {
+      "id": "verification-quality",
+      "weight": 10,
+      "score": 20,
+      "verification": "verified",
+      "evidence_ids": ["e-checkout", "e-duplicate", "e-orders"]
+    }
+  ],
+  "evidence": [
+    {"id": "e-checkout", "kind": "runtime", "result": "mixed", "reproducible": true},
+    {"id": "e-code", "kind": "code", "result": "mixed", "reproducible": true},
+    {"id": "e-duplicate", "kind": "runtime", "result": "fail", "reproducible": true},
+    {"id": "e-orders", "kind": "runtime", "result": "fail", "reproducible": true}
+  ],
+  "coverage": {
+    "runtime": "partial",
+    "critical_paths": {"total": 4, "tested": 2}
+  },
+  "gates": [
+    {
+      "id": "authorization-bypass",
+      "state": "active",
+      "evidence_ids": ["e-orders"],
+      "retest_evidence_ids": []
+    },
+    {
+      "id": "duplicate-real-charge",
+      "state": "active",
+      "evidence_ids": ["e-duplicate"],
+      "retest_evidence_ids": []
+    }
+  ],
+  "release_checks": [
+    {"id": "owned-orders-only", "required": true, "status": "fail", "evidence_ids": ["e-orders"]},
+    {"id": "idempotent-charge", "required": true, "status": "fail", "evidence_ids": ["e-duplicate"]},
+    {"id": "recovery-path", "required": true, "status": "unverified", "evidence_ids": []}
+  ]
+}
