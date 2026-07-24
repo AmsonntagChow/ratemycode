@@ -1,6 +1,6 @@
 # Ship-fast review
 
-Use this as the default. The goal is the shortest defensible path from “it exists” to “this is the safest next release.” Do not turn it into a tutorial or an exhaustive checklist.
+Use this when the user chooses the quick-check degree. The goal is the shortest defensible path from “it exists” to “this is the safest next release.” Do not turn it into a tutorial or an exhaustive checklist.
 
 ## High-yield sequence
 

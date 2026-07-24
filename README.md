@@ -40,15 +40,22 @@ It deliberately separates four things that generic reviewers often mix together:
 - release readiness and hard vetoes
 - the author's understanding, only when oral defense is requested
 
-## Modes
+## Roles and degree
 
-| Ask for | What the jury does |
+The skill asks two questions before it begins whenever the request does not already answer them:
+
+```text
+1. 角色：产品负责人 / 挑剔用户 / Staff 工程师 / 怀疑型 VC / 答辩老师
+2. 程度：快速体检 / 严格评审 / 上线门禁 / 真金白银 / 生死审查
+```
+
+| Choose | What the reviewer does |
 |---|---|
-| `ship-fast` (default) | Finds the shortest defensible path to the next release; no textbook lecture |
+| Product lead | Judges user value, time-to-value, trust, repeat use, and product evidence |
 | `strict-professor` | Deeply grades the artifact, invariants, failure handling, operations, and change safety |
 | `hostile-user` | Tries impatience, mistakes, retries, stale state, lifecycle edges, and access-boundary abuse |
 | `skeptical-vc` | Separates user behavior and market evidence from founder claims and code aesthetics |
-| `oral-defense` | Adds 3–5 artifact-grounded questions, one at a time; scores understanding separately |
+| `oral-defense` | Asks 3–5 artifact-grounded questions, one at a time; scores understanding separately |
 
 Try these:
 
@@ -86,7 +93,7 @@ Verified findings close the loop from product invariant to exact reproduction, v
 ## Why it is not another code-review prompt
 
 - It reviews the product contract and state transitions; code is one source of evidence.
-- It asks which release or decision bar the user wants before reviewing instead of silently assuming one.
+- It asks for reviewer role and review degree before reviewing instead of silently defaulting to engineering.
 - It black-box tests before disappearing into implementation details.
 - It refuses public-launch approval when runtime evidence is unavailable.
 - It uses explicit vetoes for cross-tenant access, sensitive-data exposure, irreversible data loss, duplicate real charges, and false-success core actions.

@@ -9,15 +9,39 @@
   },
   "cases": [
     {
-      "id": "missing-target-gate",
-      "route": "ship-fast",
+      "id": "missing-review-settings-gate",
+      "route": "settings-gate",
       "artifact": "evals/fixtures/insecure-checkout",
       "prompt": "Rate this app and tell me what you think.",
       "skill_specific_assertions": [
-        "Asks one concise question to establish the review or release target",
-        "Offers concrete target choices in the user's language",
+        "Asks for reviewer role first and review degree second",
+        "Offers concrete role and degree choices in the user's language",
         "Does not inspect, run, score, or issue a provisional verdict before the answer",
-        "Does not silently assume a release target"
+        "Does not silently assume an engineering role or release target"
+      ]
+    },
+    {
+      "id": "role-present-degree-missing",
+      "route": "settings-gate",
+      "artifact": "evals/fixtures/claims-only-startup/brief.md",
+      "prompt": "Be a skeptical VC and review this product.",
+      "skill_specific_assertions": [
+        "Keeps the explicitly requested skeptical-VC role",
+        "Asks only for review degree",
+        "Offers VC-appropriate depth choices",
+        "Does not inspect or judge the artifact before the answer"
+      ]
+    },
+    {
+      "id": "degree-present-role-missing",
+      "route": "settings-gate",
+      "artifact": "evals/fixtures/insecure-checkout",
+      "prompt": "Can this app safely take real money?",
+      "skill_specific_assertions": [
+        "Keeps the explicitly requested real-money degree",
+        "Asks only for reviewer role",
+        "Does not silently choose the Staff-engineer role",
+        "Does not inspect or judge the artifact before the answer"
       ]
     },
     {

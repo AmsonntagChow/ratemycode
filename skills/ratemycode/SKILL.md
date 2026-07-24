@@ -5,17 +5,25 @@ description: "Use this skill to rate, audit, grade, stress-test, red-team, or is
 
 # RateMyCode
 
-| User intent | Primary route | Required references |
+| Reviewer role | Primary route | Required references |
 |---|---|---|
-| Audit, score, launch check, “would you ship this?”, or no mode stated | `ship-fast` | Read `references/ship-fast.md` and `references/evidence-and-scoring.md` |
+| Product lead, product judge, or 产品负责人 | `product-lead` | Read `references/product-lead.md` and `references/evidence-and-scoring.md` |
 | Strict professor, Staff engineer, or deep engineering review | `strict-professor` | Read `references/strict-professor.md` and `references/evidence-and-scoring.md` |
 | Hostile, picky, careless, or adversarial user testing | `hostile-user` | Read `references/hostile-user.md` and `references/evidence-and-scoring.md` |
 | Skeptical VC, product evidence, traction, or investment judgment | `skeptical-vc` | Read `references/skeptical-vc.md` and `references/evidence-and-scoring.md` |
-| “Make me defend it,” quiz, interview, or one question at a time | Add `oral-defense` to the primary route | Read `references/oral-defense.md`, `references/concept-probes.md`, and the primary route |
+| Defense professor, quiz, interview, or one question at a time | `oral-defense` | Read `references/oral-defense.md`, `references/concept-probes.md`, and `references/evidence-and-scoring.md` |
+
+| Review degree | Decision bar | Additional reference |
+|---|---|---|
+| Quick check — internal-demo standard | `internal-demo`; only the highest-leverage issues | Read `references/ship-fast.md` |
+| Strict review — private-beta standard | `private-beta`; complete the selected role rubric | None |
+| Launch gate — public-release standard | `public-launch`; require runtime release evidence | None |
+| Real stakes — money or sensitive-data standard | `real-money`; verify payment, privacy, recovery, and operations | None |
+| Life-or-death — regulated, high-stakes, or investment-committee standard | `high-stakes`, or `venture-case` for VC | None |
 
 ## Non-negotiable rules
 
-1. Never invent the review goal or release target. If neither the current request nor a cited prior report makes it explicit, ask one concise target question and wait before inspecting, testing, or scoring.
+1. Never invent the reviewer role, review degree, or decision target. Ask for every missing setting and wait before inspecting, testing, or scoring.
 2. Judge product promises, user journeys, state changes, and failure consequences. Code is evidence, not the unit of review.
 3. Never mark a check as passed without evidence. Missing evidence means `UNVERIFIED`, never “probably fine.”
 4. Never average away a veto. Cross-tenant access, material privacy leakage, irreversible data loss, duplicate financial effects, or a false-success core action blocks the affected release target regardless of the numeric score.
@@ -28,25 +36,24 @@ description: "Use this skill to rate, audit, grade, stress-test, red-team, or is
 
 ## Review workflow
 
-### 1. Confirm the review goal and release target
+### 1. Confirm role and degree
 
-Before any audit action, identify the decision the user wants this review to support:
+Before any audit action, extract two settings from the request or a cited prior report:
 
-- internal demo
-- private beta
-- public launch without real payments
-- public launch with real money or sensitive data
-- high-stakes or regulated use
+1. **Role** — product lead, picky user, Staff engineer, skeptical VC, or defense professor.
+2. **Degree** — quick check, strict review, launch gate, real-stakes review, or life-or-death review.
 
-If the target is explicit, restate it and continue. A target in a cited prior report also counts for a same-rubric re-review.
+If either setting is missing, ask only for the missing setting. If both are missing, ask both in one message, role first and degree second. Use wording equivalent to:
 
-If it is absent, ask one concise question in the user's language and wait. Use wording equivalent to:
+```text
+开始前选两个设置：
+1. 角色：产品负责人 / 挑剔用户 / Staff 工程师 / 怀疑型 VC / 答辩老师
+2. 程度：快速体检（内部演示）/ 严格评审（私测）/ 上线门禁（公开发布）/ 真金白银（支付或敏感数据）/ 生死审查（高风险、合规或投资决策）
+```
 
-> 你希望我按哪个目标来审：内部演示、私测、公测、真实收钱/敏感数据，还是高风险/合规场景？
+Wait for the answer. Do not inspect the repository, run the product, build an evidence inventory, or produce a provisional score first. Do not silently choose the engineering role merely because the artifact is code. Defer optional context questions until both settings are known.
 
-Do not inspect the repository, run the product, build an evidence inventory, or produce a provisional score before the answer. Ask only this gating question; defer optional context questions until after the user chooses the target.
-
-For a primary `skeptical-vc` request, an explicit request for investability or VC judgment establishes `venture-case` as the target. If it is unclear whether the user wants venture judgment, product-release judgment, or both, ask which one before proceeding. Report hypothesis maturity and investability first. Add a separate product-release limit only when requested or when the supplied artifact raises a material trust, payment, privacy, or operational question.
+Map the chosen degree to the decision bar in the table above. For a skeptical VC, map quick/strict/life-or-death to screening/full diligence/investment-committee depth and use `venture-case`; add a separate software-release judgment only when the user requests both.
 
 ### 2. Build an evidence inventory
 
@@ -132,7 +139,8 @@ Reuse every prior finding ID and classify it as `FIXED`, `PARTIALLY FIXED`, `NOT
 ## Resource index
 
 - `references/evidence-and-scoring.md` — shared evidence protocol, finding schema, release ladder, scorecard schema, and veto logic.
-- `references/ship-fast.md` — minimum high-yield default review and concise output contract.
+- `references/product-lead.md` — product value, time-to-value, trust, repeat use, and highest-leverage product changes.
+- `references/ship-fast.md` — minimum high-yield quick check and concise output contract.
 - `references/strict-professor.md` — deep artifact review without irrelevant textbook requirements.
 - `references/hostile-user.md` — black-box misuse, edge-state, lifecycle, and adversarial test matrix.
 - `references/skeptical-vc.md` — behavioral evidence, retention, distribution, economics, and falsifiable experiments.
