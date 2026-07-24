@@ -19,6 +19,8 @@ REQUIRED_REPO_FILES = [
     "LICENSE",
     "SECURITY.md",
     "CONTRIBUTING.md",
+    ".claude-plugin/plugin.json",
+    ".claude-plugin/marketplace.json",
     ".github/CODEOWNERS",
     ".github/PULL_REQUEST_TEMPLATE.md",
     ".github/ISSUE_TEMPLATE/skill-bug.yml",
@@ -124,6 +126,52 @@ def load_json(relative: str, errors: list[str]):
         return None
 
 
+def validate_claude_plugin(errors: list[str]) -> None:
+    manifest = load_json(".claude-plugin/plugin.json", errors)
+    if not isinstance(manifest, dict):
+        return
+    if manifest.get("name") != "ratemycode":
+        errors.append("Claude plugin manifest name must be 'ratemycode'")
+    if manifest.get("displayName") != "RateMyCode":
+        errors.append("Claude plugin displayName must be 'RateMyCode'")
+    version = manifest.get("version")
+    if not isinstance(version, str) or not re.fullmatch(r"\d+\.\d+\.\d+", version):
+        errors.append("Claude plugin version must use three-part semantic versioning")
+    if not isinstance(manifest.get("description"), str) or not manifest["description"].strip():
+        errors.append("Claude plugin manifest needs a non-empty description")
+    if manifest.get("repository") != "https://github.com/AmsonntagChow/ratemycode":
+        errors.append("Claude plugin manifest repository must point to this repository")
+    if manifest.get("license") != "MIT":
+        errors.append("Claude plugin manifest license must be MIT")
+    keywords = manifest.get("keywords")
+    if (
+        not isinstance(keywords, list)
+        or not keywords
+        or not all(isinstance(item, str) for item in keywords)
+    ):
+        errors.append("Claude plugin manifest keywords must be a non-empty string array")
+
+    marketplace = load_json(".claude-plugin/marketplace.json", errors)
+    if not isinstance(marketplace, dict):
+        return
+    if marketplace.get("name") != "amsonntagchow":
+        errors.append("Claude marketplace name must be 'amsonntagchow'")
+    plugins = marketplace.get("plugins")
+    if not isinstance(plugins, list):
+        errors.append("Claude marketplace plugins must be an array")
+        return
+    matches = [
+        item for item in plugins if isinstance(item, dict) and item.get("name") == "ratemycode"
+    ]
+    if len(matches) != 1:
+        errors.append("Claude marketplace must contain exactly one ratemycode plugin entry")
+        return
+    if matches[0].get("source") not in {".", "./"}:
+        errors.append("Claude marketplace ratemycode source must point to the repository root")
+    if matches[0].get("version") != manifest.get("version"):
+        errors.append("Claude marketplace and plugin manifest versions must match")
+
+
 def validate_trigger_evals(errors: list[str]) -> None:
     payload = load_json("evals/trigger_cases.json", errors)
     if not isinstance(payload, dict):
@@ -204,6 +252,7 @@ def main() -> int:
     if license_path.is_file() and "MIT License" not in license_path.read_text(encoding="utf-8"):
         errors.append("LICENSE must contain the MIT License")
     validate_skill(errors)
+    validate_claude_plugin(errors)
     validate_trigger_evals(errors)
     validate_execution_evals(errors)
     for relative in ["evals/scorecards/blocked-release.json"]:

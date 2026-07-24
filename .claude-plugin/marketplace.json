@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "amsonntagchow",
+  "description": "Claude Code plugins by AmsonntagChow.",
+  "owner": {
+    "name": "AmsonntagChow"
+  },
+  "plugins": [
+    {
+      "name": "ratemycode",
+      "displayName": "RateMyCode",
+      "source": ".",
+      "version": "1.0.0",
+      "description": "Audits AI-built and vibe-coded apps or MVPs for release readiness, security, payment, and data-integrity risks, with an evidence-backed ship/no-ship verdict.",
+      "author": {
+        "name": "AmsonntagChow"
+      },
+      "homepage": "https://github.com/AmsonntagChow/ratemycode#installation",
+      "repository": "https://github.com/AmsonntagChow/ratemycode",
+      "license": "MIT",
+      "category": "development",
+      "tags": [
+        "vibe-coding",
+        "ai-built-apps",
+        "product-audit",
+        "release-readiness",
+        "security",
+        "data-integrity",
+        "ship-no-ship"
+      ]
+    }
+  ]
+}

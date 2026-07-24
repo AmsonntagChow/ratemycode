@@ -97,10 +97,10 @@ Keep unverified risks in a separate section with the missing test needed to reso
 
 ### 6. Score without hiding uncertainty
 
-Use a numeric score only when the user requests grading, comparison, or a release score. Build a scorecard from the appropriate mode rubric and run:
+Use a numeric score only when the user requests grading, comparison, or a release score. Resolve bundled paths relative to the directory containing this `SKILL.md`, not the user's project. Build a scorecard from the appropriate mode rubric and run:
 
 ```bash
-python3 scripts/score_review.py path/to/scorecard.json
+python3 <skill-directory>/scripts/score_review.py path/to/scorecard.json
 ```
 
 The score is secondary to vetoes, required release checks, evidence coverage, and confidence. Never invent precise scores for unavailable evidence. Read `references/evidence-and-scoring.md` for the schema, anchors, and release rules.

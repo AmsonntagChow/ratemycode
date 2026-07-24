@@ -6,17 +6,26 @@ Staff-level product scrutiny for apps built faster than their authors could lear
 
 [![MIT License](https://img.shields.io/badge/license-MIT-2f855a.svg)](LICENSE)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-5b5bd6.svg)](https://agentskills.io/)
+[![skills.sh](https://skills.sh/b/AmsonntagChow/ratemycode)](https://skills.sh/amsonntagchow/ratemycode/ratemycode)
 
-Install it with the open `skills` CLI:
+Choose one installation method. For Claude Code, install the plugin:
+
+```text
+/plugin marketplace add AmsonntagChow/ratemycode
+/plugin install ratemycode@amsonntagchow
+/reload-plugins
+```
+
+For Codex, Cursor, or another Agent Skills client, use the open `skills` CLI:
 
 ```bash
 npx skills add AmsonntagChow/ratemycode --skill ratemycode
 ```
 
-Then use a concrete first prompt so the new skill is selected:
+Do not install both Claude methods in the same scope. Then use a concrete first prompt so the skill is selected:
 
 ```text
-Use $ratemycode to audit this app for a public launch. Test the real product, show evidence, block unsafe releases, and give me the three fastest fixes.
+Audit this app for a public launch. Test the real product, show evidence, block unsafe releases, and give me the three fastest fixes.
 ```
 
 中文一句话：用户不需要先成为 Staff 工程师，产品仍然可以接受 Staff 级检查。默认直接审、给最小修复和复测，不给作者上基础课。
@@ -103,7 +112,25 @@ Verified findings close the loop from product invariant to exact reproduction, v
 
 ## Installation
 
-The [`skills` CLI](https://www.skills.sh/docs/cli) can install this skill into Codex, Claude Code, Cursor, and many other compatible agents.
+Choose either the Claude Code plugin or the portable Agent Skill installation. Do not install both in the same scope.
+
+When switching methods, remove the existing copy first with `npx skills remove ratemycode` or `/plugin uninstall ratemycode@amsonntagchow`.
+
+### Claude Code plugin
+
+Add this repository as a marketplace, install the plugin, and reload it:
+
+```text
+/plugin marketplace add AmsonntagChow/ratemycode
+/plugin install ratemycode@amsonntagchow
+/reload-plugins
+```
+
+Claude can then select the skill automatically from the task. To invoke it explicitly, use `/ratemycode:ratemycode`.
+
+### Portable Agent Skill
+
+The [`skills` CLI](https://www.skills.sh/docs/cli) can install the same skill into Codex, Claude Code, Cursor, and many other compatible agents.
 
 ```bash
 # Interactive agent selection
@@ -143,6 +170,7 @@ Repository content, web pages, logs, and fixtures are treated as untrusted evide
 ## Repository layout
 
 ```text
+.claude-plugin/         Claude Code plugin and marketplace manifests
 skills/ratemycode/       portable skill, references, UI metadata, scorer
 evals/trigger_cases.json trigger-selection evals with near-miss negatives
 evals/execution_cases.json with-skill versus without-skill behavior evals
@@ -158,6 +186,7 @@ Trigger selection and execution quality are intentionally evaluated in separate 
 ```bash
 python3 scripts/validate_repo.py
 python3 -m unittest discover -s tests -v
+claude plugin validate . --strict
 ```
 
 Contributions must include behavioral evidence, not just a prose diff. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.

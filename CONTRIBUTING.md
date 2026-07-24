@@ -27,6 +27,7 @@ Keep scripts on the Python standard library unless a dependency is essential and
 
 - Keep safety vetoes and non-negotiable rules in the main `SKILL.md`.
 - Keep reference links one level deep and valid on case-sensitive filesystems.
+- Bump `.claude-plugin/plugin.json` using semantic versioning whenever published plugin contents change; Claude Code will not update an installed plugin while its explicit version is unchanged.
 - Update trigger and execution evals separately.
 - Never add telemetry or undisclosed network access.
 - Never weaken a verified veto merely to raise a score.

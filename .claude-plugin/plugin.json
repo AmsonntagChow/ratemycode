@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "ratemycode",
+  "displayName": "RateMyCode",
+  "version": "1.0.0",
+  "description": "Audits AI-built and vibe-coded apps or MVPs for release readiness, security, payment, and data-integrity risks, with an evidence-backed ship/no-ship verdict.",
+  "author": {
+    "name": "AmsonntagChow",
+    "url": "https://github.com/AmsonntagChow"
+  },
+  "homepage": "https://github.com/AmsonntagChow/ratemycode#installation",
+  "repository": "https://github.com/AmsonntagChow/ratemycode",
+  "license": "MIT",
+  "keywords": [
+    "vibe-coding",
+    "ai-built-apps",
+    "product-audit",
+    "release-readiness",
+    "security",
+    "data-integrity",
+    "ship-no-ship"
+  ]
+}
