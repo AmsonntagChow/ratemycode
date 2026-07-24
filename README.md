@@ -2,7 +2,7 @@
 
 Staff-level product scrutiny for apps built faster than their authors could learn every failure mode.
 
-> Your app is finished. Now it has to survive the defense.
+> Your app is finished. Now it has to survive a Staff-level review.
 
 [![MIT License](https://img.shields.io/badge/license-MIT-2f855a.svg)](LICENSE)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-5b5bd6.svg)](https://agentskills.io/)
@@ -52,7 +52,7 @@ The skill asks two questions before it begins whenever the request does not alre
 | Choose | What the reviewer does |
 |---|---|
 | Product lead | Judges user value, time-to-value, trust, repeat use, and product evidence |
-| `strict-professor` | Deeply grades the artifact, invariants, failure handling, operations, and change safety |
+| Staff engineer | Deeply reviews the artifact, invariants, failure handling, operations, and change safety |
 | `hostile-user` | Tries impatience, mistakes, retries, stale state, lifecycle edges, and access-boundary abuse |
 | `skeptical-vc` | Separates user behavior and market evidence from founder claims and code aesthetics |
 | `oral-defense` | Asks 3–5 artifact-grounded questions, one at a time; scores understanding separately |

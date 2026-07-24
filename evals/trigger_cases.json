@@ -22,9 +22,9 @@
     {
       "id": "p03",
       "split": "train",
-      "prompt": "Act like a strict professor: grade the product in this workspace, cite evidence from the app and repo, and tell me what would fail the defense.",
+      "prompt": "Act like a Staff engineer: review the product in this workspace, cite evidence from the app and repo, and tell me what blocks release.",
       "should_trigger": true,
-      "expected_route": "strict-professor"
+      "expected_route": "staff-engineer"
     },
     {
       "id": "p04",
@@ -99,7 +99,7 @@
     {
       "id": "n04",
       "split": "train",
-      "prompt": "Act as a strict professor and grade my psychology essay.",
+      "prompt": "Act as a Staff engineer and review my psychology essay.",
       "should_trigger": false,
       "reason": "persona keyword but no software product"
     },

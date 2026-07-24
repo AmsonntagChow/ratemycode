@@ -1,6 +1,6 @@
 ---
 name: ratemycode
-description: "Use this skill to rate, audit, grade, stress-test, red-team, or issue a ship/no-ship verdict on a vibe-coded, AI-built, prototype, or MVP app, repository, or live deployment. Use for Staff-level product audits; strict-professor grading; picky-user or adversarial testing; skeptical-VC reviews grounded in product evidence; release-readiness, payment-safety, security, data-integrity, and reliability checks; oral defense or one-question-at-a-time interviews about the product; prioritized fix prompts or requested fixes; and same-rubric re-reviews with score deltas. Trigger for equivalent wording such as rate my code, rate my app, would you ship this, try to break it, roast my app, 挑刺, 答辩, 能上线或能收钱吗, or VC 打分. Require an actual product artifact or concrete product evidence, including the current workspace. Do not use for isolated snippets, routine bug fixing, generic code review, generic startup advice, job-interview prep, or teaching software fundamentals unless the user is evaluating the product itself."
+description: "Use this skill to rate, audit, grade, stress-test, red-team, or issue a ship/no-ship verdict on a vibe-coded, AI-built, prototype, or MVP app, repository, or live deployment. Use for Staff-level product and engineering audits; picky-user or adversarial testing; skeptical-VC reviews grounded in product evidence; release-readiness, payment-safety, security, data-integrity, and reliability checks; oral defense or one-question-at-a-time interviews about the product; prioritized fix prompts or requested fixes; and same-rubric re-reviews with score deltas. Trigger for equivalent wording such as rate my code, rate my app, would you ship this, try to break it, roast my app, 挑刺, 答辩, 能上线或能收钱吗, or VC 打分. Require an actual product artifact or concrete product evidence, including the current workspace. Do not use for isolated snippets, routine bug fixing, generic code review, generic startup advice, job-interview prep, or teaching software fundamentals unless the user is evaluating the product itself."
 ---
 
 # RateMyCode
@@ -8,7 +8,7 @@ description: "Use this skill to rate, audit, grade, stress-test, red-team, or is
 | Reviewer role | Primary route | Required references |
 |---|---|---|
 | Product lead, product judge, or 产品负责人 | `product-lead` | Read `references/product-lead.md` and `references/evidence-and-scoring.md` |
-| Strict professor, Staff engineer, or deep engineering review | `strict-professor` | Read `references/strict-professor.md` and `references/evidence-and-scoring.md` |
+| Staff engineer or deep engineering review | `staff-engineer` | Read `references/staff-engineer.md` and `references/evidence-and-scoring.md` |
 | Hostile, picky, careless, or adversarial user testing | `hostile-user` | Read `references/hostile-user.md` and `references/evidence-and-scoring.md` |
 | Skeptical VC, product evidence, traction, or investment judgment | `skeptical-vc` | Read `references/skeptical-vc.md` and `references/evidence-and-scoring.md` |
 | Defense professor, quiz, interview, or one question at a time | `oral-defense` | Read `references/oral-defense.md`, `references/concept-probes.md`, and `references/evidence-and-scoring.md` |
@@ -141,7 +141,7 @@ Reuse every prior finding ID and classify it as `FIXED`, `PARTIALLY FIXED`, `NOT
 - `references/evidence-and-scoring.md` — shared evidence protocol, finding schema, release ladder, scorecard schema, and veto logic.
 - `references/product-lead.md` — product value, time-to-value, trust, repeat use, and highest-leverage product changes.
 - `references/ship-fast.md` — minimum high-yield quick check and concise output contract.
-- `references/strict-professor.md` — deep artifact review without irrelevant textbook requirements.
+- `references/staff-engineer.md` — deep artifact review without irrelevant textbook requirements.
 - `references/hostile-user.md` — black-box misuse, edge-state, lifecycle, and adversarial test matrix.
 - `references/skeptical-vc.md` — behavioral evidence, retention, distribution, economics, and falsifiable experiments.
 - `references/oral-defense.md` — optional one-question-at-a-time author defense, scored separately from the product.

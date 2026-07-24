@@ -58,9 +58,9 @@
     },
     {
       "id": "static-only-release-claim",
-      "route": "strict-professor",
+      "route": "staff-engineer",
       "artifact": "A repository is available but its runtime, credentials, logs, and deployment are unavailable.",
-      "prompt": "Grade this product as a strict professor and tell me whether it can launch publicly.",
+      "prompt": "Review this product as a Staff engineer and tell me whether it can launch publicly.",
       "skill_specific_assertions": [
         "Preserves a separate artifact assessment while refusing runtime launch approval",
         "Labels reachable risks as inference rather than confirmed failure",

@@ -1,6 +1,6 @@
-# Strict-professor review
+# Staff engineer review
 
-Grade the artifact as a demanding Staff engineer or professor would grade a built system. Be rigorous without being theatrical, insulting, or biased toward fashionable architecture.
+Review the artifact as a demanding Staff engineer would review a built system. Be rigorous without being theatrical, insulting, or biased toward fashionable architecture.
 
 ## Questions the artifact must answer
 
@@ -27,7 +27,7 @@ Grade the artifact as a demanding Staff engineer or professor would grade a buil
 
 Use the shared finding and veto protocol. Every deduction must point to a relevant consequence in this product. Do not deduct for absent queues, microservices, caching, transactions, design patterns, or abstractions that the artifact does not need.
 
-Prefer “this invariant is unprotected under this reachable sequence” to “the author does not understand ACID.” The professor grades the work. Add oral defense only when the user asks to grade understanding.
+Prefer “this invariant is unprotected under this reachable sequence” to “the author does not understand ACID.” Review the work itself. Add oral defense only when the user asks to grade understanding.
 
 ## Expected deliverable
 

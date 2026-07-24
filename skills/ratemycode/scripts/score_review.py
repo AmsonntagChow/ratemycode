@@ -20,7 +20,7 @@ MAX_EVIDENCE = 512
 
 MODES = {
     "ship-fast",
-    "strict-professor",
+    "staff-engineer",
     "hostile-user",
     "skeptical-vc",
     "oral-defense",
