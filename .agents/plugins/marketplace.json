@@ -1,0 +1,20 @@
+{
+  "name": "ratemycode",
+  "interface": {
+    "displayName": "RateMyCode"
+  },
+  "plugins": [
+    {
+      "name": "ratemycode",
+      "source": {
+        "source": "local",
+        "path": "./plugins/ratemycode"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

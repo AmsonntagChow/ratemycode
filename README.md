@@ -8,7 +8,15 @@ Staff-level product scrutiny for apps built faster than their authors could lear
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-5b5bd6.svg)](https://agentskills.io/)
 [![skills.sh](https://skills.sh/b/AmsonntagChow/ratemycode)](https://skills.sh/amsonntagchow/ratemycode/ratemycode)
 
-Choose one installation method. For Claude Code, install the plugin:
+Choose one installation method. For Codex, add this repository as a plugin marketplace:
+
+```bash
+codex plugin marketplace add AmsonntagChow/ratemycode
+```
+
+Then open `/plugins` in Codex CLI or the Plugins Directory in the desktop app, install **RateMyCode**, and start a new session.
+
+For Claude Code, install the plugin:
 
 ```text
 /plugin marketplace add AmsonntagChow/ratemycode
@@ -16,7 +24,7 @@ Choose one installation method. For Claude Code, install the plugin:
 /reload-plugins
 ```
 
-For Codex, Cursor, or another Agent Skills client, use the open `skills` CLI:
+For Cursor or another Agent Skills client—or a lightweight Codex skill-only install—use the open `skills` CLI:
 
 ```bash
 npx skills add AmsonntagChow/ratemycode --skill ratemycode
@@ -112,9 +120,21 @@ Verified findings close the loop from product invariant to exact reproduction, v
 
 ## Installation
 
-Choose either the Claude Code plugin or the portable Agent Skill installation. Do not install both in the same scope.
+Choose the native Codex plugin, the Claude Code plugin, or the portable Agent Skill installation. Do not install duplicate copies in the same client and scope.
 
-When switching methods, remove the existing copy first with `npx skills remove ratemycode` or `/plugin uninstall ratemycode@amsonntagchow`.
+When switching methods, remove the existing copy first through `/plugins`, `npx skills remove ratemycode`, or `/plugin uninstall ratemycode@amsonntagchow`, as appropriate.
+
+### Codex plugin
+
+Add the repository marketplace:
+
+```bash
+codex plugin marketplace add AmsonntagChow/ratemycode
+```
+
+Open `/plugins` in Codex CLI, install **RateMyCode**, and start a new session so its bundled skill is loaded. In the Codex desktop app, use the Plugins Directory after adding the marketplace.
+
+The repository also contains a submission-ready skills-only bundle for the public OpenAI Plugins Directory. See [submission/CODEX_DIRECTORY.md](submission/CODEX_DIRECTORY.md); public availability begins only after OpenAI review and the publisher's final publish action.
 
 ### Claude Code plugin
 
@@ -171,10 +191,14 @@ Repository content, web pages, logs, and fixtures are treated as untrusted evide
 
 ```text
 .claude-plugin/         Claude Code plugin and marketplace manifests
-skills/ratemycode/       portable skill, references, UI metadata, scorer
+.agents/plugins/        Codex repository marketplace
+plugins/ratemycode/     self-contained Codex plugin and store assets
+skills/ratemycode/      canonical portable skill, references, UI metadata, scorer
 evals/trigger_cases.json trigger-selection evals with near-miss negatives
 evals/execution_cases.json with-skill versus without-skill behavior evals
 evals/fixtures/          reproducible local test artifact
+submission/             Codex Directory listing copy and eight review tests
+scripts/sync_codex_plugin.py generated-package synchronization
 scripts/validate_repo.py vendored schema and reference-integrity checks
 tests/                   deterministic scorer tests
 ```
@@ -184,9 +208,11 @@ Trigger selection and execution quality are intentionally evaluated in separate 
 ## Development
 
 ```bash
+python3 scripts/sync_codex_plugin.py --check
 python3 scripts/validate_repo.py
 python3 -m unittest discover -s tests -v
 claude plugin validate . --strict
+python3 /path/to/plugin-creator/scripts/validate_plugin.py plugins/ratemycode
 ```
 
 Contributions must include behavioral evidence, not just a prose diff. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.

@@ -17,6 +17,7 @@ A prose-only restatement of a prompt is not enough. Prefer a small reference, de
 ## Local checks
 
 ```bash
+python3 scripts/sync_codex_plugin.py --check
 python3 scripts/validate_repo.py
 python3 -m unittest discover -s tests -v
 ```
@@ -27,7 +28,7 @@ Keep scripts on the Python standard library unless a dependency is essential and
 
 - Keep safety vetoes and non-negotiable rules in the main `SKILL.md`.
 - Keep reference links one level deep and valid on case-sensitive filesystems.
-- Bump `.claude-plugin/plugin.json` using semantic versioning whenever published plugin contents change; Claude Code will not update an installed plugin while its explicit version is unchanged.
+- Run `python3 scripts/sync_codex_plugin.py` after changing the canonical skill, then keep `.claude-plugin/plugin.json` and `plugins/ratemycode/.codex-plugin/plugin.json` on the same semantic version whenever published contents change.
 - Update trigger and execution evals separately.
 - Never add telemetry or undisclosed network access.
 - Never weaken a verified veto merely to raise a score.

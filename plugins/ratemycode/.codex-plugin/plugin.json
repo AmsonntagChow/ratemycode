@@ -1,0 +1,45 @@
+{
+  "name": "ratemycode",
+  "version": "1.0.0",
+  "description": "Audits AI-built and vibe-coded apps or MVPs for release readiness, security, payment, and data-integrity risks, with an evidence-backed ship/no-ship verdict.",
+  "author": {
+    "name": "AmsonntagChow",
+    "url": "https://github.com/AmsonntagChow"
+  },
+  "homepage": "https://github.com/AmsonntagChow/ratemycode#installation",
+  "repository": "https://github.com/AmsonntagChow/ratemycode",
+  "license": "MIT",
+  "keywords": [
+    "vibe-coding",
+    "ai-built-apps",
+    "product-audit",
+    "release-readiness",
+    "security",
+    "data-integrity",
+    "ship-no-ship"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "RateMyCode",
+    "shortDescription": "Find blockers before you ship",
+    "longDescription": "RateMyCode audits a real AI-built product, not just its code style. Choose a product lead, hostile user, Staff engineer, skeptical VC, or oral-defense professor, then choose how hard to judge it. The plugin tests real flows when possible, traces failures into the implementation, blocks unsafe launches, and returns reproducible findings, the three fastest fixes, and a retest plan.",
+    "developerName": "AmsonntagChow",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Analyze",
+      "Test"
+    ],
+    "websiteURL": "https://github.com/AmsonntagChow/ratemycode",
+    "privacyPolicyURL": "https://github.com/AmsonntagChow/ratemycode/blob/main/PRIVACY.md",
+    "termsOfServiceURL": "https://github.com/AmsonntagChow/ratemycode/blob/main/TERMS.md",
+    "defaultPrompt": [
+      "As a Staff engineer, audit this app for a public launch and give me the three fastest fixes.",
+      "As a hostile user, strictly test signup, checkout, recovery, and cancellation.",
+      "As a skeptical VC, separate product evidence from founder claims and name the cheapest next test."
+    ],
+    "brandColor": "#10B981",
+    "composerIcon": "./assets/logo.png",
+    "logo": "./assets/logo.png"
+  }
+}

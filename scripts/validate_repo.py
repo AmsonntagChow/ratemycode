@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the portable skill, references, and separated eval files."""
+"""Validate distribution packages, skill references, and separated eval files."""
 
 from __future__ import annotations
 
@@ -12,6 +12,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SKILL_DIR = ROOT / "skills" / "ratemycode"
 SKILL_FILE = SKILL_DIR / "SKILL.md"
+CODEX_PLUGIN_DIR = ROOT / "plugins" / "ratemycode"
+PACKAGED_SKILL_DIR = CODEX_PLUGIN_DIR / "skills" / "ratemycode"
 NAME_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 PATH_PATTERN = re.compile(r"`((?:references|scripts)/[A-Za-z0-9_.-]+)`")
 REQUIRED_REPO_FILES = [
@@ -19,14 +21,22 @@ REQUIRED_REPO_FILES = [
     "LICENSE",
     "SECURITY.md",
     "CONTRIBUTING.md",
+    "PRIVACY.md",
+    "TERMS.md",
     ".claude-plugin/plugin.json",
     ".claude-plugin/marketplace.json",
+    ".agents/plugins/marketplace.json",
+    "plugins/ratemycode/.codex-plugin/plugin.json",
+    "plugins/ratemycode/assets/logo.png",
+    "plugins/ratemycode/skills/ratemycode/SKILL.md",
     ".github/CODEOWNERS",
     ".github/PULL_REQUEST_TEMPLATE.md",
     ".github/ISSUE_TEMPLATE/skill-bug.yml",
     ".github/workflows/ci.yml",
     "evals/trigger_cases.json",
     "evals/execution_cases.json",
+    "submission/CODEX_DIRECTORY.md",
+    "submission/codex-test-cases.json",
 ]
 
 
@@ -172,6 +182,136 @@ def validate_claude_plugin(errors: list[str]) -> None:
         errors.append("Claude marketplace and plugin manifest versions must match")
 
 
+def directory_files(root: Path) -> list[Path]:
+    if not root.is_dir():
+        return []
+    return sorted(path.relative_to(root) for path in root.rglob("*") if path.is_file())
+
+
+def validate_codex_plugin(errors: list[str]) -> None:
+    manifest = load_json("plugins/ratemycode/.codex-plugin/plugin.json", errors)
+    if not isinstance(manifest, dict):
+        return
+    claude_manifest = load_json(".claude-plugin/plugin.json", errors)
+    if manifest.get("name") != "ratemycode":
+        errors.append("Codex plugin manifest name must be 'ratemycode'")
+    if manifest.get("version") != "1.0.0":
+        errors.append("Codex plugin version must be 1.0.0")
+    if isinstance(claude_manifest, dict) and manifest.get("version") != claude_manifest.get("version"):
+        errors.append("Codex and Claude plugin versions must match")
+    if manifest.get("skills") != "./skills/":
+        errors.append("Codex plugin skills path must be './skills/'")
+    if manifest.get("repository") != "https://github.com/AmsonntagChow/ratemycode":
+        errors.append("Codex plugin repository must point to this repository")
+    if manifest.get("license") != "MIT":
+        errors.append("Codex plugin license must be MIT")
+    if any(field in manifest for field in ("apps", "mcpServers")):
+        errors.append("Codex public ZIP must remain skills-only")
+    author = manifest.get("author")
+    if not isinstance(author, dict) or author.get("name") != "AmsonntagChow":
+        errors.append("Codex plugin author must be AmsonntagChow")
+
+    interface = manifest.get("interface")
+    if not isinstance(interface, dict):
+        errors.append("Codex plugin interface must be an object")
+    else:
+        if interface.get("displayName") != "RateMyCode":
+            errors.append("Codex plugin displayName must be 'RateMyCode'")
+        for field in ("shortDescription", "longDescription", "developerName", "category"):
+            if not isinstance(interface.get(field), str) or not interface[field].strip():
+                errors.append(f"Codex plugin interface.{field} must be non-empty")
+        short_description = interface.get("shortDescription")
+        if isinstance(short_description, str) and (
+            len(short_description) > 30 or "\n" in short_description or "\r" in short_description
+        ):
+            errors.append("Codex plugin shortDescription must be one line and at most 30 characters")
+        long_description = interface.get("longDescription")
+        if isinstance(long_description, str) and len(long_description) > 4000:
+            errors.append("Codex plugin longDescription must be at most 4,000 characters")
+        prompts = interface.get("defaultPrompt")
+        if (
+            not isinstance(prompts, list)
+            or not 1 <= len(prompts) <= 3
+            or not all(isinstance(prompt, str) and 1 <= len(prompt) <= 128 for prompt in prompts)
+        ):
+            errors.append("Codex plugin defaultPrompt must contain 1–3 strings of at most 128 characters")
+        for field in ("websiteURL", "privacyPolicyURL", "termsOfServiceURL"):
+            value = interface.get(field)
+            if not isinstance(value, str) or not value.startswith("https://"):
+                errors.append(f"Codex plugin interface.{field} must be an HTTPS URL")
+        for field in ("composerIcon", "logo"):
+            value = interface.get(field)
+            if not isinstance(value, str) or not value.startswith("./"):
+                errors.append(f"Codex plugin interface.{field} must be a relative asset path")
+            elif not (CODEX_PLUGIN_DIR / value[2:]).is_file():
+                errors.append(f"Codex plugin interface.{field} points to a missing asset")
+
+    marketplace = load_json(".agents/plugins/marketplace.json", errors)
+    if not isinstance(marketplace, dict):
+        return
+    if marketplace.get("name") != "ratemycode":
+        errors.append("Codex marketplace name must be 'ratemycode'")
+    marketplace_interface = marketplace.get("interface")
+    if not isinstance(marketplace_interface, dict) or marketplace_interface.get("displayName") != "RateMyCode":
+        errors.append("Codex marketplace displayName must be 'RateMyCode'")
+    plugins = marketplace.get("plugins")
+    if not isinstance(plugins, list):
+        errors.append("Codex marketplace plugins must be an array")
+    else:
+        matches = [item for item in plugins if isinstance(item, dict) and item.get("name") == "ratemycode"]
+        if len(matches) != 1:
+            errors.append("Codex marketplace must contain exactly one ratemycode entry")
+        else:
+            source = matches[0].get("source")
+            if source != {"source": "local", "path": "./plugins/ratemycode"}:
+                errors.append("Codex marketplace must point to ./plugins/ratemycode")
+            if matches[0].get("policy") != {
+                "installation": "AVAILABLE",
+                "authentication": "ON_INSTALL",
+            }:
+                errors.append("Codex marketplace policy must make the plugin available on install")
+
+    source_files = directory_files(SKILL_DIR)
+    packaged_files = directory_files(PACKAGED_SKILL_DIR)
+    if source_files != packaged_files:
+        errors.append("packaged Codex skill file list differs from canonical skill; run sync_codex_plugin.py")
+    for relative in sorted(set(source_files) & set(packaged_files)):
+        if (SKILL_DIR / relative).read_bytes() != (PACKAGED_SKILL_DIR / relative).read_bytes():
+            errors.append(f"packaged Codex skill differs at {relative}; run sync_codex_plugin.py")
+
+
+def validate_codex_submission(errors: list[str]) -> None:
+    payload = load_json("submission/codex-test-cases.json", errors)
+    if not isinstance(payload, dict):
+        return
+    positive = payload.get("positive")
+    negative = payload.get("negative")
+    if not isinstance(positive, list) or len(positive) != 5:
+        errors.append("Codex submission must contain exactly five positive test cases")
+        positive = []
+    if not isinstance(negative, list) or len(negative) != 3:
+        errors.append("Codex submission must contain exactly three negative test cases")
+        negative = []
+    required = {
+        "positive": ("id", "prompt", "expected_behavior", "expected_result_shape", "fixture"),
+        "negative": ("id", "prompt", "expected_safe_fallback", "reason"),
+    }
+    for kind, cases in (("positive", positive), ("negative", negative)):
+        ids: set[str] = set()
+        for index, case in enumerate(cases):
+            if not isinstance(case, dict):
+                errors.append(f"Codex {kind} test case {index} must be an object")
+                continue
+            case_id = case.get("id")
+            if not isinstance(case_id, str) or not case_id or case_id in ids:
+                errors.append(f"Codex {kind} test case {index} has an invalid or duplicate id")
+            else:
+                ids.add(case_id)
+            for field in required[kind]:
+                if not isinstance(case.get(field), str) or not case[field].strip():
+                    errors.append(f"Codex {kind} test case {case_id!r} needs {field}")
+
+
 def validate_trigger_evals(errors: list[str]) -> None:
     payload = load_json("evals/trigger_cases.json", errors)
     if not isinstance(payload, dict):
@@ -253,6 +393,8 @@ def main() -> int:
         errors.append("LICENSE must contain the MIT License")
     validate_skill(errors)
     validate_claude_plugin(errors)
+    validate_codex_plugin(errors)
+    validate_codex_submission(errors)
     validate_trigger_evals(errors)
     validate_execution_evals(errors)
     for relative in ["evals/scorecards/blocked-release.json"]:

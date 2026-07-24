@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">RateMyCode logo</title>
+  <desc id="desc">Code brackets surrounding a green review checkmark.</desc>
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="#0B1020"/>
+  <rect x="20" y="20" width="472" height="472" rx="108" fill="none" stroke="#263248" stroke-width="8"/>
+  <path d="M188 142L108 256L188 370" fill="none" stroke="#F8FAFC" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M324 142L404 256L324 370" fill="none" stroke="#F8FAFC" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M202 257L244 299L318 216" fill="none" stroke="#10B981" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
