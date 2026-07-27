@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -28,6 +29,7 @@ REQUIRED_REPO_FILES = [
     ".agents/plugins/marketplace.json",
     "plugins/ratemycode/.codex-plugin/plugin.json",
     "plugins/ratemycode/assets/logo.png",
+    "plugins/ratemycode/assets/logo.svg",
     "plugins/ratemycode/skills/ratemycode/SKILL.md",
     ".github/CODEOWNERS",
     ".github/PULL_REQUEST_TEMPLATE.md",
@@ -35,8 +37,12 @@ REQUIRED_REPO_FILES = [
     ".github/workflows/ci.yml",
     "evals/trigger_cases.json",
     "evals/execution_cases.json",
-    "submission/CODEX_DIRECTORY.md",
-    "submission/codex-test-cases.json",
+    "evals/scorecards/blocked-release.json",
+    "skills/ratemycode/scripts/score_review.py",
+    "scripts/sync_codex_plugin.py",
+    "tests/test_score_review.py",
+    "submission/PLUGIN_DIRECTORY.md",
+    "submission/plugin-test-cases.json",
 ]
 
 
@@ -195,8 +201,13 @@ def validate_codex_plugin(errors: list[str]) -> None:
     claude_manifest = load_json(".claude-plugin/plugin.json", errors)
     if manifest.get("name") != "ratemycode":
         errors.append("Codex plugin manifest name must be 'ratemycode'")
+    name = manifest.get("name")
+    if not isinstance(name, str) or len(name) > 64 or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", name):
+        errors.append("Codex plugin name must use 1–64 letters, digits, underscores, or hyphens")
     if manifest.get("version") != "1.0.0":
         errors.append("Codex plugin version must be 1.0.0")
+    if not isinstance(manifest.get("description"), str) or not 1 <= len(manifest["description"]) <= 1024:
+        errors.append("Codex plugin description must contain 1–1,024 characters")
     if isinstance(claude_manifest, dict) and manifest.get("version") != claude_manifest.get("version"):
         errors.append("Codex and Claude plugin versions must match")
     if manifest.get("skills") != "./skills/":
@@ -205,11 +216,12 @@ def validate_codex_plugin(errors: list[str]) -> None:
         errors.append("Codex plugin repository must point to this repository")
     if manifest.get("license") != "MIT":
         errors.append("Codex plugin license must be MIT")
-    if any(field in manifest for field in ("apps", "mcpServers")):
+    if any(field in manifest for field in ("apps", "mcpServers", "screenshots")):
         errors.append("Codex public ZIP must remain skills-only")
     author = manifest.get("author")
     if not isinstance(author, dict) or author.get("name") != "AmsonntagChow":
         errors.append("Codex plugin author must be AmsonntagChow")
+    author_name = author.get("name") if isinstance(author, dict) else None
 
     interface = manifest.get("interface")
     if not isinstance(interface, dict):
@@ -217,6 +229,11 @@ def validate_codex_plugin(errors: list[str]) -> None:
     else:
         if interface.get("displayName") != "RateMyCode":
             errors.append("Codex plugin displayName must be 'RateMyCode'")
+        display_name = interface.get("displayName")
+        if isinstance(display_name, str) and (
+            len(display_name) > 30 or "\n" in display_name or "\r" in display_name
+        ):
+            errors.append("Codex plugin displayName must be one line and at most 30 characters")
         for field in ("shortDescription", "longDescription", "developerName", "category"):
             if not isinstance(interface.get(field), str) or not interface[field].strip():
                 errors.append(f"Codex plugin interface.{field} must be non-empty")
@@ -228,6 +245,23 @@ def validate_codex_plugin(errors: list[str]) -> None:
         long_description = interface.get("longDescription")
         if isinstance(long_description, str) and len(long_description) > 4000:
             errors.append("Codex plugin longDescription must be at most 4,000 characters")
+        if interface.get("developerName") != author_name:
+            errors.append("Codex developerName and author.name must match")
+        capabilities = interface.get("capabilities")
+        if (
+            not isinstance(capabilities, list)
+            or not capabilities
+            or len(capabilities) > 20
+            or not all(
+                isinstance(item, str)
+                and item.strip()
+                and len(item) <= 120
+                and "\n" not in item
+                and "\r" not in item
+                for item in capabilities
+            )
+        ):
+            errors.append("Codex plugin capabilities must contain 1–20 non-empty single-line strings")
         prompts = interface.get("defaultPrompt")
         if (
             not isinstance(prompts, list)
@@ -235,6 +269,10 @@ def validate_codex_plugin(errors: list[str]) -> None:
             or not all(isinstance(prompt, str) and 1 <= len(prompt) <= 128 for prompt in prompts)
         ):
             errors.append("Codex plugin defaultPrompt must contain 1–3 strings of at most 128 characters")
+        elif any("\n" in prompt or "\r" in prompt or "@" in prompt for prompt in prompts):
+            errors.append("Codex plugin prompts must be single-line and must not contain @mentions")
+        elif len({" ".join(prompt.lower().split()) for prompt in prompts}) != len(prompts):
+            errors.append("Codex plugin prompts must be unique after normalization")
         for field in ("websiteURL", "privacyPolicyURL", "termsOfServiceURL"):
             value = interface.get(field)
             if not isinstance(value, str) or not value.startswith("https://"):
@@ -245,6 +283,35 @@ def validate_codex_plugin(errors: list[str]) -> None:
                 errors.append(f"Codex plugin interface.{field} must be a relative asset path")
             elif not (CODEX_PLUGIN_DIR / value[2:]).is_file():
                 errors.append(f"Codex plugin interface.{field} points to a missing asset")
+        if "screenshots" in interface:
+            errors.append("skills-only Codex plugin must not define interface.screenshots")
+        brand_color = interface.get("brandColor")
+        if not isinstance(brand_color, str) or not re.fullmatch(r"#[0-9A-Fa-f]{6}", brand_color):
+            errors.append("Codex plugin brandColor must be a six-digit hex color")
+
+    manifest_files = directory_files(CODEX_PLUGIN_DIR / ".codex-plugin")
+    if manifest_files != [Path("plugin.json")]:
+        errors.append(".codex-plugin must contain only plugin.json")
+    forbidden_package_files = [
+        path.relative_to(CODEX_PLUGIN_DIR)
+        for path in CODEX_PLUGIN_DIR.rglob("*")
+        if path.is_file() and (path.name in {".mcp.json", ".app.json"} or path.name == ".DS_Store")
+    ]
+    if forbidden_package_files:
+        errors.append(f"skills-only package contains forbidden files: {forbidden_package_files}")
+
+    logo_path = CODEX_PLUGIN_DIR / "assets" / "logo.png"
+    if logo_path.is_file():
+        data = logo_path.read_bytes()
+        if len(data) > 5 * 1024 * 1024:
+            errors.append("Codex plugin logo must be at most 5 MiB")
+        if len(data) < 24 or data[:8] != b"\x89PNG\r\n\x1a\n":
+            errors.append("Codex plugin logo.png must be a valid PNG")
+        else:
+            width = int.from_bytes(data[16:20], "big")
+            height = int.from_bytes(data[20:24], "big")
+            if not 48 <= width <= 4096 or not 48 <= height <= 4096 or width != height:
+                errors.append("Codex plugin logo must be square and 48–4096 pixels per side")
 
     marketplace = load_json(".agents/plugins/marketplace.json", errors)
     if not isinstance(marketplace, dict):
@@ -280,17 +347,17 @@ def validate_codex_plugin(errors: list[str]) -> None:
             errors.append(f"packaged Codex skill differs at {relative}; run sync_codex_plugin.py")
 
 
-def validate_codex_submission(errors: list[str]) -> None:
-    payload = load_json("submission/codex-test-cases.json", errors)
+def validate_plugin_submission(errors: list[str]) -> None:
+    payload = load_json("submission/plugin-test-cases.json", errors)
     if not isinstance(payload, dict):
         return
     positive = payload.get("positive")
     negative = payload.get("negative")
     if not isinstance(positive, list) or len(positive) != 5:
-        errors.append("Codex submission must contain exactly five positive test cases")
+        errors.append("Plugin submission must contain exactly five positive test cases")
         positive = []
     if not isinstance(negative, list) or len(negative) != 3:
-        errors.append("Codex submission must contain exactly three negative test cases")
+        errors.append("Plugin submission must contain exactly three negative test cases")
         negative = []
     required = {
         "positive": ("id", "prompt", "expected_behavior", "expected_result_shape", "fixture"),
@@ -300,16 +367,16 @@ def validate_codex_submission(errors: list[str]) -> None:
         ids: set[str] = set()
         for index, case in enumerate(cases):
             if not isinstance(case, dict):
-                errors.append(f"Codex {kind} test case {index} must be an object")
+                errors.append(f"Plugin {kind} test case {index} must be an object")
                 continue
             case_id = case.get("id")
             if not isinstance(case_id, str) or not case_id or case_id in ids:
-                errors.append(f"Codex {kind} test case {index} has an invalid or duplicate id")
+                errors.append(f"Plugin {kind} test case {index} has an invalid or duplicate id")
             else:
                 ids.add(case_id)
             for field in required[kind]:
                 if not isinstance(case.get(field), str) or not case[field].strip():
-                    errors.append(f"Codex {kind} test case {case_id!r} needs {field}")
+                    errors.append(f"Plugin {kind} test case {case_id!r} needs {field}")
 
 
 def validate_trigger_evals(errors: list[str]) -> None:
@@ -363,9 +430,11 @@ def validate_execution_evals(errors: list[str]) -> None:
     if not isinstance(method, dict) or method.get("arms") != ["with_skill", "without_skill"]:
         errors.append("execution evals must define with_skill and without_skill arms")
     cases = payload.get("cases")
-    if not isinstance(cases, list) or len(cases) < 3:
-        errors.append("execution evals must contain at least three cases")
+    if not isinstance(cases, list):
+        errors.append("execution evals must contain exactly eight cases")
         return
+    if len(cases) != 8:
+        errors.append(f"execution evals must contain exactly eight cases; received {len(cases)}")
     ids: set[str] = set()
     for index, case in enumerate(cases):
         if not isinstance(case, dict):
@@ -383,6 +452,26 @@ def validate_execution_evals(errors: list[str]) -> None:
             errors.append(f"execution case {case_id!r} needs at least two skill-specific assertions")
 
 
+def validate_scorecard(errors: list[str]) -> None:
+    command = [
+        sys.executable,
+        str(SKILL_DIR / "scripts" / "score_review.py"),
+        str(ROOT / "evals" / "scorecards" / "blocked-release.json"),
+    ]
+    result = subprocess.run(command, capture_output=True, text=True, check=False)
+    if result.returncode != 0:
+        detail = result.stderr.strip() or result.stdout.strip() or "unknown scorer failure"
+        errors.append(f"blocked-release scorecard is invalid: {detail}")
+        return
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        errors.append(f"score_review.py emitted invalid JSON: {exc}")
+        return
+    if payload.get("decision") != "BLOCKED":
+        errors.append("blocked-release scorecard must exercise a BLOCKED decision")
+
+
 def main() -> int:
     errors: list[str] = []
     for relative in REQUIRED_REPO_FILES:
@@ -394,11 +483,10 @@ def main() -> int:
     validate_skill(errors)
     validate_claude_plugin(errors)
     validate_codex_plugin(errors)
-    validate_codex_submission(errors)
+    validate_plugin_submission(errors)
     validate_trigger_evals(errors)
     validate_execution_evals(errors)
-    for relative in ["evals/scorecards/blocked-release.json"]:
-        load_json(relative, errors)
+    validate_scorecard(errors)
     if errors:
         for error in errors:
             print(f"ERROR: {error}", file=sys.stderr)

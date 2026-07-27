@@ -134,7 +134,7 @@ codex plugin marketplace add AmsonntagChow/ratemycode
 
 Open `/plugins` in Codex CLI, install **RateMyCode**, and start a new session so its bundled skill is loaded. In the Codex desktop app, use the Plugins Directory after adding the marketplace.
 
-The repository also contains a submission-ready skills-only bundle for the public OpenAI Plugins Directory. See [submission/CODEX_DIRECTORY.md](submission/CODEX_DIRECTORY.md); public availability begins only after OpenAI review and the publisher's final publish action.
+The repository also contains a submission-ready skills-only bundle for the universal OpenAI Plugins Directory shared by ChatGPT and Codex. See [submission/PLUGIN_DIRECTORY.md](submission/PLUGIN_DIRECTORY.md); public availability begins only after OpenAI review and the publisher's final publish action.
 
 ### Claude Code plugin
 
@@ -197,7 +197,7 @@ skills/ratemycode/      canonical portable skill, references, UI metadata, score
 evals/trigger_cases.json trigger-selection evals with near-miss negatives
 evals/execution_cases.json with-skill versus without-skill behavior evals
 evals/fixtures/          reproducible local test artifact
-submission/             Codex Directory listing copy and eight review tests
+submission/             universal Plugins Directory listing copy and eight review tests
 scripts/sync_codex_plugin.py generated-package synchronization
 scripts/validate_repo.py vendored schema and reference-integrity checks
 tests/                   deterministic scorer tests
