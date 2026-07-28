@@ -2,6 +2,8 @@
 
 Staff-level product scrutiny for apps built faster than their authors could learn every failure mode.
 
+给快速做出来的产品补一轮 Staff 级审查：真实测试、证据判定、上线拦截和同标准复测。
+
 > Your app is finished. Now it has to survive a Staff-level review.
 
 [![MIT License](https://img.shields.io/badge/license-MIT-2f855a.svg)](LICENSE)
@@ -36,8 +38,6 @@ Do not install both Claude methods in the same scope. Then use a concrete first 
 Audit this app for a public launch. Test the real product, show evidence, block unsafe releases, and give me the three fastest fixes.
 ```
 
-中文一句话：用户不需要先成为 Staff 工程师，产品仍然可以接受 Staff 级检查。默认直接审、给最小修复和复测，不给作者上基础课。
-
 ## What it is
 
 RateMyCode is a portable [Agent Skill](https://agentskills.io/) for judging an actual product—not merely styling a code review as a persona.
@@ -63,7 +63,7 @@ The skill asks two questions before it begins whenever the request does not alre
 
 ```text
 1. 角色：产品负责人 / 挑剔用户 / Staff 工程师 / 怀疑型 VC / 答辩老师
-2. 程度：快速体检 / 严格评审 / 上线门禁 / 真金白银 / 生死审查
+2. 程度：快速体检 / 严格评审 / 上线门禁 / 真实收米档 / 生死审查
 ```
 
 | Choose | What the reviewer does |
