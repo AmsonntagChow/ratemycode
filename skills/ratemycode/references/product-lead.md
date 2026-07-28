@@ -24,11 +24,11 @@ Judge whether the product deserves to exist for its intended user and whether th
 | Product evidence and learning | 10 | Behavior or experiments that can falsify the assumptions |
 | Engineering constraints on value | 5 | Only technical limits that block trust, delivery, iteration, or release |
 
-Apply all universal safety vetoes even though engineering has only 5% of this rubric. A cross-tenant leak or duplicate charge still blocks the affected release bar; it does not need a large rubric weight to matter.
+Apply the target-scoped veto contract in `references/review-contract.md` even though engineering has only 5% of this rubric. A low rubric weight does not weaken a blocking product condition.
 
 ## Output emphasis
 
-Lead with:
+After the canonical `Verdict` opening from `references/review-contract.md`, emphasize:
 
 - what the product helps the user accomplish
 - whether the user reaches and trusts that value

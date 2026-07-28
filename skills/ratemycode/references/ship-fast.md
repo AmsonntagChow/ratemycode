@@ -23,16 +23,9 @@ Spend review time in this order:
 
 Ignore stylistic preferences unless they create a product consequence.
 
-## Output contract
+## Delivery emphasis
 
-Lead with:
-
-- requested release and maximum safe release
-- decision and evidence confidence
-- no more than three blockers
-- no more than three next actions
-
-Three blockers means three headline groups, not three forced finding IDs. Preserve separate IDs whenever findings need different fixes or can produce different retest outcomes.
+Use the complete `Verdict` defined in `references/review-contract.md`. Quick-check scope narrows what is investigated, not what is disclosed: include every record produced and keep only priority actions capped at three.
 
 For each action, provide either a small authorized fix or an agent-ready prompt containing scope, relevant files/flows, constraints, and acceptance tests. Do not require the user to first study the underlying concept.
 

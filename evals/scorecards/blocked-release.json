@@ -1,8 +1,10 @@
 {
-  "schema_version": "1",
+  "schema_version": "2",
   "mode": "ship-fast",
   "rubric_id": "ratemycode/default-v1",
   "release_target": "real-money",
+  "release_ref": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "ai_behavior": "none",
   "dimensions": [
     {
       "id": "product-promise-and-scope",
@@ -62,11 +64,21 @@
     }
   ],
   "evidence": [
-    {"id": "e-checkout", "kind": "runtime", "result": "mixed", "reproducible": true},
-    {"id": "e-code", "kind": "code", "result": "mixed", "reproducible": true},
-    {"id": "e-duplicate", "kind": "runtime", "result": "fail", "reproducible": true},
-    {"id": "e-orders", "kind": "runtime", "result": "fail", "reproducible": true}
+    {"id": "e-checkout", "kind": "runtime", "lane": "critical-journey-e2e", "result": "mixed", "reproducible": true, "fresh": true, "release_ref": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"},
+    {"id": "e-code", "kind": "code", "lane": "deterministic-checks", "result": "mixed", "reproducible": true, "fresh": true, "release_ref": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"},
+    {"id": "e-duplicate", "kind": "runtime", "lane": "critical-journey-e2e", "gate_id": "duplicate-real-charge", "result": "fail", "reproducible": true, "fresh": true, "release_ref": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"},
+    {"id": "e-orders", "kind": "runtime", "lane": "critical-journey-e2e", "gate_id": "authorization-bypass", "result": "fail", "reproducible": true, "fresh": true, "release_ref": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"}
   ],
+  "evidence_lanes": {
+    "deterministic-checks": {"status": "FAIL", "evidence_ids": ["e-code"]},
+    "critical-journey-e2e": {"status": "FAIL", "evidence_ids": ["e-checkout"]},
+    "probabilistic-eval": {
+      "status": "N/A",
+      "evidence_ids": [],
+      "reason": "The checkout fixture has no LLM, agent, or RAG behavior."
+    },
+    "continuous-evidence": {"status": "UNVERIFIED", "evidence_ids": []}
+  },
   "coverage": {
     "runtime": "partial",
     "critical_paths": {"total": 4, "tested": 2}
@@ -76,13 +88,15 @@
       "id": "authorization-bypass",
       "state": "active",
       "evidence_ids": ["e-orders"],
-      "retest_evidence_ids": []
+      "retest_evidence_ids": [],
+      "affected_targets": ["real-money", "high-stakes"]
     },
     {
       "id": "duplicate-real-charge",
       "state": "active",
       "evidence_ids": ["e-duplicate"],
-      "retest_evidence_ids": []
+      "retest_evidence_ids": [],
+      "affected_targets": ["real-money", "high-stakes"]
     }
   ],
   "release_checks": [

@@ -38,6 +38,8 @@ REQUIRED_REPO_FILES = [
     "evals/trigger_cases.json",
     "evals/execution_cases.json",
     "evals/scorecards/blocked-release.json",
+    "skills/ratemycode/references/review-contract.md",
+    "skills/ratemycode/references/numeric-scoring.md",
     "skills/ratemycode/scripts/score_review.py",
     "scripts/sync_codex_plugin.py",
     "tests/test_score_review.py",
@@ -108,11 +110,8 @@ def validate_skill(errors: list[str]) -> None:
         errors.append(f"SKILL.md body exceeds 500 lines; received {body_lines}")
 
     references = sorted((SKILL_DIR / "references").glob("*.md"))
-    for path in references:
-        relative = f"references/{path.name}"
-        mentions = text.count(relative)
-        if mentions < 2:
-            errors.append(f"{relative} must be mentioned at least twice in SKILL.md; received {mentions}")
+    if (SKILL_DIR / "references" / "evidence-and-scoring.md").exists():
+        errors.append("legacy references/evidence-and-scoring.md must be split into direct review and scoring references")
 
     linked_paths = sorted(set(PATH_PATTERN.findall(text)))
     for relative in linked_paths:
@@ -151,7 +150,9 @@ def validate_claude_plugin(errors: list[str]) -> None:
     if manifest.get("displayName") != "RateMyCode":
         errors.append("Claude plugin displayName must be 'RateMyCode'")
     version = manifest.get("version")
-    if not isinstance(version, str) or not re.fullmatch(r"\d+\.\d+\.\d+", version):
+    if not isinstance(version, str) or not re.fullmatch(
+        r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)", version
+    ):
         errors.append("Claude plugin version must use three-part semantic versioning")
     if not isinstance(manifest.get("description"), str) or not manifest["description"].strip():
         errors.append("Claude plugin manifest needs a non-empty description")
@@ -191,7 +192,13 @@ def validate_claude_plugin(errors: list[str]) -> None:
 def directory_files(root: Path) -> list[Path]:
     if not root.is_dir():
         return []
-    return sorted(path.relative_to(root) for path in root.rglob("*") if path.is_file())
+    return sorted(
+        path.relative_to(root)
+        for path in root.rglob("*")
+        if path.is_file()
+        and "__pycache__" not in path.relative_to(root).parts
+        and path.suffix not in {".pyc", ".pyo"}
+    )
 
 
 def validate_codex_plugin(errors: list[str]) -> None:
@@ -204,8 +211,11 @@ def validate_codex_plugin(errors: list[str]) -> None:
     name = manifest.get("name")
     if not isinstance(name, str) or len(name) > 64 or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", name):
         errors.append("Codex plugin name must use 1–64 letters, digits, underscores, or hyphens")
-    if manifest.get("version") != "1.0.0":
-        errors.append("Codex plugin version must be 1.0.0")
+    version = manifest.get("version")
+    if not isinstance(version, str) or not re.fullmatch(
+        r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)", version
+    ):
+        errors.append("Codex plugin version must use three-part semantic versioning")
     if not isinstance(manifest.get("description"), str) or not 1 <= len(manifest["description"]) <= 1024:
         errors.append("Codex plugin description must contain 1–1,024 characters")
     if isinstance(claude_manifest, dict) and manifest.get("version") != claude_manifest.get("version"):
@@ -429,6 +439,12 @@ def validate_execution_evals(errors: list[str]) -> None:
     method = payload.get("method")
     if not isinstance(method, dict) or method.get("arms") != ["with_skill", "without_skill"]:
         errors.append("execution evals must define with_skill and without_skill arms")
+    elif (
+        method.get("repository_validation") != "structure-only"
+        or not isinstance(method.get("behavioral_proof"), str)
+        or not method["behavioral_proof"].strip()
+    ):
+        errors.append("execution evals must state that repository validation is structural, not behavioral proof")
     cases = payload.get("cases")
     if not isinstance(cases, list):
         errors.append("execution evals must contain exactly eight cases")
@@ -470,6 +486,15 @@ def validate_scorecard(errors: list[str]) -> None:
         return
     if payload.get("decision") != "BLOCKED":
         errors.append("blocked-release scorecard must exercise a BLOCKED decision")
+    expected_lanes = {
+        "deterministic-checks",
+        "critical-journey-e2e",
+        "probabilistic-eval",
+        "continuous-evidence",
+    }
+    lanes = payload.get("evidence_lanes")
+    if not isinstance(lanes, dict) or set(lanes) != expected_lanes:
+        errors.append("blocked-release scorecard must emit all four evidence lanes")
 
 
 def main() -> int:

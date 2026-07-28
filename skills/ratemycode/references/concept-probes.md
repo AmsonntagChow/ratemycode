@@ -1,35 +1,36 @@
-# Product-grounded concept probes
+# Artifact-grounded question generator
 
-Use this router only for oral defense or when a finding needs a short explanation. Pick from actual system paths; never march through the list as a curriculum.
+Load this file only when oral defense is ready to generate its first question, or when the user explicitly asks for a short explanation of a finding. Generate from the reviewed artifact; do not administer a preset curriculum.
 
-| Product signal | Probe the author with |
-|---|---|
-| Multi-step database change | What invariant must commit atomically? What happens halfway through? What is outside the database transaction? |
-| Retryable state-changing request | Where is the idempotency key created, stored, scoped, and expired? What would a duplicate prove? |
-| Concurrent update | Which operation is atomic? Can check-then-act race? How is a lost update detected? |
-| External payment or API | What does timeout mean? How are unknown outcomes reconciled? Which system is authoritative? |
-| Authentication and ownership | Where is identity established, and where is authorization rechecked for the specific object? |
-| Cookie, session, or JWT | What state lives on the client versus server? How are expiry, revocation, and role changes handled? |
-| HTTP API | Which operations are safe or idempotent? What does a transport 200 fail to prove about business success? |
-| Index or slow query | Which query shape and data distribution justify the index? What does the query plan show? |
-| Cache | What stale state is acceptable? What invalidates it? What happens on miss, stampede, or outage? |
-| Queue or background job | What delivery semantics are assumed? How does the consumer handle duplicates, ordering, and poison work? |
-| Frontend async state | Which response wins after overlap or navigation? What prevents stale UI or duplicate submit? |
-| Optimistic UI | How is failure rolled back or reconciled with server truth? |
-| Client-side secret or permission check | Why is the browser not a trust boundary? Where is enforcement on the server? |
-| File upload or rich input | How are type, size, storage path, parsing, and later rendering constrained? |
-| Accessibility-critical flow | Can keyboard, focus, labels, status announcements, and error recovery complete the same journey? |
-| Deployment and migration | Can old and new versions coexist? How is rollback handled after a schema change? |
-| Logs and metrics | Can an operator distinguish user error, dependency failure, and partial success without exposing sensitive data? |
-| Backup claim | When was restore last proven, to what recovery point, and with what missing dependencies? |
+## Question interface
 
-## Probe pattern
+```text
+Question = {
+  artifact_fact: exact route, state transition, component, or observed behavior,
+  invariant: property this product must preserve,
+  failure_event: one reachable disturbance or competing event,
+  prompt: ask where the control lives and what evidence or acceptance test would falsify the answer
+}
+```
 
-Ask in this order:
+Build one question at a time:
 
-1. “What must remain true?”
-2. “Where is that enforced in this product?”
-3. “How could the enforcement fail?”
-4. “What observation or test would prove your answer wrong?”
+1. Select a concrete artifact fact from a decision, finding, or high-impact unknown.
+2. Infer the product invariant that fact must protect; do not reveal the expected mechanism.
+3. Introduce one plausible failure event such as timeout, retry, overlap, stale state, partial completion, role change, deployment skew, or dependency loss.
+4. Ask the author to trace the path, locate the control, and name observable evidence or an acceptance test.
+5. Wait for the answer before generating the next question. Credit correct reasoning without requiring textbook vocabulary.
 
-This tests transferable understanding without requiring memorized terminology. If the user can reason correctly without naming the textbook concept, credit the understanding.
+## Compact routing hints
+
+| Artifact signal | Invariant family | Useful failure events and fundamentals |
+|---|---|---|
+| Multi-step state change, checkout, or external API | One durable effect and truthful outcome | partial commit, timeout, retry, reconciliation; transactions, idempotency, authority |
+| Shared record, concurrent action, or check-then-act | No lost, duplicated, or invalid transition | overlap, reordered completion, stale read; atomicity, locking/versioning |
+| Login, object ID, tenant, session, JWT, or client-side check | Correct identity, ownership, role, and trust boundary | identifier swap, expiry, revocation, role change; authentication versus authorization |
+| HTTP endpoint, queue, job, cache, or index-backed query | Correct semantics under delivery and scale | duplicate/out-of-order delivery, poison work, stale cache, stampede, skewed data; API semantics and query evidence |
+| Frontend request, optimistic UI, navigation, or submit | UI reflects authoritative state once | overlap, late response, rollback, double submit; cancellation, sequencing, reconciliation |
+| Upload, rich input, or accessibility-critical journey | Same safe, comprehensible outcome for valid users | oversized or disguised input, unsafe rendering, keyboard/focus/error recovery |
+| Migration, deployment, logging, monitoring, backup, or restore | Versions coexist and operators can detect and recover | rollback, schema skew, dependency outage, missing/sensitive telemetry, failed restore |
+
+Choose only a signal present in the artifact. If no product-grounded fact exists yet, gather evidence instead of asking generic fundamentals.

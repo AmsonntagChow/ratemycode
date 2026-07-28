@@ -1,6 +1,6 @@
 # OpenAI Plugins Directory submission
 
-Use this sheet with the [OpenAI plugin submission portal](https://platform.openai.com/plugins). Choose **Skills only** and upload `dist/ratemycode-plugin-1.0.0.zip`.
+Use this sheet with the [OpenAI plugin submission portal](https://platform.openai.com/plugins). Choose **Skills only** and upload `dist/ratemycode-plugin-1.0.1.zip`.
 
 The public directory is universal: one approved listing can appear in ChatGPT and Codex. Public availability begins only after OpenAI review and the publisher's separate **Publish** action.
 
@@ -32,7 +32,7 @@ Enter the five positive and three negative cases from `submission/plugin-test-ca
 
 ## Release notes
 
-Initial 1.0.0 skills-only submission. RateMyCode adds configurable product-lead, hostile-user, Staff-engineer, skeptical-VC, and oral-defense reviews; evidence-backed release gates; fixed safety vetoes; prioritized fixes; and same-rubric retesting. It has no MCP server, hosted backend, authentication, telemetry, or external dependency.
+Version 1.0.1 update. Adds a severity-sorted one-line issue index; separates four non-substitutable evidence lanes; binds proof to an exact SHA-256 release identity; rejects hidden lane failures and unrelated gate retests; requires coherent repeated AI eval with judge, pass-rate, and variance thresholds; separates real-user, retention, and distribution proof; and migrates optional scorecards to fail-closed schema 2.
 
 ## Package contents
 

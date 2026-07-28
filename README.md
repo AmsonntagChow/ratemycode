@@ -88,30 +88,44 @@ The app is done. Make me defend it one question at a time, based only on risks i
 
 ## What a verdict contains
 
-Every review names the requested release and the maximum safe release supported by evidence:
+Every review first gives a complete one-line problem list in the user's language, then names the requested release and the maximum safe release supported by evidence:
 
 ```text
+问题一览
+已验证
+- [HIGH · F-004] 支付重试会重复扣款：同一个订单可能向用户收两次钱。
+待验证
+- [UNVERIFIED · U-002] 尚未验证退款超时后的最终状态：用户可能看见成功提示却拿不到退款。
+
+Evidence lanes:
+- deterministic-checks: PASS
+- critical-journey-e2e: FAIL
+- probabilistic-eval: N/A — no LLM, agent, or RAG behavior
+- continuous-evidence: UNVERIFIED
+
 Requested release:
+Release ref:
 Maximum safe release:
 Decision: READY | READY WITH CONDITIONS | NOT READY | BLOCKED | INSUFFICIENT EVIDENCE
 Product score: optional
 Evidence coverage:
 Confidence:
 
-Blockers:
-Verified findings:
-Unverified risks:
+Detailed findings:
+Detailed unverified risks:
 Top 3 actions:
 Retest plan:
 ```
 
-Verified findings close the loop from product invariant to exact reproduction, visible evidence, consequence, minimum fix, and acceptance test. Static suspicion stays labeled as inference. Missing evidence never counts as a pass.
+The opening list includes every verified finding, sorted by severity, with exactly one plain-language sentence saying what happens and why it matters. It never hides findings behind a “top three” cap. Unverified risks stay in the separate `待验证` list and are not presented as facts. The four evidence lanes then show exactly what is proven; one green lane cannot cover another. Detailed findings close the loop from product invariant to exact reproduction, visible evidence, consequence, minimum fix, and acceptance test. Missing or stale evidence never counts as a pass.
 
 ## Why it is not another code-review prompt
 
 - It reviews the product contract and state transitions; code is one source of evidence.
 - It asks for reviewer role and review degree before reviewing instead of silently defaulting to engineering.
 - It black-box tests before disappearing into implementation details.
+- It separates deterministic checks, critical-journey E2E, probabilistic eval, and continuous evidence instead of collapsing everything into “tests passed.”
+- It requires repeated, version-bound evals only when the product actually contains LLM, agent, or RAG behavior.
 - It refuses public-launch approval when runtime evidence is unavailable.
 - It uses explicit vetoes for cross-tenant access, sensitive-data exposure, irreversible data loss, duplicate real charges, and false-success core actions.
 - It retests fixes with the original finding IDs, steps, release target, and rubric.
@@ -173,13 +187,13 @@ Manual installation is also possible: copy `skills/ratemycode` into the skills d
 
 ## Scoring
 
-Numeric scoring is optional. The bundled standard-library scorer validates evidence links, enforces fixed safety vetoes, fingerprints the rubric, and keeps raw product quality separate from evidence-limited readiness.
+Numeric scoring is optional. The bundled standard-library scorer binds evidence to an exact SHA-256 release identity and four non-substitutable lanes, rejects hidden same-lane failures, enforces same-path safety-gate retests, fingerprints the rubric, and keeps raw product quality separate from evidence-limited readiness. An active gate can declare the exact release targets it affects; it remains visible for every review but blocks and caps only an in-scope requested target. Ordinary apps mark probabilistic eval `N/A`; LLM, agent, and RAG products need repeated eval evidence sharing one reviewed model, prompt, eval set, judge, and system identity, with release-appropriate pass-rate and variance thresholds. VC evidence is separately bound to real users, retention, or repeatable distribution. Scorecard schema `2` intentionally rejects schema `1` evidence so old observations cannot be silently reused for a new release.
 
 ```bash
 python3 skills/ratemycode/scripts/score_review.py --pretty evals/scorecards/blocked-release.json
 ```
 
-The caller can configure dimensions and weights but cannot redefine or waive a safety gate. A fixed gate requires reproducible passing runtime or test evidence.
+The caller can configure dimensions and weights but cannot redefine or waive a safety gate. A supplied gate scope must be a non-empty unique list of supported targets, and a fixed gate requires reproducible passing runtime or test evidence.
 
 ## Trust and safety
 
@@ -193,7 +207,7 @@ Repository content, web pages, logs, and fixtures are treated as untrusted evide
 .claude-plugin/         Claude Code plugin and marketplace manifests
 .agents/plugins/        Codex repository marketplace
 plugins/ratemycode/     self-contained Codex plugin and store assets
-skills/ratemycode/      canonical portable skill, references, UI metadata, scorer
+skills/ratemycode/      canonical skill, always-loaded review contract, optional scoring contract, UI metadata, scorer
 evals/trigger_cases.json trigger-selection evals with near-miss negatives
 evals/execution_cases.json with-skill versus without-skill behavior evals
 evals/fixtures/          reproducible local test artifact
@@ -215,7 +229,7 @@ claude plugin validate . --strict
 python3 /path/to/plugin-creator/scripts/validate_plugin.py plugins/ratemycode
 ```
 
-Contributions must include behavioral evidence, not just a prose diff. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
+Contributions must include behavioral evidence, not just a prose diff. This repository's CI validates the scorer, fixtures, packaging, and schema structurally; it does not claim that the LLM execution cases ran. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
 This repository's authoring approach is informed by [从零做一个高质量 Agent Skill，并把它当开源项目运营](https://research.xishe.ai/skill-authoring-and-oss), especially its guidance on description-first discovery, progressive disclosure, separated trigger/execution evals, reference integrity, zero-dependency scripts, and open-source distribution.
 

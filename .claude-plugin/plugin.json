@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "ratemycode",
   "displayName": "RateMyCode",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Audits AI-built and vibe-coded apps or MVPs for release readiness, security, payment, and data-integrity risks, with an evidence-backed ship/no-ship verdict.",
   "author": {
     "name": "AmsonntagChow",

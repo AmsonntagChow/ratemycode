@@ -25,7 +25,7 @@ Review the artifact as a demanding Staff engineer would review a built system. B
 | Architecture and change safety | 10 |
 | UX and accessibility of recovery | 5 |
 
-Use the shared finding and veto protocol. Every deduction must point to a relevant consequence in this product. Do not deduct for absent queues, microservices, caching, transactions, design patterns, or abstractions that the artifact does not need.
+Use the finding and target-scoped veto protocol in `references/review-contract.md`. Every deduction must point to a relevant consequence in this product. Do not deduct for absent queues, microservices, caching, transactions, design patterns, or abstractions that the artifact does not need.
 
 Prefer “this invariant is unprotected under this reachable sequence” to “the author does not understand ACID.” Review the work itself. Add oral defense only when the user asks to grade understanding.
 

@@ -40,7 +40,7 @@ When real-user, retention, or repeatable-distribution evidence is absent, do not
 
 Keep `product readiness` separate from `venture evidence`. A reliable app can still have no proven demand; early demand can coexist with an unsafe product.
 
-Use this output rather than the software-release template:
+Begin with the canonical `Verdict` opening from `references/review-contract.md`. Then use this stage-aware body instead of the software-release body:
 
 ```text
 Venture stage:

@@ -33,7 +33,7 @@
       "id": "hostile-user-retest",
       "prompt": "As a hostile user, run a strict review of this checkout app. Try the happy path, a failure, and a retry, then give me reproducible findings.",
       "expected_behavior": "Invoke RateMyCode, inspect behavior before internals, exercise the disposable local app, distinguish observed failures from inference, and propose acceptance tests.",
-      "expected_result_shape": "Compact verdict followed by stable finding IDs, exact steps, evidence, consequence, minimum fix, and acceptance test.",
+      "expected_result_shape": "Severity-first one-line issue list, four separate evidence lanes, release identity, then stable finding IDs, exact steps, evidence, consequence, minimum fix, and acceptance test.",
       "fixture": "Use https://github.com/AmsonntagChow/ratemycode/tree/main/evals/fixtures/insecure-checkout. It is disposable, local, dependency-free, and uses no external service."
     }
   ],

@@ -14,17 +14,11 @@ Use oral defense only when explicitly requested. It is a modifier on an artifact
 
 If the user requests both an audit and a defense, deliver the audit first, then use questions that require applying the disclosed principle to a new failure sequence rather than parroting the fix. If the user requests defense only, do not preview the relevant finding or answer before the first attempt.
 
-Read `references/concept-probes.md` and choose only concepts reachable in this artifact.
+Do not load `references/concept-probes.md` on route entry. Load it only when the grounded review is complete enough to generate the first question, then use its generator for concepts reachable in this artifact.
 
 ## Question form
 
-Prefer:
-
-> A user double-clicks Pay, the first response times out, and the client retries. At which boundary does this product prevent a second order or charge, and what test would prove it?
-
-Avoid:
-
-> Define idempotency.
+Construct each prompt from one exact artifact fact, the invariant it protects, one reachable failure event, and a request for the control boundary plus falsifying evidence. Avoid dictionary definitions and generic trivia.
 
 Each question should expose whether the author can:
 

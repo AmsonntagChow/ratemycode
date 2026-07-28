@@ -5,7 +5,9 @@
     "runs_per_arm": 2,
     "arms": ["with_skill", "without_skill"],
     "report_deltas": ["assertion_pass_rate", "elapsed_time", "tokens"],
-    "drop_assertions_that_both_arms_always_pass": true
+    "drop_assertions_that_both_arms_always_pass": true,
+    "repository_validation": "structure-only",
+    "behavioral_proof": "Retain fresh raw outputs from both arms; validating this JSON does not run the cases."
   },
   "cases": [
     {
@@ -53,6 +55,8 @@
         "Runs or concretely inspects the artifact instead of returning a generic checklist",
         "Identifies the ownership boundary and duplicate-effect risk with reproducible evidence",
         "Blocks the real-money release despite any positive weighted dimensions",
+        "Begins the verdict with an uncapped severity-sorted list that gives every verified finding one plain-language sentence and keeps unverified items under a separate 待验证 heading",
+        "Shows all four evidence lanes separately, marks probabilistic eval N/A for this deterministic app, and binds release evidence to the inspected artifact",
         "Provides acceptance tests and no more than three priority actions"
       ]
     },
@@ -64,6 +68,7 @@
       "skill_specific_assertions": [
         "Preserves a separate artifact assessment while refusing runtime launch approval",
         "Labels reachable risks as inference rather than confirmed failure",
+        "Shows critical-journey E2E and continuous evidence as UNVERIFIED rather than treating repository CI or fixture validation as behavioral proof",
         "Names the smallest missing test that could change the verdict",
         "Does not deduct for unrelated technologies or demand over-engineering"
       ]
@@ -101,6 +106,8 @@
         "Reuses prior IDs, release target, weights, and reproduction steps",
         "Runs acceptance and adjacent regression tests instead of trusting the diff",
         "Classifies every prior finding using the fixed retest states",
+        "Begins with the same finding IDs and their FIXED, PARTIALLY FIXED, NOT FIXED, REGRESSED, or UNVERIFIABLE statuses, placing UNVERIFIABLE items under 待验证",
+        "Binds new passing evidence to the current release identity and rejects stale evidence from the prior artifact",
         "Separates raw product-score delta from evidence/readiness delta"
       ]
     }
