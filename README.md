@@ -1,8 +1,8 @@
 # RateMyCode
 
-Staff-level product scrutiny for apps built faster than their authors could learn every failure mode.
+English | [简体中文](README.zh-CN.md)
 
-给快速做出来的产品补一轮 Staff 级审查：真实测试、证据判定、上线拦截和同标准复测。
+Staff-level product scrutiny for apps built faster than their authors could learn every failure mode.
 
 > Your app is finished. Now it has to survive a Staff-level review.
 
@@ -62,8 +62,8 @@ It deliberately separates four things that generic reviewers often mix together:
 The skill asks two questions before it begins whenever the request does not already answer them:
 
 ```text
-1. 角色：产品负责人 / 挑剔用户 / Staff 工程师 / 怀疑型 VC / 答辩老师
-2. 程度：快速体检 / 严格评审 / 上线门禁 / 真实收米档 / 生死审查
+1. Role: Product lead / Hostile user / Staff engineer / Skeptical VC / Oral-defense examiner
+2. Degree: Quick checkup / Strict review / Launch gate / Real-revenue tier / Life-or-death review
 ```
 
 | Choose | What the reviewer does |
@@ -77,7 +77,7 @@ The skill asks two questions before it begins whenever the request does not alre
 Try these:
 
 ```text
-这个支付 App 是我两天 vibe coding 出来的。别教我后端基础，按真实收钱标准挑刺，告诉我哪里会死。
+I vibe-coded this payments app in two days. Do not teach me backend basics. Review it against the real-revenue standard and tell me what could kill it.
 
 Act like a hostile user. Try to break signup, checkout, recovery, and cancellation, then give me reproducible findings.
 
@@ -91,11 +91,11 @@ The app is done. Make me defend it one question at a time, based only on risks i
 Every review first gives a complete one-line problem list in the user's language, then names the requested release and the maximum safe release supported by evidence:
 
 ```text
-问题一览
-已验证
-- [HIGH · F-004] 支付重试会重复扣款：同一个订单可能向用户收两次钱。
-待验证
-- [UNVERIFIED · U-002] 尚未验证退款超时后的最终状态：用户可能看见成功提示却拿不到退款。
+Problem overview
+Verified
+- [HIGH · F-004] Payment retries cause duplicate charges: the same order may charge a user twice.
+Unverified
+- [UNVERIFIED · U-002] The final state after a refund timeout has not been verified: users may see a success message but never receive the refund.
 
 Evidence lanes:
 - deterministic-checks: PASS
@@ -117,7 +117,7 @@ Top 3 actions:
 Retest plan:
 ```
 
-The opening list includes every verified finding, sorted by severity, with exactly one plain-language sentence saying what happens and why it matters. It never hides findings behind a “top three” cap. Unverified risks stay in the separate `待验证` list and are not presented as facts. The four evidence lanes then show exactly what is proven; one green lane cannot cover another. Detailed findings close the loop from product invariant to exact reproduction, visible evidence, consequence, minimum fix, and acceptance test. Missing or stale evidence never counts as a pass.
+The opening list includes every verified finding, sorted by severity, with exactly one plain-language sentence saying what happens and why it matters. It never hides findings behind a “top three” cap. Unverified risks stay in the separate `Unverified` list and are not presented as facts. The four evidence lanes then show exactly what is proven; one green lane cannot cover another. Detailed findings close the loop from product invariant to exact reproduction, visible evidence, consequence, minimum fix, and acceptance test. Missing or stale evidence never counts as a pass.
 
 ## Why it is not another code-review prompt
 
@@ -231,7 +231,7 @@ python3 /path/to/plugin-creator/scripts/validate_plugin.py plugins/ratemycode
 
 Contributions must include behavioral evidence, not just a prose diff. This repository's CI validates the scorer, fixtures, packaging, and schema structurally; it does not claim that the LLM execution cases ran. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
-This repository's authoring approach is informed by [从零做一个高质量 Agent Skill，并把它当开源项目运营](https://research.xishe.ai/skill-authoring-and-oss), especially its guidance on description-first discovery, progressive disclosure, separated trigger/execution evals, reference integrity, zero-dependency scripts, and open-source distribution.
+This repository's authoring approach is informed by [Building a High-Quality Agent Skill from Scratch and Running It as an Open-Source Project](https://research.xishe.ai/skill-authoring-and-oss), especially its guidance on description-first discovery, progressive disclosure, separated trigger/execution evals, reference integrity, zero-dependency scripts, and open-source distribution.
 
 ## License
 
