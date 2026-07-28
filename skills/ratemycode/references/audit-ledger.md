@@ -448,6 +448,8 @@ Group findings only when one concrete underlying cause and one bounded change ca
 
 Fix one root-cause batch at a time. Prefer the batch that removes the most severe in-scope gate or unblocks the most critical journey. After each batch, preserve the prior snapshot, validate the next snapshot with `--prior`, and regenerate the Markdown view. Do not let a shared root-cause label merge distinct findings or hide partial results.
 
+When a batch settles a convention worth keeping — a single source of truth, a canonical expression of one state, a naming or interaction rule — update the project's conventions document in the same batch and list it in the batch's change references, so later maintainers and agents inherit the decision instead of re-forking it.
+
 ## Render and close the loop
 
 The generated Markdown deliberately leads with the answer rather than metadata. Its order is:
