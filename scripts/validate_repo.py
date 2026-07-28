@@ -19,6 +19,7 @@ NAME_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 PATH_PATTERN = re.compile(r"`((?:references|scripts)/[A-Za-z0-9_.-]+)`")
 REQUIRED_REPO_FILES = [
     "README.md",
+    "README.zh-CN.md",
     "LICENSE",
     "SECURITY.md",
     "CONTRIBUTING.md",
@@ -38,11 +39,17 @@ REQUIRED_REPO_FILES = [
     "evals/trigger_cases.json",
     "evals/execution_cases.json",
     "evals/scorecards/blocked-release.json",
+    "evals/ledgers/initial.json",
+    "evals/ledgers/closed-loop.json",
+    "evals/ledgers/closed-loop.md",
+    "skills/ratemycode/references/audit-ledger.md",
     "skills/ratemycode/references/review-contract.md",
     "skills/ratemycode/references/numeric-scoring.md",
     "skills/ratemycode/scripts/score_review.py",
+    "skills/ratemycode/scripts/audit_ledger.py",
     "scripts/sync_codex_plugin.py",
     "tests/test_score_review.py",
+    "tests/test_audit_ledger.py",
     "submission/PLUGIN_DIRECTORY.md",
     "submission/plugin-test-cases.json",
 ]
@@ -447,10 +454,10 @@ def validate_execution_evals(errors: list[str]) -> None:
         errors.append("execution evals must state that repository validation is structural, not behavioral proof")
     cases = payload.get("cases")
     if not isinstance(cases, list):
-        errors.append("execution evals must contain exactly eight cases")
+        errors.append("execution evals must contain exactly nine cases")
         return
-    if len(cases) != 8:
-        errors.append(f"execution evals must contain exactly eight cases; received {len(cases)}")
+    if len(cases) != 9:
+        errors.append(f"execution evals must contain exactly nine cases; received {len(cases)}")
     ids: set[str] = set()
     for index, case in enumerate(cases):
         if not isinstance(case, dict):
@@ -497,6 +504,83 @@ def validate_scorecard(errors: list[str]) -> None:
         errors.append("blocked-release scorecard must emit all four evidence lanes")
 
 
+def validate_audit_ledger(errors: list[str]) -> None:
+    initial_path = ROOT / "evals" / "ledgers" / "initial.json"
+    closed_path = ROOT / "evals" / "ledgers" / "closed-loop.json"
+    initial_result = subprocess.run(
+        [
+            sys.executable,
+            str(SKILL_DIR / "scripts" / "audit_ledger.py"),
+            "validate",
+            str(initial_path),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if initial_result.returncode != 0:
+        detail = (
+            initial_result.stderr.strip()
+            or initial_result.stdout.strip()
+            or "unknown initial-ledger failure"
+        )
+        errors.append(f"initial audit ledger is invalid: {detail}")
+        return
+    command = [
+        sys.executable,
+        str(SKILL_DIR / "scripts" / "audit_ledger.py"),
+        "validate",
+        "--prior",
+        str(initial_path),
+        str(closed_path),
+    ]
+    result = subprocess.run(command, capture_output=True, text=True, check=False)
+    if result.returncode != 0:
+        detail = result.stderr.strip() or result.stdout.strip() or "unknown ledger failure"
+        errors.append(f"closed-loop audit ledger is invalid: {detail}")
+        return
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        errors.append(f"audit_ledger.py emitted invalid JSON: {exc}")
+        return
+    expected = {
+        "valid": True,
+        "findings": 2,
+        "verified_fixed": 1,
+        "accepted_risk": 1,
+        "unresolved": 0,
+        "open_unknowns": 0,
+        "current_decision": "READY_WITH_CONDITIONS",
+    }
+    for key, value in expected.items():
+        if payload.get(key) != value:
+            errors.append(
+                f"closed-loop audit ledger summary {key!r} must be {value!r}; "
+                f"received {payload.get(key)!r}"
+            )
+    render_command = [
+        sys.executable,
+        str(SKILL_DIR / "scripts" / "audit_ledger.py"),
+        "render",
+        "--language",
+        "en",
+        "--prior",
+        str(initial_path),
+        str(closed_path),
+    ]
+    rendered = subprocess.run(render_command, capture_output=True, text=True, check=False)
+    if rendered.returncode != 0:
+        detail = rendered.stderr.strip() or rendered.stdout.strip() or "unknown render failure"
+        errors.append(f"closed-loop audit ledger cannot render: {detail}")
+    else:
+        expected_report = ROOT / "evals" / "ledgers" / "closed-loop.md"
+        if rendered.stdout != expected_report.read_text(encoding="utf-8"):
+            errors.append(
+                "evals/ledgers/closed-loop.md is stale; regenerate it with audit_ledger.py"
+            )
+
+
 def main() -> int:
     errors: list[str] = []
     for relative in REQUIRED_REPO_FILES:
@@ -512,6 +596,7 @@ def main() -> int:
     validate_trigger_evals(errors)
     validate_execution_evals(errors)
     validate_scorecard(errors)
+    validate_audit_ledger(errors)
     if errors:
         for error in errors:
             print(f"ERROR: {error}", file=sys.stderr)

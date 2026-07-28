@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "skill": {
+    "name": "ratemycode",
+    "version": "1.1.0"
+  },
+  "release_input_sha256": "a440bb57b1da9b063ac9375d1b50004c2a89cacf7c2e5e4dd15f60ad9994eff9",
+  "archive": {
+    "path": "dist/ratemycode-plugin-1.1.0.zip",
+    "bytes": 99861,
+    "sha256": "dd2cf67ebd9a6f3608565cf95e1ff150cc821c6859fb6dfd42f710ffec3c6ca4"
+  },
+  "repository_checks": {
+    "status": "passed",
+    "limited_evidence_accepted": false,
+    "items": [
+      {
+        "id": "repository-validator",
+        "kind": "validation",
+        "argv": [
+          "python",
+          "-B",
+          "scripts/validate_repo.py"
+        ],
+        "exit_code": 0
+      },
+      {
+        "id": "python-unittest",
+        "kind": "unit",
+        "argv": [
+          "python",
+          "-B",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-v"
+        ],
+        "exit_code": 0
+      }
+    ]
+  }
+}

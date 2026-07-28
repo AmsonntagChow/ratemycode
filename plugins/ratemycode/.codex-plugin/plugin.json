@@ -1,7 +1,7 @@
 {
   "name": "ratemycode",
-  "version": "1.0.1",
-  "description": "Audits AI-built and vibe-coded apps or MVPs for release readiness, security, payment, and data-integrity risks, with an evidence-backed ship/no-ship verdict.",
+  "version": "1.1.0",
+  "description": "Audits AI-built and vibe-coded apps for release risk, then optionally records authorized fixes and independent retests in a durable audit ledger.",
   "author": {
     "name": "AmsonntagChow",
     "url": "https://github.com/AmsonntagChow"
@@ -22,13 +22,14 @@
   "interface": {
     "displayName": "RateMyCode",
     "shortDescription": "Find blockers before you ship",
-    "longDescription": "RateMyCode audits a real AI-built product, not just its code style. Choose a product lead, hostile user, Staff engineer, skeptical VC, or oral-defense professor, then choose how hard to judge it. The plugin tests real flows when possible, traces failures into the implementation, blocks unsafe launches, and returns reproducible findings, the three fastest fixes, and a retest plan.",
+    "longDescription": "RateMyCode audits a real AI-built product, not just its code style. Choose a product lead, hostile user, Staff engineer, skeptical VC, or oral-defense professor, then choose how hard to judge it. The plugin tests real flows when possible, traces failures into the implementation, blocks unsafe launches, and returns every finding in plain language. When explicitly authorized, it records scoped fixes, new release identities, independent retests, and remaining risk in a durable JSON audit ledger with a generated Markdown report.",
     "developerName": "AmsonntagChow",
     "category": "Productivity",
     "capabilities": [
       "Read",
       "Analyze",
-      "Test"
+      "Test",
+      "Edit with approval"
     ],
     "websiteURL": "https://github.com/AmsonntagChow/ratemycode",
     "privacyPolicyURL": "https://github.com/AmsonntagChow/ratemycode/blob/main/PRIVACY.md",

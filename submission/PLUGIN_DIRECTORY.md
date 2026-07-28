@@ -1,6 +1,6 @@
 # OpenAI Plugins Directory submission
 
-Use this sheet with the [OpenAI plugin submission portal](https://platform.openai.com/plugins). Choose **Skills only** and upload `dist/ratemycode-plugin-1.0.1.zip`.
+Use this sheet with the [OpenAI plugin submission portal](https://platform.openai.com/plugins). Choose **Skills only** and upload `dist/ratemycode-plugin-1.1.0.zip`.
 
 The public directory is universal: one approved listing can appear in ChatGPT and Codex. Public availability begins only after OpenAI review and the publisher's separate **Publish** action.
 
@@ -18,7 +18,7 @@ The public directory is universal: one approved listing can appear in ChatGPT an
 
 **Long description**
 
-RateMyCode audits a real AI-built product, not just its code style. Choose a product lead, hostile user, Staff engineer, skeptical VC, or oral-defense professor, then choose how hard to judge it. The plugin tests real flows when possible, traces failures into the implementation, blocks unsafe launches, and returns reproducible findings, the three fastest fixes, and a retest plan.
+RateMyCode audits a real AI-built product, not just its code style. Choose a product lead, hostile user, Staff engineer, skeptical VC, or oral-defense professor, then choose how hard to judge it. The plugin tests real flows when possible, separates four kinds of evidence, traces failures into the implementation, blocks unsafe launches, and returns every finding in one plain-language list. When explicitly authorized, it records scoped fixes, immutable release identities and scope, independent retests, blockers, release checks, venture signals, scoring metadata, and user-accepted risk in a durable JSON snapshot chain with generated English or Chinese Markdown reports.
 
 ## Starter prompts
 
@@ -32,7 +32,7 @@ Enter the five positive and three negative cases from `submission/plugin-test-ca
 
 ## Release notes
 
-Version 1.0.1 update. Adds a severity-sorted one-line issue index; separates four non-substitutable evidence lanes; binds proof to an exact SHA-256 release identity; rejects hidden lane failures and unrelated gate retests; requires coherent repeated AI eval with judge, pass-rate, and variance thresholds; separates real-user, retention, and distribution proof; and migrates optional scorecards to fail-closed schema 2.
+Version 1.1.0 update. Adds a persistent, SHA-256-linked JSON audit ledger and bilingual Markdown report; a complete severity-sorted one-line problem list; report-only, fix-prompts, and authorized fix-and-retest routes; structured artifact scope; evidence-bound workflow blockers, release checks, scoring, and VC signals; repeated probabilistic-eval provenance and thresholds; independent same-path retests; and fail-closed release or investability decisions. It rejects hidden same-release failures, rewritten history, self-review, unrelated proof, stale or static-only fix claims, survived mutations, and agent-authored risk acceptance while keeping accepted risk technically unresolved and active gates unwaived.
 
 ## Package contents
 
@@ -45,7 +45,7 @@ assets/logo.svg
 skills/ratemycode/SKILL.md
 skills/ratemycode/agents/openai.yaml
 skills/ratemycode/references/*.md
-skills/ratemycode/scripts/score_review.py
+skills/ratemycode/scripts/*.py
 ```
 
 It deliberately excludes repository marketplaces, `.git`, README files, tests, fixtures, screenshots, MCP configuration, and app configuration.

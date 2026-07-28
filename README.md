@@ -47,7 +47,10 @@ It starts from product promises and real user journeys, tests behavior when poss
 The default loop is:
 
 ```text
-build → audit → fix or generate fix prompts → retest the same paths → ship the safest next stage
+build → audit → complete verdict
+                  ├─ report only (default; no edits)
+                  ├─ copy-ready fix prompts (no edits)
+                  └─ authorized fixes → same-path + adjacent retests → updated audit ledger
 ```
 
 It deliberately separates four things that generic reviewers often mix together:
@@ -91,11 +94,12 @@ The app is done. Make me defend it one question at a time, based only on risks i
 Every review first gives a complete one-line problem list in the user's language, then names the requested release and the maximum safe release supported by evidence:
 
 ```text
-Problem overview
-Verified
-- [HIGH · F-004] Payment retries cause duplicate charges: the same order may charge a user twice.
-Unverified
-- [UNVERIFIED · U-002] The final state after a refund timeout has not been verified: users may see a success message but never receive the refund.
+One-line problem list
+- [HIGH · F-004 · open] Payment retries cause duplicate charges: the same order may charge a user twice.
+- [MEDIUM · F-007 · verified-fixed] Checkout reported success before saving the order: the user could pay for an order that did not exist.
+
+Pending verification
+- [UNKNOWN · U-002 · UNVERIFIED] The final state after a refund timeout has not been verified: users may see a success message but never receive the refund.
 
 Evidence lanes:
 - deterministic-checks: PASS
@@ -106,7 +110,7 @@ Evidence lanes:
 Requested release:
 Release ref:
 Maximum safe release:
-Decision: READY | READY WITH CONDITIONS | NOT READY | BLOCKED | INSUFFICIENT EVIDENCE
+Decision: READY | READY_WITH_CONDITIONS | NOT_READY | BLOCKED | INSUFFICIENT_EVIDENCE
 Product score: optional
 Evidence coverage:
 Confidence:
@@ -117,7 +121,41 @@ Top 3 actions:
 Retest plan:
 ```
 
-The opening list includes every verified finding, sorted by severity, with exactly one plain-language sentence saying what happens and why it matters. It never hides findings behind a “top three” cap. Unverified risks stay in the separate `Unverified` list and are not presented as facts. The four evidence lanes then show exactly what is proven; one green lane cannot cover another. Detailed findings close the loop from product invariant to exact reproduction, visible evidence, consequence, minimum fix, and acceptance test. Missing or stale evidence never counts as a pass.
+The opening list includes every confirmed finding—open, in progress, accepted, or independently fixed—in one severity-sorted view, with exactly one plain-language sentence saying what happens and why it matters. It never hides findings behind a “top three” cap. Unverifiable fixes, open unknowns, and active workflow blockers stay under `Pending verification` and are not presented as resolved facts. The four evidence lanes then show exactly what is proven; one green lane cannot cover another. Detailed findings close the loop from product invariant to exact reproduction, visible evidence, consequence, minimum fix, and acceptance test. Missing or stale evidence never counts as a pass.
+
+## Audit ledger and fix loop
+
+When you ask to save the audit or authorize direct fixes, RateMyCode stores a canonical JSON ledger and generates a readable English or Chinese Markdown view. JSON remains the source of truth. The generated report starts with the complete one-line problem list, immediately shows all four evidence lanes, then exposes workflow blockers, release checks, optional scoring, venture evidence when applicable, review identity, progress, root causes, gates, detailed findings, unknowns, and evidence. An `unverifiable` re-review stays in pending verification rather than being presented as fixed.
+
+Ledgers form a snapshot chain. The first file has `previous_ledger_ref: null`; every later file records the SHA-256 of the exact prior JSON bytes and is validated with `--prior`. Prior evidence and record identities cannot be silently deleted or rewritten. The artifact is bound with `sha256-file`, `sha256-tree`, or `sha256-deployment-manifest`, plus a structured `identity_scope` that explicitly names the root, inclusions, exclusions, and symlink policy. Tree identities use a deterministic, sorted file-digest manifest and exclude the ledger itself. The initial release identity, hash method, scope, role, degree, target, rubric ID, and AI-behavior classification remain fixed across the chain.
+
+For non-VC reviews, degree and target are paired exactly: quick check → internal demo, strict review → private beta, launch gate → public launch, real-revenue tier → real money, and life-or-death → high stakes. VC reviews use `venture-case`; their five degrees map to screening, structured diligence, partner review, full diligence, and investment committee. `ai_behavior` is one of `none`, `llm`, `agent`, `rag`, or `mixed`.
+
+Evidence is bound to a stable subject and procedure: reproduction, acceptance, adjacent regression, and mutation records name an `F-###`; unknown-resolution records name a `U-###`; release-lane records have no subject. Workflow-blocker, release-check, and venture-signal proof must also name the exact record it supports, so one favorable result cannot silently stand in for several decisions. Complete code or document inspection may activate a gate only when `deployment_coverage` says the entire deployed scope was checked and a compensating layer was ruled out. It cannot close a gate, clear an unknown, or prove a fix. E0 claims never count as proof.
+
+For non-VC reviews, required evidence lanes fail closed: critical-journey E2E is required at every software tier, deterministic checks from private beta upward, continuous evidence from public launch upward, and repeated probabilistic eval for any LLM, agent, RAG, or mixed behavior. The decision order is active in-scope gate or named blocker → `BLOCKED`; failed required lane/check or unresolved Blocker/High finding → `NOT_READY`; unverified required lane/check, unverifiable finding, or open unknown → `INSUFFICIENT_EVIDENCE`; below-threshold readiness → `NOT_READY`; optional gaps only → `READY_WITH_CONDITIONS`; otherwise → `READY`. VC ledgers mark all software lanes `N/A` and separately derive `INVESTABLE`, `INTERESTING_BUT_UNPROVEN`, `NOT_INVESTABLE_YET`, or `INSUFFICIENT_EVIDENCE` from real users, retention, repeatable distribution, blockers, unknowns, and optional scoring.
+
+The ledger keeps every finding and unknown, shared root causes, exact release identities, user authorization, change references, retest evidence, and one of these states:
+
+```text
+open → fixing → fixed-pending-retest → verified-fixed
+                                   ├→ partially-fixed / not-fixed / regressed / unverifiable
+external-change ─────→ fixed-pending-retest
+any work or verification state → blocked (named reason, missing requirement, resolving action)
+any technically unresolved state → accepted-risk (only from an explicit user statement)
+```
+
+A direct Agent fix uses `origin: authorized-agent` and preserves the user's exact bounded authorization. A change made elsewhere uses `origin: external-change` and leaves authorization `null`; RateMyCode can retest it without inventing retroactive permission. A diff is never enough to claim a fix. `verified-fixed` requires separate current-release acceptance and adjacent-regression evidence in an independent agent or fresh review context. A mutation check must catch the reintroduced failure when practical. Only the user can accept risk; the rationale is optional, the statement and scope are required, and accepted risk remains technically unresolved. A gate whose scope was omitted in the review contract is expanded to an explicit sorted `affected_targets` list in the ledger and cannot be waived by risk acceptance.
+
+The bundled standard-library tool validates the ledger and generates English or Chinese Markdown:
+
+```bash
+python3 skills/ratemycode/scripts/audit_ledger.py validate evals/ledgers/initial.json
+python3 skills/ratemycode/scripts/audit_ledger.py validate --prior evals/ledgers/initial.json evals/ledgers/closed-loop.json
+python3 skills/ratemycode/scripts/audit_ledger.py render --prior evals/ledgers/initial.json --language zh-CN --output audit-report.md evals/ledgers/closed-loop.json
+```
+
+The validator enforces structural consistency, release and procedure binding, requires `--prior` for every chained snapshot, verifies continuity, and requires distinct fixer/reviewer IDs. It is not a cryptographic identity, signature, trusted timestamp, or tamper-proof audit system; high-stakes governance still needs externally signed attestations stored outside the reviewed repository. The complete schema and identity procedure are documented in [`audit-ledger.md`](skills/ratemycode/references/audit-ledger.md).
 
 ## Why it is not another code-review prompt
 
@@ -199,7 +237,7 @@ The caller can configure dimensions and weights but cannot redefine or waive a s
 
 The first audit is read-only by default. The skill tells the agent not to edit code, mutate infrastructure, charge cards, delete data, or touch external systems unless the user explicitly asks and the action is safely scoped.
 
-Repository content, web pages, logs, and fixtures are treated as untrusted evidence rather than instructions. The scorer is deterministic Python using only the standard library. See [SECURITY.md](SECURITY.md) for the threat model and disclosure process.
+Repository content, web pages, logs, and fixtures are treated as untrusted evidence rather than instructions. The scorer and audit-ledger renderer are deterministic Python using only the standard library. See [SECURITY.md](SECURITY.md) for the threat model and disclosure process.
 
 ## Repository layout
 
@@ -207,14 +245,15 @@ Repository content, web pages, logs, and fixtures are treated as untrusted evide
 .claude-plugin/         Claude Code plugin and marketplace manifests
 .agents/plugins/        Codex repository marketplace
 plugins/ratemycode/     self-contained Codex plugin and store assets
-skills/ratemycode/      canonical skill, always-loaded review contract, optional scoring contract, UI metadata, scorer
+skills/ratemycode/      canonical skill, review/ledger/scoring contracts, UI metadata, validators and renderers
 evals/trigger_cases.json trigger-selection evals with near-miss negatives
 evals/execution_cases.json with-skill versus without-skill behavior evals
 evals/fixtures/          reproducible local test artifact
+evals/ledgers/           validated audit-to-fix loop example
 submission/             universal Plugins Directory listing copy and eight review tests
 scripts/sync_codex_plugin.py generated-package synchronization
 scripts/validate_repo.py vendored schema and reference-integrity checks
-tests/                   deterministic scorer tests
+tests/                   deterministic scorer and audit-ledger tests
 ```
 
 Trigger selection and execution quality are intentionally evaluated in separate files so a failure can be localized to discovery or behavior.

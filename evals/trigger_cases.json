@@ -17,7 +17,8 @@
       "split": "train",
       "prompt": "我用 Cursor 两天做了这个支付 App，别教我基础知识，按 Staff 标准挑刺，看现在敢不敢收真钱。",
       "should_trigger": true,
-      "expected_route": "ship-fast"
+      "expected_route": "staff-engineer",
+      "expected_degree": "real-stakes"
     },
     {
       "id": "p03",
@@ -36,9 +37,10 @@
     {
       "id": "p05",
       "split": "train",
-      "prompt": "Pretend you're a skeptical VC. Review the demo, usage CSV, and repo; separate what is proven from founder claims and score the product.",
+      "prompt": "At strict-review depth, pretend you're a skeptical VC. Review the demo, usage CSV, and repo; separate what is proven from founder claims and score the product.",
       "should_trigger": true,
-      "expected_route": "skeptical-vc"
+      "expected_route": "skeptical-vc",
+      "expected_degree": "strict-review"
     },
     {
       "id": "p06",
@@ -50,9 +52,10 @@
     {
       "id": "p07",
       "split": "holdout",
-      "prompt": "Interview me one question at a time about why this AI-generated app is safe under retries and concurrent requests; base the questions on its code.",
+      "prompt": "At strict-review depth, act as an oral-defense examiner and interview me one question at a time about why this AI-generated app is safe under retries and concurrent requests; base the questions on its code.",
       "should_trigger": true,
-      "expected_route": "oral-defense"
+      "expected_route": "oral-defense",
+      "expected_degree": "strict-review"
     },
     {
       "id": "p08",
@@ -71,9 +74,10 @@
     {
       "id": "p10",
       "split": "holdout",
-      "prompt": "这个 App 已经写完了。现在让我参加答辩：问我它最可能怎么死，答完再分别给产品和我的理解打分。",
+      "prompt": "这个 App 已经写完了。按严格评审深度让我参加答辩：问我它最可能怎么死，答完再分别给产品和我的理解打分。",
       "should_trigger": true,
-      "expected_route": "oral-defense"
+      "expected_route": "oral-defense",
+      "expected_degree": "strict-review"
     },
     {
       "id": "n01",

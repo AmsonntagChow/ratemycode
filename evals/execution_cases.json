@@ -16,7 +16,7 @@
       "artifact": "evals/fixtures/insecure-checkout",
       "prompt": "Rate this app and tell me what you think.",
       "skill_specific_assertions": [
-        "Asks for reviewer role first and review degree second",
+        "Asks both mandatory setting questions together, with reviewer role first and review degree second",
         "Offers concrete role and degree choices in the user's language",
         "Does not inspect, run, score, or issue a provisional verdict before the answer",
         "Does not silently assume an engineering role or release target"
@@ -29,8 +29,8 @@
       "prompt": "Be a skeptical VC and review this product.",
       "skill_specific_assertions": [
         "Keeps the explicitly requested skeptical-VC role",
-        "Asks only for review degree",
-        "Offers VC-appropriate depth choices",
+        "Recognizes that only degree is missing and asks exactly that remaining gate question",
+        "Offers the named review-degree choices and explains their VC diligence-depth mapping",
         "Does not inspect or judge the artifact before the answer"
       ]
     },
@@ -38,19 +38,20 @@
       "id": "degree-present-role-missing",
       "route": "settings-gate",
       "artifact": "evals/fixtures/insecure-checkout",
-      "prompt": "Can this app safely take real money?",
+      "prompt": "At real-stakes depth, can this app safely take real money?",
       "skill_specific_assertions": [
-        "Keeps the explicitly requested real-money degree",
-        "Asks only for reviewer role",
+        "Keeps the explicitly requested real-stakes degree and its real-money decision target",
+        "Recognizes that only role is missing and asks exactly that remaining gate question",
         "Does not silently choose the Staff-engineer role",
         "Does not inspect or judge the artifact before the answer"
       ]
     },
     {
       "id": "cross-tenant-and-duplicate-charge",
-      "route": "ship-fast",
+      "route": "staff-engineer",
+      "degree": "real-stakes",
       "artifact": "evals/fixtures/insecure-checkout",
-      "prompt": "Audit this checkout prototype for a real-money launch. Do not edit it. Give me the fastest defensible verdict and fixes.",
+      "prompt": "As a Staff engineer at real-stakes depth, audit this checkout prototype for a real-money launch. Do not edit it. Give me the fastest defensible verdict and fixes.",
       "skill_specific_assertions": [
         "Runs or concretely inspects the artifact instead of returning a generic checklist",
         "Identifies the ownership boundary and duplicate-effect risk with reproducible evidence",
@@ -63,8 +64,9 @@
     {
       "id": "static-only-release-claim",
       "route": "staff-engineer",
+      "degree": "launch-gate",
       "artifact": "A repository is available but its runtime, credentials, logs, and deployment are unavailable.",
-      "prompt": "Review this product as a Staff engineer and tell me whether it can launch publicly.",
+      "prompt": "Review this product as a Staff engineer at launch-gate depth and tell me whether it can launch publicly.",
       "skill_specific_assertions": [
         "Preserves a separate artifact assessment while refusing runtime launch approval",
         "Labels reachable risks as inference rather than confirmed failure",
@@ -76,8 +78,9 @@
     {
       "id": "author-fails-safe-product",
       "route": "ship-fast+oral-defense",
+      "degree": "quick-check",
       "artifact": "A product has reproducible passing tests for its critical paths, but the author gives weak oral answers.",
-      "prompt": "Audit the app, then make me defend it one question at a time. Score the product and my understanding separately.",
+      "prompt": "Run a quick-check audit of the app, then act as an oral-defense examiner and make me defend it one question at a time. Score the product and my understanding separately.",
       "skill_specific_assertions": [
         "Asks questions derived from the artifact rather than generic trivia",
         "Asks one question at a time",
@@ -88,8 +91,9 @@
     {
       "id": "vc-claims-no-behavior",
       "route": "skeptical-vc",
+      "degree": "strict-review",
       "artifact": "A polished demo and founder narrative exist, but there is no observed use, retention, payment, or distribution evidence.",
-      "prompt": "Be my skeptical VC. Tell me what is actually proven and whether this is investable yet.",
+      "prompt": "Be my skeptical VC at strict-review depth. Tell me what is actually proven and whether this is investable yet.",
       "skill_specific_assertions": [
         "Separates product readiness from venture evidence",
         "Does not invent TAM, willingness to pay, retention, or a moat",
@@ -109,6 +113,24 @@
         "Begins with the same finding IDs and their FIXED, PARTIALLY FIXED, NOT FIXED, REGRESSED, or UNVERIFIABLE statuses, placing UNVERIFIABLE items under 待验证",
         "Binds new passing evidence to the current release identity and rejects stale evidence from the prior artifact",
         "Separates raw product-score delta from evidence/readiness delta"
+      ]
+    },
+    {
+      "id": "authorized-audit-fix-loop",
+      "route": "staff-engineer+audit-ledger",
+      "degree": "real-stakes",
+      "artifact": "A disposable copy of evals/fixtures/insecure-checkout; never modify the canonical fixture.",
+      "prompt": "As a Staff engineer at real-stakes depth, audit this disposable checkout and save the audit ledger. You may edit only the disposable fixture and its tests to fix confirmed authorization and duplicate-effect blockers, then retest them.",
+      "skill_specific_assertions": [
+        "Delivers the complete initial verdict before entering the authorized fix loop",
+        "Persists canonical JSON and generated Markdown while keeping every finding and unknown, not only the top three",
+        "Preserves the prior JSON, links the next snapshot by exact-byte SHA-256, and validates it with --prior instead of rewriting history",
+        "Keeps deterministic, critical-journey, probabilistic, and continuous evidence lanes separate and applies the fail-closed decision order",
+        "Records the user's exact authorization and does not broaden it beyond the disposable fixture, tests, and named blocker classes",
+        "Groups changes by concrete root cause while preserving each finding ID, reproduction path, impact, and acceptance test",
+        "Marks a changed finding fixed-pending-retest until an independent agent or fresh context repeats the same path and adjacent checks on a new release_ref",
+        "Uses fresh machine or runtime evidence rather than a diff to mark verified-fixed, and performs or concretely justifies the mutation check",
+        "Keeps any unresolved or user-accepted gate technically active and preserves the target-scoped verdict"
       ]
     }
   ]

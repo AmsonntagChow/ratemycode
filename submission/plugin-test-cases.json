@@ -4,37 +4,37 @@
     {
       "id": "settings-both-missing",
       "prompt": "Rate this app and tell me what you think.",
-      "expected_behavior": "Invoke RateMyCode, ask for reviewer role first and review degree second, and wait without inspecting or scoring the app.",
+      "expected_behavior": "Invoke RateMyCode, ask both mandatory setting questions together with reviewer role first and review degree second, and wait without inspecting or scoring the app.",
       "expected_result_shape": "One concise clarification containing concrete role and degree choices in the user's language.",
       "fixture": "Use https://github.com/AmsonntagChow/ratemycode/tree/main/evals/fixtures/insecure-checkout as the current workspace; no account or credential is required."
     },
     {
       "id": "vc-degree-missing",
       "prompt": "Be a skeptical VC and review this product.",
-      "expected_behavior": "Invoke RateMyCode, preserve the skeptical-VC role, ask only for review degree, and wait before judging the evidence.",
-      "expected_result_shape": "One concise clarification with VC-appropriate depth choices and no provisional investment verdict.",
+      "expected_behavior": "Invoke RateMyCode, preserve the skeptical-VC role, recognize that only degree is missing, ask exactly that remaining gate question, and wait before judging the evidence.",
+      "expected_result_shape": "One concise clarification with the named degree choices, their VC diligence-depth mapping, and no provisional investment verdict.",
       "fixture": "Use https://github.com/AmsonntagChow/ratemycode/blob/main/evals/fixtures/claims-only-startup/brief.md; no account or credential is required."
     },
     {
       "id": "real-money-role-missing",
-      "prompt": "Can this app safely take real money?",
-      "expected_behavior": "Invoke RateMyCode, preserve the real-money review degree, ask only for reviewer role, and wait before inspecting or scoring.",
+      "prompt": "At real-stakes depth, can this app safely take real money?",
+      "expected_behavior": "Invoke RateMyCode, preserve the real-stakes degree and real-money target, recognize that only role is missing, ask exactly that remaining gate question, and wait before inspecting or scoring.",
       "expected_result_shape": "One concise clarification with the five reviewer-role choices and no silent Staff-engineer default.",
       "fixture": "Use https://github.com/AmsonntagChow/ratemycode/tree/main/evals/fixtures/insecure-checkout as the current workspace; no real payment method is used."
     },
     {
       "id": "staff-real-money-audit",
-      "prompt": "As a Staff engineer, audit this checkout prototype at real-money depth. Do not edit it. Give me the fastest defensible verdict and fixes.",
-      "expected_behavior": "Invoke RateMyCode, run or concretely inspect the disposable fixture, identify the ownership-boundary and duplicate-effect risks with evidence, and block a real-money release.",
+      "prompt": "As a Staff engineer at real-stakes depth, audit this checkout prototype for a real-money decision. Do not edit it. Give me the fastest defensible verdict and fixes.",
+      "expected_behavior": "Invoke RateMyCode on the staff-engineer/real-stakes route, run or concretely inspect the disposable fixture, identify the ownership-boundary and duplicate-effect risks with evidence, and block a real-money release.",
       "expected_result_shape": "Requested and maximum safe release, decision, verified findings with reproduction steps, unverified risks, no more than three priority actions, and a retest plan.",
       "fixture": "Use https://github.com/AmsonntagChow/ratemycode/tree/main/evals/fixtures/insecure-checkout. It is disposable, local, dependency-free, and uses no account, credential, or real payment."
     },
     {
-      "id": "hostile-user-retest",
-      "prompt": "As a hostile user, run a strict review of this checkout app. Try the happy path, a failure, and a retry, then give me reproducible findings.",
-      "expected_behavior": "Invoke RateMyCode, inspect behavior before internals, exercise the disposable local app, distinguish observed failures from inference, and propose acceptance tests.",
-      "expected_result_shape": "Severity-first one-line issue list, four separate evidence lanes, release identity, then stable finding IDs, exact steps, evidence, consequence, minimum fix, and acceptance test.",
-      "fixture": "Use https://github.com/AmsonntagChow/ratemycode/tree/main/evals/fixtures/insecure-checkout. It is disposable, local, dependency-free, and uses no external service."
+      "id": "authorized-audit-fix-loop",
+      "prompt": "As a Staff engineer at real-stakes depth, audit a disposable copy of this checkout app and save the audit ledger. You may edit only that copy and its tests to fix confirmed authorization and duplicate-effect blockers, then independently retest them. Do not modify the canonical fixture.",
+      "expected_behavior": "Invoke RateMyCode on the staff-engineer/real-stakes route, deliver the complete initial verdict, persist the canonical ledger and generated report, record the exact authorization, fix only the named blocker classes in the disposable copy, and use fresh independent same-path and adjacent retests before verified closure.",
+      "expected_result_shape": "Complete severity-first issue list and four evidence lanes, initial and current release identities, every finding and unknown with lifecycle status, gate state, exact change and retest evidence, and saved JSON/Markdown ledger paths.",
+      "fixture": "Create a disposable local copy of https://github.com/AmsonntagChow/ratemycode/tree/main/evals/fixtures/insecure-checkout; never edit the canonical fixture and use no account, credential, external service, or real payment."
     }
   ],
   "negative": [

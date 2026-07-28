@@ -47,7 +47,10 @@ RateMyCode 是一个可移植的 [Agent Skill](https://agentskills.io/)，用于
 默认流程如下：
 
 ```text
-构建 → 审查 → 修复或生成修复提示词 → 按原路径复测 → 推进到最安全的下一发布阶段
+构建 → 审查 → 完整结论
+                  ├─ 只看报告（默认，不改代码）
+                  ├─ 生成可复制的修复提示词（不改代码）
+                  └─ 授权直接修复 → 原路径与相邻路径复测 → 更新审计台账
 ```
 
 它刻意将通用审查者经常混为一谈的四件事分开：
@@ -91,11 +94,12 @@ RateMyCode 是一个可移植的 [Agent Skill](https://agentskills.io/)，用于
 每次审查都会先用用户的语言给出完整的单行问题列表，再列出用户申请的发布级别，以及现有证据所支持的最高安全发布级别：
 
 ```text
-问题一览
-已验证
-- [HIGH · F-004] 支付重试会导致重复扣款：同一个订单可能向用户收取两次费用。
+一句话问题清单
+- [HIGH · F-004 · open] 支付重试会导致重复扣款：同一个订单可能向用户收取两次费用。
+- [MEDIUM · F-007 · verified-fixed] 结账曾在保存订单前报告成功：用户可能付了钱却没有订单。
+
 待验证
-- [UNVERIFIED · U-002] 尚未验证退款超时后的最终状态：用户可能看到成功提示，却始终收不到退款。
+- [UNKNOWN · U-002 · UNVERIFIED] 尚未验证退款超时后的最终状态：用户可能看到成功提示，却始终收不到退款。
 
 证据通道：
 - deterministic-checks: PASS
@@ -106,7 +110,7 @@ RateMyCode 是一个可移植的 [Agent Skill](https://agentskills.io/)，用于
 申请发布：
 发布引用：
 证据支持的最高安全发布级别：
-结论：READY | READY WITH CONDITIONS | NOT READY | BLOCKED | INSUFFICIENT EVIDENCE
+结论：READY | READY_WITH_CONDITIONS | NOT_READY | BLOCKED | INSUFFICIENT_EVIDENCE
 产品评分：可选
 证据覆盖率：
 置信度：
@@ -117,7 +121,41 @@ RateMyCode 是一个可移植的 [Agent Skill](https://agentskills.io/)，用于
 复测计划：
 ```
 
-开头的列表会包含每一个已验证问题，并按严重程度排序；每项严格使用一句通俗语言，说明会发生什么以及为什么重要。它绝不会用“前三项”的上限隐藏其他问题。待验证风险保留在单独的 `待验证` 列表中，不会被当作事实陈述。随后，四条证据通道会准确展示哪些内容已被证实；一条绿色通道不能替另一条兜底。详细问题会形成完整闭环：从产品不变量，到精确复现步骤、可见证据、后果、最低限度修复方案和验收测试。缺失或过期的证据绝不算作通过。
+开头会把所有已确认问题——未处理、处理中、用户接受或已独立验证修复——放进同一份按严重程度排序的列表；每项严格使用一句通俗语言，说明会发生什么以及为什么重要。它绝不会用“前三项”的上限隐藏其他问题。无法验证的修复、仍开放的待验证项和生效中的流程阻塞保留在 `待验证` 下，不会被写成已经解决的事实。随后，四条证据通道会准确展示哪些内容已被证实；一条绿色通道不能替另一条兜底。详细问题会形成完整闭环：从产品不变量，到精确复现步骤、可见证据、后果、最低限度修复方案和验收测试。缺失或过期的证据绝不算作通过。
+
+## 审计台账与修复闭环
+
+当你要求保存审计结果，或授权 Agent 直接修复时，RateMyCode 会保存一份规范 JSON 台账，并由它生成易读的中英文 Markdown 视图。JSON 始终是唯一事实来源。生成的报告先给出完整的一句话问题清单，紧接着展示四条证据通道，再展示流程阻塞、发布检查、可选评分、适用时的投资证据、审查标识、进度、共同根因、门禁、问题详情、待验证项和证据。复测结果为 `unverifiable` 时，仍会保留在完整问题清单中，并在“待验证”中再次提示；它绝不会被写成已经修复。
+
+台账采用快照链。第一份文件使用 `previous_ledger_ref: null`；此后每份文件都记录上一份 JSON 精确字节的 SHA-256，并通过 `--prior` 校验连续性。旧证据和记录身份不能被悄悄删除或改写。审计对象使用 `sha256-file`、`sha256-tree` 或 `sha256-deployment-manifest` 绑定，同时用结构化 `identity_scope` 明确记录根目录、包含项、排除项和符号链接策略。目录树身份来自确定性、已排序的文件摘要清单，并排除台账本身。整条链中的初始版本身份、哈希方法、范围、角色、程度、目标、评分标准 ID 和 AI 行为分类都保持不变。
+
+非 VC 审查的程度与目标严格对应：快速体检 → 内部演示，严格评审 → 私测，上线门禁 → 公开上线，真实收米档 → 真实资金，生死审查 → 高风险场景。VC 审查使用 `venture-case`，五档程度依次对应初筛、结构化尽调、合伙人审查、完整尽调和投委会。`ai_behavior` 只能是 `none`、`llm`、`agent`、`rag` 或 `mixed`。
+
+每条证据都绑定稳定的对象和验证过程：复现、验收、相邻回归和变异证据必须指向一个 `F-###`；待验证项的解决证据指向一个 `U-###`；发布通道证据不绑定具体问题。流程阻塞、发布检查和投资信号的证据还必须明确写出自己支持的那一项，避免一条漂亮结果被悄悄复用成多个结论。只有当 `deployment_coverage` 明确说明已检查完整部署范围，并排除了补偿层时，完整的代码或文档检查才可以触发门禁；它不能关闭门禁、排除待验证项或证明修复。E0 主张永远不算证据。
+
+非 VC 审查的必需证据通道采用失败关闭：每个软件发布级别都需要关键旅程 E2E；私测及以上需要确定性检查；公开上线及以上需要持续证据；包含 LLM、Agent、RAG 或混合行为时需要重复执行的概率性评估。结论顺序固定为：作用域内门禁生效或存在具名阻塞 → `BLOCKED`；必需通道或发布检查失败，或仍有 Blocker/High 问题 → `NOT_READY`；必需通道或检查未验证、问题无法验证或存在开放待验证项 → `INSUFFICIENT_EVIDENCE`；就绪度低于阈值 → `NOT_READY`；只剩可选缺口 → `READY_WITH_CONDITIONS`；否则 → `READY`。VC 台账把四条软件通道全部标为 `N/A`，再根据真实用户、留存、可重复分发、阻塞项、待验证项和可选评分，单独得出 `INVESTABLE`、`INTERESTING_BUT_UNPROVEN`、`NOT_INVESTABLE_YET` 或 `INSUFFICIENT_EVIDENCE`。
+
+台账会保留全部问题和待验证项、共同根因、精确版本标识、用户授权、变更引用、复测证据，以及下列状态：
+
+```text
+未处理 → 修复中 → 已改待复测 → 已验证修复
+                              ├→ 部分修复 / 未修复 / 出现回归 / 无法验证
+外部变更 ─────→ 已改待复测
+任何工作或验证状态 → 受阻（注明原因、缺失条件和解除方式）
+任何技术上未解决的状态 → 用户接受风险（必须来自用户的明确原话）
+```
+
+Agent 直接修复使用 `origin: authorized-agent`，并保留用户原话和明确范围；在别处已经完成的修改使用 `origin: external-change`，授权字段保持 `null`，RateMyCode 可以复测它，但不会虚构追溯授权。代码 diff 永远不能单独证明修复完成。要标记为 `verified-fixed`，必须由独立 Agent 或全新审查上下文，在当前版本上分别取得验收和相邻回归证据；条件允许时，还要通过“重新引入原故障”的变异检查。只有用户能接受风险；原因说明 `rationale` 可选，但用户原话和范围必填，而且接受风险仍代表技术问题未解决。若审查契约中的门禁省略了作用域，台账会把它展开为显式排序的 `affected_targets` 列表，风险接受不能豁免门禁。
+
+内置的纯标准库工具可以校验台账，并生成英文或中文 Markdown：
+
+```bash
+python3 skills/ratemycode/scripts/audit_ledger.py validate evals/ledgers/initial.json
+python3 skills/ratemycode/scripts/audit_ledger.py validate --prior evals/ledgers/initial.json evals/ledgers/closed-loop.json
+python3 skills/ratemycode/scripts/audit_ledger.py render --prior evals/ledgers/initial.json --language zh-CN --output audit-report.md evals/ledgers/closed-loop.json
+```
+
+校验器会检查结构一致性、版本与验证过程绑定；每个链式快照都必须提供 `--prior`，并验证连续性；修复者与复测者 ID 必须不同。它不是密码学身份验证、签名、可信时间戳或防篡改审计系统。高风险治理仍需使用存放在受审仓库之外的外部签名证明。完整 schema 和身份生成方法请参阅 [`audit-ledger.md`](skills/ratemycode/references/audit-ledger.md)。
 
 ## 为什么它不是又一个代码审查提示词
 
@@ -199,7 +237,7 @@ python3 skills/ratemycode/scripts/score_review.py --pretty evals/scorecards/bloc
 
 首次审查默认只读。这个 skill 会要求 Agent 不得编辑代码、改变基础设施、向银行卡扣款、删除数据或触碰外部系统，除非用户明确提出要求，且操作范围已得到安全限定。
 
-仓库内容、网页、日志和测试夹具都会被当作不可信证据，而不是指令。评分器是仅使用标准库的确定性 Python 程序。威胁模型和披露流程请参阅 [SECURITY.md](SECURITY.md)。
+仓库内容、网页、日志和测试夹具都会被当作不可信证据，而不是指令。评分器和审计台账渲染器都是仅使用标准库的确定性 Python 程序。威胁模型和披露流程请参阅 [SECURITY.md](SECURITY.md)。
 
 ## 仓库结构
 
@@ -207,14 +245,15 @@ python3 skills/ratemycode/scripts/score_review.py --pretty evals/scorecards/bloc
 .claude-plugin/         Claude Code 插件和市场清单
 .agents/plugins/        Codex 仓库市场
 plugins/ratemycode/     自包含的 Codex 插件和商店素材
-skills/ratemycode/      规范 skill、始终加载的审查契约、可选评分契约、UI 元数据、评分器
+skills/ratemycode/      规范 skill、审查/台账/评分契约、UI 元数据、校验器和渲染器
 evals/trigger_cases.json 包含近似负例的触发选择评估
 evals/execution_cases.json 有 skill 与无 skill 的行为对比评估
 evals/fixtures/          可复现的本地测试产物
+evals/ledgers/           已通过校验的审计—修复闭环示例
 submission/             通用 Plugins Directory 的上架文案和八项审核测试
 scripts/sync_codex_plugin.py 生成包同步
 scripts/validate_repo.py 内置 schema 和引用完整性检查
-tests/                   确定性评分器测试
+tests/                   确定性评分器与审计台账测试
 ```
 
 触发选择和执行质量会刻意放在不同文件中评估，以便将失败定位到发现阶段或行为阶段。

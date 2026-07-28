@@ -1,0 +1,270 @@
+{
+  "schema_version": "1",
+  "ledger_id": "RMC-checkout-example-001",
+  "previous_ledger_ref": "sha256:2cc427a34b80ecc9cd8dec9a39ac176073554d55bbac275b5825a71b770af17c",
+  "artifact": {
+    "name": "Disposable checkout fixture",
+    "initial_release_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "current_release_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "identity_method": "sha256-tree",
+    "identity_scope": {
+      "root": ".",
+      "included": ["fixture-src/**", "fixture-tests/**"],
+      "excluded": [".git/**", ".ratemycode/**", "build/**", "cache/**", "secrets/**"],
+      "symlink_policy": "reject-all"
+    }
+  },
+  "review": {
+    "role": "staff-engineer",
+    "degree": "launch-gate",
+    "requested_target": "public-launch",
+    "rubric_id": "ratemycode/staff-engineer/launch-gate/v1",
+    "ai_behavior": "none"
+  },
+  "loop_mode": "fix-and-retest",
+  "verdict": {
+    "initial_decision": "BLOCKED",
+    "current_decision": "READY_WITH_CONDITIONS",
+    "maximum_safe_target": "public-launch"
+  },
+  "workflow_blockers": [],
+  "release_checks": [],
+  "scoring": {
+    "requested": false,
+    "threshold_met": null,
+    "scorecard_ref": null
+  },
+  "venture_assessment": null,
+  "root_causes": [
+    {
+      "id": "RC-001",
+      "title": "Missing ownership enforcement",
+      "summary": "The order lookup trusted an object identifier without checking the authenticated owner.",
+      "finding_ids": ["F-001"]
+    },
+    {
+      "id": "RC-002",
+      "title": "Unbounded retry experience",
+      "summary": "The retry path is safe but does not explain how long recovery can take.",
+      "finding_ids": ["F-002"]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "E-001",
+      "state": "E3",
+      "kind": "runtime",
+      "lane": "critical-journey-e2e",
+      "result": "fail",
+      "reproducible": true,
+      "fresh": true,
+      "release_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "summary": "Alice retrieved Bob's paid order by changing the order ID.",
+      "locator": "runtime trace ownership-before-001",
+      "subject_id": "F-001",
+      "procedure": "reproduction",
+      "gate_id": "authorization-bypass"
+    },
+    {
+      "id": "E-002",
+      "state": "E1",
+      "kind": "code",
+      "lane": "deterministic-checks",
+      "result": "fail",
+      "reproducible": true,
+      "fresh": true,
+      "release_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "summary": "The recovery response has no pending-state explanation or retry horizon.",
+      "locator": "app.py:88",
+      "subject_id": "F-002",
+      "procedure": "reproduction"
+    },
+    {
+      "id": "E-003",
+      "state": "E3",
+      "kind": "runtime",
+      "lane": "critical-journey-e2e",
+      "result": "pass",
+      "reproducible": true,
+      "fresh": true,
+      "release_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "summary": "Cross-owner reads now return 404 while same-owner reads still succeed.",
+      "locator": "runtime trace ownership-after-002",
+      "subject_id": "F-001",
+      "procedure": "acceptance",
+      "gate_id": "authorization-bypass"
+    },
+    {
+      "id": "E-004",
+      "state": "E2",
+      "kind": "test",
+      "lane": "deterministic-checks",
+      "result": "pass",
+      "reproducible": true,
+      "fresh": true,
+      "release_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "summary": "Owner-scoped list, detail, and receipt regression tests pass.",
+      "locator": "tests/test_orders.py::test_owner_routes",
+      "subject_id": "F-001",
+      "procedure": "adjacent-regression"
+    },
+    {
+      "id": "E-005",
+      "state": "E2",
+      "kind": "test",
+      "lane": "deterministic-checks",
+      "result": "pass",
+      "reproducible": true,
+      "fresh": true,
+      "release_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "summary": "The ownership acceptance suite kills a missing-owner-check mutation.",
+      "locator": "tests/test_orders.py::test_owner_mutation",
+      "subject_id": "F-001",
+      "procedure": "mutation"
+    },
+    {
+      "id": "E-006",
+      "state": "E3",
+      "kind": "runtime",
+      "lane": "critical-journey-e2e",
+      "result": "pass",
+      "reproducible": true,
+      "fresh": true,
+      "release_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "summary": "Refreshing after a timeout preserves the order and displays its final state.",
+      "locator": "runtime trace recovery-after-003",
+      "subject_id": "U-001",
+      "procedure": "unknown-resolution"
+    },
+    {
+      "id": "E-007",
+      "state": "E2",
+      "kind": "log",
+      "lane": "continuous-evidence",
+      "result": "pass",
+      "reproducible": true,
+      "fresh": true,
+      "release_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "summary": "The identified release emits owner-denial and timeout-recovery events to the launch monitor.",
+      "locator": "launch monitor sample window-004",
+      "subject_id": null,
+      "procedure": "release-lane"
+    }
+  ],
+  "evidence_lanes": {
+    "deterministic-checks": {
+      "status": "PASS",
+      "evidence_ids": ["E-004", "E-005"]
+    },
+    "critical-journey-e2e": {
+      "status": "PASS",
+      "evidence_ids": ["E-003", "E-006"]
+    },
+    "probabilistic-eval": {
+      "status": "N/A",
+      "evidence_ids": [],
+      "reason": "The fixture has no LLM, agent, or RAG behavior."
+    },
+    "continuous-evidence": {
+      "status": "PASS",
+      "evidence_ids": ["E-007"]
+    }
+  },
+  "gates": [
+    {
+      "id": "authorization-bypass",
+      "state": "fixed",
+      "evidence_ids": ["E-001"],
+      "retest_evidence_ids": ["E-003"],
+      "affected_targets": ["private-beta", "public-launch", "real-money", "high-stakes"],
+      "finding_ids": ["F-001"]
+    }
+  ],
+  "findings": [
+    {
+      "id": "F-001",
+      "severity": "BLOCKER",
+      "title": "Any signed-in user can read another user's order",
+      "promise_or_invariant": "A user can read only orders they own.",
+      "preconditions": ["Alice and Bob each have an order", "Alice is signed in"],
+      "reproduction_steps": ["Request Bob's order ID using Alice's session"],
+      "expected": "The service denies or hides Bob's order.",
+      "actual": "The service returned Bob's complete order.",
+      "evidence_ids": ["E-001"],
+      "impact": "A customer can expose another customer's purchase data",
+      "suspected_cause": "Inference: the lookup filters by order ID but not authenticated owner.",
+      "minimum_fix_or_agent_prompt": "Bind every order read to both order ID and authenticated owner.",
+      "acceptance_test": "Repeat the cross-owner request and require 404, then confirm same-owner access succeeds.",
+      "adjacent_regression_check": "Exercise list, detail, and receipt routes for both owners.",
+      "root_cause_id": "RC-001",
+      "gate_id": "authorization-bypass",
+      "status": "verified-fixed",
+      "fix_authorization": {
+        "authorized_by": "user",
+        "statement": "Fix F-001 in the disposable fixture and retest it.",
+        "scope": "F-001 and ownership regression tests"
+      },
+      "fix": {
+        "origin": "authorized-agent",
+        "actor_id": "agent:fix-context-001",
+        "change_ref": "git:0123456789abcdef0123456789abcdef01234567",
+        "summary": "Added the authenticated owner to every order lookup."
+      },
+      "retest": {
+        "classification": "FIXED",
+        "reviewer_id": "agent:independent-retest-002",
+        "reviewer_context": "independent-agent",
+        "release_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "evidence_ids": ["E-003", "E-004", "E-005"],
+        "acceptance_test": "pass",
+        "adjacent_regression_check": "pass",
+        "mutation_test": {
+          "status": "killed"
+        }
+      },
+      "risk_acceptance": null,
+      "blocker": null
+    },
+    {
+      "id": "F-002",
+      "severity": "MEDIUM",
+      "title": "Timeout recovery does not explain when to retry",
+      "promise_or_invariant": "A timed-out customer can understand the order state and next action.",
+      "preconditions": ["Checkout times out after the order is accepted"],
+      "reproduction_steps": ["Refresh the order page immediately after the timeout"],
+      "expected": "The page explains the pending state and a safe retry horizon.",
+      "actual": "The page shows a generic pending label without timing guidance.",
+      "evidence_ids": ["E-002"],
+      "impact": "Some customers may retry unnecessarily or contact support",
+      "suspected_cause": "Inference: the recovery UI has no product copy for delayed completion.",
+      "minimum_fix_or_agent_prompt": "Add pending-state guidance and a safe retry horizon without changing order semantics.",
+      "acceptance_test": "A timed-out checkout displays the pending reason, safe next action, and retry horizon.",
+      "adjacent_regression_check": "Successful and failed checkouts retain their existing terminal messages.",
+      "root_cause_id": "RC-002",
+      "gate_id": null,
+      "status": "accepted-risk",
+      "fix_authorization": null,
+      "fix": null,
+      "retest": null,
+      "risk_acceptance": {
+        "accepted_by": "user",
+        "statement": "I accept F-002 for this public launch and will fix the copy next week.",
+        "scope": "F-002 for public-launch only",
+        "rationale": "The order itself recovers correctly and support will monitor confusion."
+      },
+      "blocker": null
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "U-001",
+      "unresolved_condition": "The final state after a client timeout has not been exercised.",
+      "why_it_matters": "A customer could lose confidence or repeat a completed order.",
+      "missing_evidence": "A timeout, refresh, and resume runtime trace.",
+      "resolving_test": "Interrupt checkout after acceptance, refresh, and inspect the recovered state.",
+      "status": "cleared",
+      "resolution_evidence_ids": ["E-006"],
+      "finding_id": null
+    }
+  ]
+}
