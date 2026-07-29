@@ -6,6 +6,14 @@ Staff-level product scrutiny for apps built faster than their authors could lear
 
 > Your app is finished. Now it has to survive a Staff-level review.
 
+Never want to read the code at all? You don't have to — just don't treat RateMyCode as a one-turn persona. Attach a durable goal to the session (`/goal` in Codex; in Claude Code, send the same sentence as your first message):
+
+```text
+/goal use ratemycode to audit whether this app can launch, and fix it until it can ship safely
+```
+
+The agent carries that goal through the whole audit → fix → independent-retest loop, reads the code for you, and brings back the evidence.
+
 [![MIT License](https://img.shields.io/badge/license-MIT-2f855a.svg)](LICENSE)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-5b5bd6.svg)](https://agentskills.io/)
 [![skills.sh](https://skills.sh/b/AmsonntagChow/ratemycode)](https://skills.sh/amsonntagchow/ratemycode/ratemycode)

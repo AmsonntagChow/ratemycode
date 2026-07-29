@@ -6,6 +6,14 @@
 
 > 你的应用已经做完了。现在，它必须经得起 Staff 级审查。
 
+完全不想看代码？可以——但别把 RateMyCode 当成聊一轮就散的人设。给会话挂一个目标（Codex 里用 `/goal`；Claude Code 里把同一句话当第一条消息发出去）：
+
+```text
+/goal 用 ratemycode 审查这个应用能不能上线，修到能安全发布为止
+```
+
+agent 会带着这个目标跑完「审计 → 修复 → 独立复测」的整个闭环，替你把代码读完，把证据摆到你面前。
+
 [![MIT License](https://img.shields.io/badge/license-MIT-2f855a.svg)](LICENSE)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-5b5bd6.svg)](https://agentskills.io/)
 [![skills.sh](https://skills.sh/b/AmsonntagChow/ratemycode)](https://skills.sh/amsonntagchow/ratemycode/ratemycode)
