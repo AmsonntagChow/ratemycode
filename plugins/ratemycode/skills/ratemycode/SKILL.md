@@ -64,10 +64,13 @@ When safely runnable:
 1. Complete the golden path.
 2. Trigger one realistic failure path.
 3. Repeat, refresh, retry, or resume one state-changing action.
-4. Cross one applicable identity, tenant, role, or ownership boundary.
-5. Check the lifecycle boundary most relevant to the promise, such as cancellation, deletion, recovery, export, or renewal.
+4. Fire one concurrent burst: several simultaneous requests for the same state-changing action, then inspect durable state for duplicate effects, lost updates, or split invariants. Serial repetition does not test this.
+5. Cross one applicable identity, tenant, role, or ownership boundary.
+6. Check the lifecycle boundary most relevant to the promise, such as cancellation, deletion, recovery, export, or renewal.
 
 Capture browser state, network traces, screenshots, logs, tests, persisted state, or exact command output. Do not perform destructive or financial tests in production without explicit authorization and a safe sandbox or account.
+
+A burst that produces a duplicate or inconsistent durable effect is E3 evidence. A clean burst alone is not a pass: locate the compensating guard — unique constraint, idempotency key, transaction isolation, or lock — and when no guard exists, file the open race window as an E1 finding even though the burst did not trip it.
 
 For a non-VC release review, if the product contains LLM, agent, or RAG behavior, repeat a focused task eval and record the model, prompt, eval set, judge, and applicable tool or retrieval configuration. Do not impose this requirement on deterministic products or use it as a substitute for venture signals. Treat this repository's own CI and fixture validation as structural evidence, never proof that a behavioral eval ran.
 
@@ -101,9 +104,9 @@ For a requested saved report or authorized fix loop, read `references/audit-ledg
 
 ### 8. Fix and re-review
 
-For `fix-and-retest`, record the user's exact authorization and scope, cluster findings only by a concrete shared root cause, and fix one authorized batch at a time. Preserve the prior JSON snapshot, compute a new immutable release identity after each batch, keep any proven gate active, and move a changed finding only to `fixed-pending-retest`. When an authorized batch establishes or restores a durable project convention — a single source of truth, a canonical expression of one state, a naming or interaction rule — persist it in a short conventions document inside the project (create or append `docs/conventions.md`, or the project's existing agent-instructions file) so later maintainers and agents keep the style, and include that document in the batch's change references. Then use a separate review context to run the original acceptance and adjacent regression checks; only its fresh passing evidence may close the gate and advance the finding to `verified-fixed`. Link the new snapshot to the exact prior bytes and validate it with `--prior`.
+For `fix-and-retest`, record the user's exact authorization and scope, cluster findings only by a concrete shared root cause, and fix one authorized batch at a time. Preserve the prior JSON snapshot, compute a new immutable release identity after each batch, keep any proven gate active, and move a changed finding only to `fixed-pending-retest`. When an authorized batch establishes or restores a durable project convention — a single source of truth, a canonical expression of one state, a naming or interaction rule — persist it in a short conventions document inside the project (create or append `docs/conventions.md`, or the project's existing agent-instructions file) so later maintainers and agents keep the style, and include that document in the batch's change references. Then use a separate review context with two mandates: run the original acceptance and adjacent regression checks, and delta-audit the batch — treat the full diff between the prior and new release identity as fresh audit surface under the same role and degree, filing each new defect as a new finding with a new ID. Only that context's fresh passing evidence may close the gate and advance the finding to `verified-fixed`, and a batch stays open while its delta audit is unrun or has unresolved findings. Link the new snapshot to the exact prior bytes and validate it with `--prior`.
 
-Apply the re-review identity and status rules from `references/review-contract.md`. Use an independent agent, external reviewer, or deliberately fresh context for the retest; never let the fixing pass declare itself `verified-fixed`. Show before/after evidence, regressions, maximum-safe-target changes, and raw/readiness deltas when numeric scoring was used. Stop only at verified closure, explicit user risk acceptance with technical limits preserved, or a named blocker.
+Apply the re-review identity and status rules from `references/review-contract.md`. Use an independent agent, external reviewer, or deliberately fresh context for the retest; never let the fixing pass declare itself `verified-fixed`. Show before/after evidence, regressions, maximum-safe-target changes, and raw/readiness deltas when numeric scoring was used. Stop only at verified closure — every finding verified-fixed and the final batch's delta audit clean — explicit user risk acceptance with technical limits preserved, or a named blocker.
 
 ## Resource index
 

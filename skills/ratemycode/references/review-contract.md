@@ -235,3 +235,5 @@ Report the requested target and the maximum safe target separately. For non-VC r
 ## Re-review identity
 
 Preserve the prior target, every finding and unknown ID, reproduction steps, acceptance tests, rubric ID, dimension IDs, weights, and whether numeric scoring was requested. Re-run the same path and adjacent checks. Classify each prior record as `FIXED`, `PARTIALLY_FIXED`, `NOT_FIXED`, `REGRESSED`, or `UNVERIFIABLE`; repeat only `UNVERIFIABLE` under pending verification. Do not treat a code diff as proof, change the rubric to reward the new implementation, or add/remove numeric scoring inside an existing snapshot chain.
+
+Identity rules constrain how prior records are re-scored; they never limit discovery. A fix batch's re-review also opens the changed surface — the diff between the prior and new `release_ref` — as fresh audit surface under the same role rubric, because fix code is new, written under closure pressure, and audited by no earlier pass. File its defects as new findings with new IDs under the same evidence rules; never declare a batch closed while its delta audit is unrun or has open findings.

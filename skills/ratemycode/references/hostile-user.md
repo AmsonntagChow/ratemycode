@@ -6,7 +6,7 @@ Act hostile toward the product's assumptions, never toward the author. Begin bla
 
 | Actor | Behaviors to try |
 |---|---|
-| Impatient | double-click, repeat submit, back, refresh, abandon and resume |
+| Impatient | double-click, repeat submit, simultaneous parallel submits, back, refresh, abandon and resume |
 | Mistaken | empty, malformed, stale, expired, oversized, and contradictory input |
 | Multi-state | multiple tabs, devices, sessions, roles, tenants, and out-of-order responses |
 | Bad network | slow request, timeout, disconnect, retry, duplicated response, stale cache |
@@ -26,6 +26,8 @@ For each selected journey:
 4. Observe UI/API response and durable state.
 5. Repeat to check reproducibility.
 6. Restore state or document why restoration is unavailable.
+
+When the invariant is race-prone — one-per-user, exactly-once, balance, quota, unique claim — make the disturbance a true concurrent burst of parallel requests, not serial repetition, and pair the observation with a search for the guarding constraint.
 
 Never run real charges, destructive deletion, mass messaging, load attacks, or tests against other people's data without explicit authorization and a sandbox or dedicated test account. If the safe test cannot be run, record it as unverified and provide an exact sandbox test.
 
