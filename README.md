@@ -6,13 +6,17 @@ Staff-level product scrutiny for apps built faster than their authors could lear
 
 > Your app is finished. Now it has to survive a Staff-level review.
 
-Never want to read the code at all? You don't have to — just don't treat RateMyCode as a one-turn persona. Attach a durable goal to the session (`/goal` in Codex; in Claude Code, send the same sentence as your first message):
+Ask for one review and you get one verdict:
 
 ```text
-/goal use ratemycode to audit whether this app can launch, and fix it until it can ship safely
+Audit this app for a public launch. Test the real product, show evidence, block unsafe releases, list every issue, and name the three I should act on first.
 ```
 
-The agent carries that goal through the whole audit → fix → independent-retest loop, reads the code for you, and brings back the evidence.
+Attach a durable session goal (`/goal` in Codex; the same sentence as a first message in Claude Code) and the same skill stays on that target across many turns:
+
+```text
+/goal use ratemycode to get this app to a defensible public launch: audit it, fix what I authorize, and retest until the blockers are closed
+```
 
 [![MIT License](https://img.shields.io/badge/license-MIT-2f855a.svg)](LICENSE)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-5b5bd6.svg)](https://agentskills.io/)
@@ -40,11 +44,7 @@ For Cursor or another Agent Skills client—or a lightweight Codex skill-only in
 npx skills add AmsonntagChow/ratemycode --skill ratemycode
 ```
 
-Do not install both Claude methods in the same scope. Then use a concrete first prompt so the skill is selected:
-
-```text
-Audit this app for a public launch. Test the real product, show evidence, block unsafe releases, and give me the three fastest fixes.
-```
+Do not install both Claude methods in the same scope. Then open with either prompt above so the skill is selected.
 
 ## What it is
 

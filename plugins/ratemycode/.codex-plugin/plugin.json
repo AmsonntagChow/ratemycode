@@ -35,7 +35,7 @@
     "privacyPolicyURL": "https://github.com/AmsonntagChow/ratemycode/blob/main/PRIVACY.md",
     "termsOfServiceURL": "https://github.com/AmsonntagChow/ratemycode/blob/main/TERMS.md",
     "defaultPrompt": [
-      "As a Staff engineer, audit this app for a public launch and give me the three fastest fixes.",
+      "As a Staff engineer, audit this app for a public launch: list every issue and name the three to fix first.",
       "As a hostile user, strictly test signup, checkout, recovery, and cancellation.",
       "As a skeptical VC, separate product evidence from founder claims and name the cheapest next test."
     ],

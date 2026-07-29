@@ -6,13 +6,17 @@
 
 > 你的应用已经做完了。现在，它必须经得起 Staff 级审查。
 
-完全不想看代码？可以——但别把 RateMyCode 当成聊一轮就散的人设。给会话挂一个目标（Codex 里用 `/goal`；Claude Code 里把同一句话当第一条消息发出去）：
+要一次审查，就得到一个结论：
 
 ```text
-/goal 用 ratemycode 审查这个应用能不能上线，修到能安全发布为止
+审查这个应用是否适合公开上线。测试真实产品，展示证据，阻止不安全的发布，列出全部问题，并指出我现在最该动手的三件事。
 ```
 
-agent 会带着这个目标跑完「审计 → 修复 → 独立复测」的整个闭环，替你把代码读完，把证据摆到你面前。
+给会话挂一个持久目标（Codex 里用 `/goal`；Claude Code 里把同一句话当第一条消息发出去），同一个 skill 就会跨很多轮盯着这个目标：
+
+```text
+/goal 用 ratemycode 把这个应用推到能公开上线：先审计，再修我授权的部分，复测到阻断项清零
+```
 
 [![MIT License](https://img.shields.io/badge/license-MIT-2f855a.svg)](LICENSE)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-5b5bd6.svg)](https://agentskills.io/)
@@ -40,11 +44,7 @@ codex plugin marketplace add AmsonntagChow/ratemycode
 npx skills add AmsonntagChow/ratemycode --skill ratemycode
 ```
 
-不要在同一作用域内同时使用两种 Claude 安装方式。之后，请给出一个具体的首次提示词，以便选中该 skill：
-
-```text
-审查这个应用是否适合公开上线。测试真实产品，展示证据，阻止不安全的发布，并告诉我最快能完成的三个修复。
-```
+不要在同一作用域内同时使用两种 Claude 安装方式。之后，用上面任意一条提示词开场，即可选中该 skill。
 
 ## 它是什么
 

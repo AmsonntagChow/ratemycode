@@ -22,7 +22,7 @@ RateMyCode audits a real AI-built product, not just its code style. Choose a pro
 
 ## Starter prompts
 
-1. As a Staff engineer, audit this app for a public launch and give me the three fastest fixes.
+1. As a Staff engineer, audit this app for a public launch: list every issue and name the three to fix first.
 2. As a hostile user, strictly test signup, checkout, recovery, and cancellation.
 3. As a skeptical VC, separate product evidence from founder claims and name the cheapest next test.
 
