@@ -68,9 +68,11 @@ It deliberately separates four things that generic reviewers often mix together:
 - release readiness and hard vetoes
 - the author's understanding, only when oral defense is requested
 
+Before asking about role or degree, RateMyCode performs a minimal read-only artifact gate. It resolves one coherent product target while allowing linked surfaces such as its repository, deployment, logs, and analytics. If the current workspace is empty or unrelated, a supplied target is missing, or several independent products are ambiguous, it asks for a project path, repository, deployment URL, attachment, or product-evidence file and stops without inspecting, scoring, or issuing a verdict. An existing project that cannot run still proceeds as a clearly limited static review.
+
 ## Roles and degree
 
-The skill asks two questions before it begins whenever the request does not already answer them:
+After one audit target is resolved, the skill asks two questions before it begins whenever the request does not already answer them:
 
 ```text
 1. Role: Product lead / Hostile user / Staff engineer / Skeptical VC / Oral-defense examiner

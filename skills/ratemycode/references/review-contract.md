@@ -144,7 +144,7 @@ VentureAssessment = {
 }
 ```
 
-A generic warning is not a `Finding`. Connect it to a reachable product state, an invariant, an observed or static fact, and a consequence. Keep hypotheses as `Unknown` until resolved. Use `WorkflowBlocker` only for missing access, dependencies, environments, or external decisions that prevent required work or verification; an active blocker has no resolution evidence, while a resolved blocker needs fresh current passing non-E0 proof bound to that blocker. Bind blocker, release-check, and venture-signal evidence to the named record, and never reuse one record across siblings. The persistent field-level rules are in `references/audit-ledger.md`.
+A generic warning is not a `Finding`. Connect it to a reachable product state, an invariant, an observed or static fact, and a consequence. Keep hypotheses as `Unknown` until resolved. Use `WorkflowBlocker` only after the artifact gate passes, for missing access, dependencies, environments, or external decisions that prevent required work or verification. The absence of any resolved review subject is a pre-review input gap, not a workflow blocker; do not create a verdict or ledger for it. An active blocker has no resolution evidence, while a resolved blocker needs fresh current passing non-E0 proof bound to that blocker. Bind blocker, release-check, and venture-signal evidence to the named record, and never reuse one record across siblings. The persistent field-level rules are in `references/audit-ledger.md`.
 
 ## Plain-language verdict interface
 

@@ -1,6 +1,6 @@
 {
   "name": "ratemycode",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Audits AI-built and vibe-coded apps for release risk, then optionally records authorized fixes and independent retests in a durable audit ledger.",
   "author": {
     "name": "AmsonntagChow",
@@ -22,7 +22,7 @@
   "interface": {
     "displayName": "RateMyCode",
     "shortDescription": "Find blockers before you ship",
-    "longDescription": "RateMyCode audits a real AI-built product, not just its code style. Choose a product lead, hostile user, Staff engineer, skeptical VC, or oral-defense professor, then choose how hard to judge it. The plugin tests real flows when possible, traces failures into the implementation, blocks unsafe launches, and returns every finding in plain language. When explicitly authorized, it records scoped fixes, new release identities, independent retests, and remaining risk in a durable JSON audit ledger with a generated Markdown report.",
+    "longDescription": "RateMyCode audits a real AI-built product, not just its code style. It first confirms one coherent product target from one or more linked artifacts such as a repository and deployment; an empty or genuinely ambiguous workspace stops before settings, scoring, or a verdict. Then choose a product lead, hostile user, Staff engineer, skeptical VC, or oral-defense professor and how hard to judge it. The plugin tests real flows when possible, traces failures into the implementation, blocks unsafe launches, and returns every finding in plain language. When explicitly authorized, it records scoped fixes, new release identities, independent retests, and remaining risk in a durable JSON audit ledger with a generated Markdown report.",
     "developerName": "AmsonntagChow",
     "category": "Productivity",
     "capabilities": [

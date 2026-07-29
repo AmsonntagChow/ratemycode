@@ -2,6 +2,13 @@
   "schema_version": "1",
   "positive": [
     {
+      "id": "artifact-gate-empty-workspace",
+      "prompt": "Rate this app and tell me what you think.",
+      "expected_behavior": "Invoke RateMyCode, perform only a minimal read-only target-presence check, report that no auditable artifact is available, request one concrete project path, repository, deployment URL, attachment, or product-evidence file, and stop before the settings gate.",
+      "expected_result_shape": "One concise request for an auditable target; no role or degree question, content inspection, finding, score, verdict, workflow blocker, or audit ledger.",
+      "fixture": "Use a new empty workspace with no repository, source, product-evidence file, attachment, or deployment URL; no account or credential is required."
+    },
+    {
       "id": "settings-both-missing",
       "prompt": "Rate this app and tell me what you think.",
       "expected_behavior": "Invoke RateMyCode, ask both mandatory setting questions together with reviewer role first and review degree second, and wait without inspecting or scoring the app.",

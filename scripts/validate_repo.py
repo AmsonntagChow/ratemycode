@@ -370,8 +370,8 @@ def validate_plugin_submission(errors: list[str]) -> None:
         return
     positive = payload.get("positive")
     negative = payload.get("negative")
-    if not isinstance(positive, list) or len(positive) != 5:
-        errors.append("Plugin submission must contain exactly five positive test cases")
+    if not isinstance(positive, list) or len(positive) != 6:
+        errors.append("Plugin submission must contain exactly six positive test cases")
         positive = []
     if not isinstance(negative, list) or len(negative) != 3:
         errors.append("Plugin submission must contain exactly three negative test cases")
@@ -394,6 +394,14 @@ def validate_plugin_submission(errors: list[str]) -> None:
             for field in required[kind]:
                 if not isinstance(case.get(field), str) or not case[field].strip():
                     errors.append(f"Plugin {kind} test case {case_id!r} needs {field}")
+
+    positive_ids = {
+        case.get("id")
+        for case in positive
+        if isinstance(case, dict) and isinstance(case.get("id"), str)
+    }
+    if "artifact-gate-empty-workspace" not in positive_ids:
+        errors.append("Plugin submission must include the empty-workspace artifact-gate test")
 
 
 def validate_trigger_evals(errors: list[str]) -> None:
@@ -438,6 +446,21 @@ def validate_trigger_evals(errors: list[str]) -> None:
     if (train, holdout) != (12, 8):
         errors.append(f"trigger eval split must be 60/40 (12/8); received {train}/{holdout}")
 
+    cases_by_id = {
+        case.get("id"): case
+        for case in cases
+        if isinstance(case, dict) and isinstance(case.get("id"), str)
+    }
+    missing_target = cases_by_id.get("p03")
+    if not isinstance(missing_target, dict) or (
+        missing_target.get("should_trigger") is not True
+        or missing_target.get("expected_route") != "artifact-gate"
+    ):
+        errors.append("trigger case 'p03' must select the artifact gate when review intent exists without a target")
+    idea_only = cases_by_id.get("n06")
+    if not isinstance(idea_only, dict) or idea_only.get("should_trigger") is not False:
+        errors.append("trigger case 'n06' must remain a non-trigger for idea-only fundraising help")
+
 
 def validate_execution_evals(errors: list[str]) -> None:
     payload = load_json("evals/execution_cases.json", errors)
@@ -454,10 +477,10 @@ def validate_execution_evals(errors: list[str]) -> None:
         errors.append("execution evals must state that repository validation is structural, not behavioral proof")
     cases = payload.get("cases")
     if not isinstance(cases, list):
-        errors.append("execution evals must contain exactly nine cases")
+        errors.append("execution evals must contain exactly twelve cases")
         return
-    if len(cases) != 9:
-        errors.append(f"execution evals must contain exactly nine cases; received {len(cases)}")
+    if len(cases) != 12:
+        errors.append(f"execution evals must contain exactly twelve cases; received {len(cases)}")
     ids: set[str] = set()
     for index, case in enumerate(cases):
         if not isinstance(case, dict):
@@ -473,6 +496,24 @@ def validate_execution_evals(errors: list[str]) -> None:
         assertions = case.get("skill_specific_assertions")
         if not isinstance(assertions, list) or len(assertions) < 2:
             errors.append(f"execution case {case_id!r} needs at least two skill-specific assertions")
+
+    required_artifact_gate_cases = {
+        "missing-artifact-gate": "artifact-gate",
+        "missing-explicit-target": "artifact-gate",
+        "linked-surfaces-one-subject": "artifact-gate+settings-gate",
+        "static-only-release-claim": "staff-engineer",
+    }
+    cases_by_id = {
+        case.get("id"): case
+        for case in cases
+        if isinstance(case, dict) and isinstance(case.get("id"), str)
+    }
+    for case_id, route in required_artifact_gate_cases.items():
+        case = cases_by_id.get(case_id)
+        if case is None:
+            errors.append(f"execution evals must include artifact-gate coverage {case_id!r}")
+        elif case.get("route") != route:
+            errors.append(f"execution case {case_id!r} must use route {route!r}")
 
 
 def validate_scorecard(errors: list[str]) -> None:

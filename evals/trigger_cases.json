@@ -3,7 +3,7 @@
   "purpose": "Measure whether the skill is selected, independently from review quality.",
   "runs_per_case": 3,
   "trigger_rate_threshold": 0.5,
-  "selection_rule": "product artifact or current workspace plus product-level judgment, adversarial testing, release decision, re-review, or artifact-grounded defense intent",
+  "selection_rule": "product-level judgment, adversarial testing, release decision, re-review, or artifact-grounded defense intent selects the skill even when target presence is uncertain; the artifact gate then requires one real review target",
   "cases": [
     {
       "id": "p01",
@@ -23,9 +23,9 @@
     {
       "id": "p03",
       "split": "train",
-      "prompt": "Act like a Staff engineer: review the product in this workspace, cite evidence from the app and repo, and tell me what blocks release.",
+      "prompt": "Rate my app as a Staff engineer. I have not attached a repository or deployment, and this workspace may be empty.",
       "should_trigger": true,
-      "expected_route": "staff-engineer"
+      "expected_route": "artifact-gate"
     },
     {
       "id": "p04",

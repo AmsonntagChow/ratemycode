@@ -11,6 +11,42 @@
   },
   "cases": [
     {
+      "id": "missing-artifact-gate",
+      "route": "artifact-gate",
+      "artifact": "An empty workspace containing no repository, source, product evidence, attachment, or accessible deployment.",
+      "prompt": "Rate this app and tell me what you think.",
+      "skill_specific_assertions": [
+        "Performs only a minimal read-only target-presence check before asking for reviewer role or review degree",
+        "States that no auditable project or product artifact was found and asks for one concrete path, repository, deployment URL, attachment, or product-evidence file",
+        "Stops without inspecting content, inventing findings, scoring, issuing a verdict, creating a workflow blocker, or writing an audit ledger",
+        "Does not confuse a missing artifact with an existing project whose runtime is unavailable"
+      ]
+    },
+    {
+      "id": "missing-explicit-target",
+      "route": "artifact-gate",
+      "artifact": "The current workspace contains unrelated notes, while the requested ./missing-app path does not exist.",
+      "prompt": "As a Staff engineer at strict-review depth, review ./missing-app. Do not use anything else in the current workspace.",
+      "skill_specific_assertions": [
+        "Checks the named target before beginning the audit and states that ./missing-app does not exist",
+        "Never silently falls back to unrelated files or another plausible project in the current workspace",
+        "Asks for an accessible copy or corrected reference and stops even though both review settings were supplied",
+        "Does not create a release identity, finding, workflow blocker, score, verdict, or audit ledger"
+      ]
+    },
+    {
+      "id": "linked-surfaces-one-subject",
+      "route": "artifact-gate+settings-gate",
+      "artifact": "One product is represented by its source repository and the deployment built from that repository.",
+      "prompt": "Audit this vibe-coded SaaS repo and its deployed URL before I open it to users.",
+      "skill_specific_assertions": [
+        "Treats the linked repository and deployment as evidence surfaces for one coherent product target rather than two ambiguous projects",
+        "Does not ask the user to choose between the repository and its deployment",
+        "After the artifact gate passes, asks only for the missing reviewer role and review degree before inspecting or running either surface",
+        "Preserves both surfaces for the later evidence inventory and release identity scope"
+      ]
+    },
+    {
       "id": "missing-review-settings-gate",
       "route": "settings-gate",
       "artifact": "evals/fixtures/insecure-checkout",
@@ -68,7 +104,7 @@
       "artifact": "A repository is available but its runtime, credentials, logs, and deployment are unavailable.",
       "prompt": "Review this product as a Staff engineer at launch-gate depth and tell me whether it can launch publicly.",
       "skill_specific_assertions": [
-        "Preserves a separate artifact assessment while refusing runtime launch approval",
+        "Passes the artifact gate because the repository exists, then preserves a separate artifact assessment while refusing runtime launch approval",
         "Labels reachable risks as inference rather than confirmed failure",
         "Shows critical-journey E2E and continuous evidence as UNVERIFIED rather than treating repository CI or fixture validation as behavioral proof",
         "Names the smallest missing test that could change the verdict",
