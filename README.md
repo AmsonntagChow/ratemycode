@@ -50,7 +50,7 @@ Do not install both Claude methods in the same scope. Then open with either prom
 
 RateMyCode is a portable [Agent Skill](https://agentskills.io/) for judging an actual product—not merely styling a code review as a persona.
 
-It starts from product promises and real user journeys, tests behavior when possible, traces failures into code, distinguishes proof from inference, and ends with a release decision. A fatal authorization or payment failure cannot disappear inside a flattering average score.
+It starts from product promises and real user journeys, tests behavior when possible, compares overlapping facts across internal docs, `llms.txt`, schemas, examples, UI copy, and live documentation, traces failures into code, distinguishes proof from inference, and ends with a release decision. A fatal authorization or payment failure cannot disappear inside a flattering average score.
 
 The default loop is:
 
@@ -68,7 +68,7 @@ It deliberately separates four things that generic reviewers often mix together:
 - release readiness and hard vetoes
 - the author's understanding, only when oral defense is requested
 
-Before asking about role or degree, RateMyCode performs a minimal read-only artifact gate. It resolves one coherent product target while allowing linked surfaces such as its repository, deployment, logs, and analytics. If the current workspace is empty or unrelated, a supplied target is missing, or several independent products are ambiguous, it asks for a project path, repository, deployment URL, attachment, or product-evidence file and stops without inspecting, scoring, or issuing a verdict. An existing project that cannot run still proceeds as a clearly limited static review.
+Before asking about role or degree, RateMyCode performs a minimal read-only artifact gate. It resolves one coherent product target while allowing linked surfaces such as its repository, deployment, logs, analytics, and documentation. If the current workspace is empty or unrelated, a supplied target is missing, or several independent products are ambiguous, it asks for a project path, repository, deployment URL, attachment, or product-evidence file and stops without inspecting, scoring, or issuing a verdict. An existing project that cannot run still proceeds as a clearly limited static review.
 
 ## Roles and degree
 
@@ -106,6 +106,7 @@ Every review first gives a complete one-line problem list in the user's language
 ```text
 One-line problem list
 - [HIGH · F-004 · open] Payment retries cause duplicate charges: the same order may charge a user twice.
+- [HIGH · F-006 · open] API-key expiry differs between the internal doc, llms.txt, and /api-keys/docs: integrators cannot know when credentials will stop working.
 - [MEDIUM · F-007 · verified-fixed] Checkout reported success before saving the order: the user could pay for an order that did not exist.
 
 Pending verification
@@ -132,6 +133,8 @@ Retest plan:
 ```
 
 The opening list includes every confirmed finding—open, in progress, accepted, or independently fixed—in one severity-sorted view, with exactly one plain-language sentence saying what happens and why it matters. It never hides findings behind a “top three” cap. Unverifiable fixes, open unknowns, and active workflow blockers stay under `Pending verification` and are not presented as resolved facts. The four evidence lanes then show exactly what is proven; one green lane cannot cover another. Detailed findings close the loop from product invariant to exact reproduction, visible evidence, consequence, minimum fix, and acceptance test. Missing or stale evidence never counts as a pass.
+
+When documentation surfaces overlap, the default comparison is fact-level rather than byte-level: wording may differ, but endpoints, permissions, defaults, limits, expiry, errors, and lifecycle rules must remain compatible in the same version and environment. Byte-exact comparison is used only when explicitly requested or required by a generated-mirror contract. A confirmed textual contradiction becomes a normal finding in the opening list. An inaccessible private document or live page stays explicitly unknown; it is never silently counted as consistent, and documentation alone is never treated as proof of runtime behavior.
 
 ## Audit ledger and fix loop
 
@@ -172,6 +175,7 @@ The validator enforces structural consistency, release and procedure binding, re
 - It reviews the product contract and state transitions; code is one source of evidence.
 - It asks for reviewer role and review degree before reviewing instead of silently defaulting to engineering.
 - It black-box tests before disappearing into implementation details.
+- It compares actionable facts across internal docs, `llms.txt`, schemas, examples, UI copy, and live documentation without flagging harmless wording differences.
 - It separates deterministic checks, critical-journey E2E, probabilistic eval, and continuous evidence instead of collapsing everything into “tests passed.”
 - It requires repeated, version-bound evals only when the product actually contains LLM, agent, or RAG behavior.
 - It refuses public-launch approval when runtime evidence is unavailable.

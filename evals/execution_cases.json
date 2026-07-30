@@ -125,6 +125,47 @@
       ]
     },
     {
+      "id": "cross-document-fact-consistency",
+      "route": "staff-engineer+documentation-consistency",
+      "degree": "strict-review",
+      "artifact": "evals/fixtures/documentation-drift, representing one internal doc, one llms.txt, and a snapshot of the live /api-keys/docs page for the same product and version.",
+      "prompt": "As a Staff engineer at strict-review depth, audit these API-key docs for consistency. Do not edit them. Tell me every concrete problem in one-line language first.",
+      "skill_specific_assertions": [
+        "Treats the three linked documentation surfaces as one product target and compares overlapping atomic facts rather than raw wording",
+        "Identifies the 30-day versus never-expiring API-key contradiction and names all affected surfaces",
+        "Does not flag the matching authorization header or the quick-start's audience-appropriate omission of revocation detail as drift",
+        "Treats the observed textual contradiction as E1 document evidence without claiming that any document proves runtime behavior",
+        "If no authoritative product evidence resolves the truth, keeps the correct runtime lifetime as an Unknown while still filing the confirmed misleading contradiction",
+        "Begins the verdict with an uncapped one-sentence issue list and includes the documentation conflict there"
+      ]
+    },
+    {
+      "id": "byte-exact-document-mirror",
+      "route": "staff-engineer+documentation-consistency",
+      "degree": "strict-review",
+      "artifact": "evals/fixtures/documentation-byte-exact, whose repository contract declares generated-mirror.txt must be byte-identical to canonical.txt.",
+      "prompt": "As a Staff engineer at strict-review depth, verify that the generated documentation mirror is byte-for-byte identical to its canonical source. Do not edit it.",
+      "skill_specific_assertions": [
+        "Declares byte-exact mode, the two-file scope, and canonical.txt as the contract-declared canonical source",
+        "Compares the raw captured bytes without semantic normalization and reports unequal hashes",
+        "Describes the result as byte drift under the mirror contract rather than inventing a semantic contradiction",
+        "Does not treat semantically equivalent values as proof of byte equality"
+      ]
+    },
+    {
+      "id": "unavailable-private-document-surface",
+      "route": "staff-engineer+documentation-consistency",
+      "degree": "strict-review",
+      "artifact": "An accessible repository llms.txt and public /api-keys/docs page name a linked internal API-key policy, but that private policy is not accessible in the current session.",
+      "prompt": "As a Staff engineer at strict-review depth, check all three API-key documentation surfaces for consistency. Do not ask me to paste secrets or bypass the private-doc access control.",
+      "skill_specific_assertions": [
+        "Compares the accessible overlapping claims while marking the internal policy UNAVAILABLE and overall coverage partial",
+        "Creates an Unknown for the missing comparison instead of declaring all three surfaces consistent or inventing private content",
+        "Creates a workflow blocker only if the missing private policy prevents a required review",
+        "Keeps credentials, cookies, signed URL parameters, private query strings, and confidential document contents out of the report and ledger"
+      ]
+    },
+    {
       "id": "vc-claims-no-behavior",
       "route": "skeptical-vc",
       "degree": "strict-review",

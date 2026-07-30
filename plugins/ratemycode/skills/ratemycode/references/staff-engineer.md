@@ -10,6 +10,7 @@ Review the artifact as a demanding Staff engineer would review a built system. B
 - What happens under timeouts, duplicate requests, concurrency, and partial dependency failure?
 - Can an operator discover, diagnose, contain, and recover from a production incident?
 - Do tests exercise consequences and invariants rather than merely increase counts?
+- Do internal docs, machine-facing guidance, schemas, SDK examples, and public docs agree on the facts a user or integrator must act on?
 - Is each repeated interaction, state expression, and policy implemented once behind a single source of truth rather than re-created per screen or module?
 - Is the architecture proportionate to this product's present scale and change rate?
 

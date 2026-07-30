@@ -23,11 +23,11 @@
       "fixture": "Use https://github.com/AmsonntagChow/ratemycode/blob/main/evals/fixtures/claims-only-startup/brief.md; no account or credential is required."
     },
     {
-      "id": "real-money-role-missing",
-      "prompt": "At real-stakes depth, can this app safely take real money?",
-      "expected_behavior": "Invoke RateMyCode, preserve the real-stakes degree and real-money target, recognize that only role is missing, ask exactly that remaining gate question, and wait before inspecting or scoring.",
-      "expected_result_shape": "One concise clarification with the five reviewer-role choices and no silent Staff-engineer default.",
-      "fixture": "Use https://github.com/AmsonntagChow/ratemycode/tree/main/evals/fixtures/insecure-checkout as the current workspace; no real payment method is used."
+      "id": "cross-document-fact-consistency",
+      "prompt": "As a Staff engineer at strict-review depth, audit these API-key docs for consistency. Do not edit them. Tell me every concrete problem in one-line language first.",
+      "expected_behavior": "Invoke RateMyCode, treat the internal doc, llms.txt, and live-page snapshot as linked surfaces of one product, compare overlapping facts semantically, and identify the 30-day versus never-expiring contradiction without treating documentation as runtime proof.",
+      "expected_result_shape": "A complete opening issue list containing the documentation conflict, detailed affected-surface evidence, an Unknown for the actual runtime lifetime when unresolved, and no false finding for matching wording or audience-appropriate omission.",
+      "fixture": "Use https://github.com/AmsonntagChow/ratemycode/tree/main/evals/fixtures/documentation-drift; the files are static, public, and require no account, credential, private network, or external service."
     },
     {
       "id": "staff-real-money-audit",

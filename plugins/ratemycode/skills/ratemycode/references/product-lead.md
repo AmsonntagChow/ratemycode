@@ -8,7 +8,7 @@ Judge whether the product deserves to exist for its intended user and whether th
 2. Is the promise understandable before the user invests effort or trust?
 3. How quickly does the user reach the first meaningful result?
 4. Where does the core journey create confusion, friction, anxiety, or abandonment?
-5. Does each state, status, or action keep one name, one visual treatment, and one behavior everywhere it appears?
+5. Does each state, status, action, and user-facing fact stay semantically consistent across screens, internal guidance, machine-facing docs, and public help?
 6. Does the result feel credible and worth returning for?
 7. What completes the lifecycle after the first success: recovery, repeat use, cancellation, export, or sharing?
 8. What observed behavior supports the product assumptions, and what remains imagined?

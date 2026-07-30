@@ -34,7 +34,7 @@ Every `skeptical-vc` review uses `venture-case`. Its degree maps to an exact sta
 |---|---|---|
 | `E3 REPRODUCED` | Direct, repeatable observation | Browser or network trace, database before/after, exact failing request, repeated runtime test |
 | `E2 INSTRUMENTED` | Independent machine-produced support | Automated test, log, metric, trace, persisted state |
-| `E1 STATIC` | Reachable code/configuration fact with runtime consequence still inferred | Missing ownership predicate, charge retry without an idempotency control |
+| `E1 STATIC` | Reachable code, configuration, or document fact with runtime consequence still inferred | Missing ownership predicate, charge retry without an idempotency control, conflicting current documentation text |
 | `E0 UNVERIFIED` | Claim, guess, generic concern, or unavailable evidence | Founder statement, documentation promise, checklist speculation |
 
 Severity and evidence strength are independent. An E1 defect may fail a required check and make a target `NOT_READY`, but activate a runtime veto only with E3/E2 evidence or complete deployment evidence that rules out a compensating layer. An E3 cosmetic failure can remain low severity.
@@ -146,6 +146,8 @@ VentureAssessment = {
 
 A generic warning is not a `Finding`. Connect it to a reachable product state, an invariant, an observed or static fact, and a consequence. Keep hypotheses as `Unknown` until resolved. Use `WorkflowBlocker` only after the artifact gate passes, for missing access, dependencies, environments, or external decisions that prevent required work or verification. The absence of any resolved review subject is a pre-review input gap, not a workflow blocker; do not create a verdict or ledger for it. An active blocker has no resolution evidence, while a resolved blocker needs fresh current passing non-E0 proof bound to that blocker. Bind blocker, release-check, and venture-signal evidence to the named record, and never reuse one record across siblings. The persistent field-level rules are in `references/audit-ledger.md`.
 
+For cross-surface documentation review, the observed words and their semantic contradiction may be an E1 `document` fact even though each surface's promise about runtime behavior remains E0. Confirm the misleading conflict as a finding when it has a concrete consequence. If no declared source resolves the intended contract, preserve that question as an `Unknown`; regardless of the intended contract, keep actual runtime behavior unknown until fresh E2/E3 evidence resolves it. An unavailable surface is missing evidence, never proof of consistency.
+
 ## Plain-language verdict interface
 
 ```text
@@ -182,6 +184,8 @@ Verdict = {
 Render `issues` first, in the user's language. Put every confirmed finding in one globally sorted list, including accepted risks, verified fixes, and findings whose current fix status is unverifiable; do not split it into lifecycle buckets. Begin every finding line with severity, stable ID, and lifecycle status, then give exactly one ordinary-language sentence describing what happens and why it matters. Sort by `BLOCKER`, `HIGH`, `MEDIUM`, `LOW`, then stable ID. Never cap, merge, or omit findings for brevity, and omit fixes, steps, evidence, causes, and jargon from these lines.
 
 Immediately follow that list with one `Pending verification` subsection containing only `unverifiable` findings, open unknowns, and active workflow blockers, phrased as unresolved rather than factual. An unverifiable finding remains in the confirmed list because the original problem was confirmed, and also appears here because its current fix status is unknown. Explicitly state when either list is empty. Show the four-lane evidence panel next.
+
+When cross-surface documentation consistency ran, follow the four evidence lanes with the compact `Documentation consistency` coverage block defined in `references/documentation-consistency.md`, including mode, scope, canonical source, sanitized source snapshots, complete or partial coverage, comparison rows, and linked check/finding/unknown IDs. In a canonical saved-ledger rendering, use the `documentation-contract-consistency` release check and its bound sanitized evidence to carry the same result; do not invent an unvalidated top-level ledger field.
 
 The three-item limit applies only to `priority_actions`. Keep distinct IDs when causes, fixes, or retests differ. `skeptical-vc` may replace the release-oriented body with its stage-aware body, but never the complete opening issue groups.
 

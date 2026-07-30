@@ -38,6 +38,11 @@ REQUIRED_REPO_FILES = [
     ".github/workflows/ci.yml",
     "evals/trigger_cases.json",
     "evals/execution_cases.json",
+    "evals/fixtures/documentation-drift/internal-api-keys.md",
+    "evals/fixtures/documentation-drift/llms.txt",
+    "evals/fixtures/documentation-drift/live-api-keys-docs.md",
+    "evals/fixtures/documentation-byte-exact/canonical.txt",
+    "evals/fixtures/documentation-byte-exact/generated-mirror.txt",
     "evals/scorecards/blocked-release.json",
     "evals/ledgers/initial.json",
     "evals/ledgers/closed-loop.json",
@@ -460,6 +465,15 @@ def validate_trigger_evals(errors: list[str]) -> None:
     idea_only = cases_by_id.get("n06")
     if not isinstance(idea_only, dict) or idea_only.get("should_trigger") is not False:
         errors.append("trigger case 'n06' must remain a non-trigger for idea-only fundraising help")
+    docs_consistency = cases_by_id.get("p01")
+    if not isinstance(docs_consistency, dict) or (
+        docs_consistency.get("should_trigger") is not True
+        or docs_consistency.get("expected_route") != "documentation-consistency"
+    ):
+        errors.append("trigger case 'p01' must select documentation consistency")
+    copy_edit = cases_by_id.get("n10")
+    if not isinstance(copy_edit, dict) or copy_edit.get("should_trigger") is not False:
+        errors.append("trigger case 'n10' must remain a non-trigger for stylistic copy editing")
 
 
 def validate_execution_evals(errors: list[str]) -> None:
@@ -477,10 +491,10 @@ def validate_execution_evals(errors: list[str]) -> None:
         errors.append("execution evals must state that repository validation is structural, not behavioral proof")
     cases = payload.get("cases")
     if not isinstance(cases, list):
-        errors.append("execution evals must contain exactly twelve cases")
+        errors.append("execution evals must contain exactly fifteen cases")
         return
-    if len(cases) != 12:
-        errors.append(f"execution evals must contain exactly twelve cases; received {len(cases)}")
+    if len(cases) != 15:
+        errors.append(f"execution evals must contain exactly fifteen cases; received {len(cases)}")
     ids: set[str] = set()
     for index, case in enumerate(cases):
         if not isinstance(case, dict):
@@ -497,23 +511,58 @@ def validate_execution_evals(errors: list[str]) -> None:
         if not isinstance(assertions, list) or len(assertions) < 2:
             errors.append(f"execution case {case_id!r} needs at least two skill-specific assertions")
 
-    required_artifact_gate_cases = {
+    required_execution_routes = {
         "missing-artifact-gate": "artifact-gate",
         "missing-explicit-target": "artifact-gate",
         "linked-surfaces-one-subject": "artifact-gate+settings-gate",
         "static-only-release-claim": "staff-engineer",
+        "cross-document-fact-consistency": "staff-engineer+documentation-consistency",
+        "byte-exact-document-mirror": "staff-engineer+documentation-consistency",
+        "unavailable-private-document-surface": "staff-engineer+documentation-consistency",
     }
     cases_by_id = {
         case.get("id"): case
         for case in cases
         if isinstance(case, dict) and isinstance(case.get("id"), str)
     }
-    for case_id, route in required_artifact_gate_cases.items():
+    for case_id, route in required_execution_routes.items():
         case = cases_by_id.get(case_id)
         if case is None:
-            errors.append(f"execution evals must include artifact-gate coverage {case_id!r}")
+            errors.append(f"execution evals must include required route coverage {case_id!r}")
         elif case.get("route") != route:
             errors.append(f"execution case {case_id!r} must use route {route!r}")
+
+    documentation_case = cases_by_id.get("cross-document-fact-consistency")
+    if isinstance(documentation_case, dict):
+        assertions = documentation_case.get("skill_specific_assertions")
+        joined = " ".join(assertions) if isinstance(assertions, list) else ""
+        for required_phrase in ("atomic facts", "E1 document evidence", "Unknown"):
+            if required_phrase not in joined:
+                errors.append(
+                    "cross-document-fact-consistency assertions must cover "
+                    f"{required_phrase!r}"
+                )
+
+    byte_case = cases_by_id.get("byte-exact-document-mirror")
+    if isinstance(byte_case, dict):
+        assertions = byte_case.get("skill_specific_assertions")
+        joined = " ".join(assertions) if isinstance(assertions, list) else ""
+        for required_phrase in ("byte-exact mode", "unequal hashes", "semantic contradiction"):
+            if required_phrase not in joined:
+                errors.append(
+                    f"byte-exact-document-mirror assertions must cover {required_phrase!r}"
+                )
+
+    unavailable_case = cases_by_id.get("unavailable-private-document-surface")
+    if isinstance(unavailable_case, dict):
+        assertions = unavailable_case.get("skill_specific_assertions")
+        joined = " ".join(assertions) if isinstance(assertions, list) else ""
+        for required_phrase in ("coverage partial", "Unknown", "signed URL parameters"):
+            if required_phrase not in joined:
+                errors.append(
+                    "unavailable-private-document-surface assertions must cover "
+                    f"{required_phrase!r}"
+                )
 
 
 def validate_scorecard(errors: list[str]) -> None:

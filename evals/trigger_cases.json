@@ -3,14 +3,14 @@
   "purpose": "Measure whether the skill is selected, independently from review quality.",
   "runs_per_case": 3,
   "trigger_rate_threshold": 0.5,
-  "selection_rule": "product-level judgment, adversarial testing, release decision, re-review, or artifact-grounded defense intent selects the skill even when target presence is uncertain; the artifact gate then requires one real review target",
+  "selection_rule": "product-level judgment, adversarial testing, cross-surface product-documentation consistency, release decision, re-review, or artifact-grounded defense intent selects the skill even when target presence is uncertain; the artifact gate then requires one real review target",
   "cases": [
     {
       "id": "p01",
       "split": "train",
-      "prompt": "Audit this vibe-coded SaaS repo and deployed URL before I open it to users. Give me a ship/no-ship verdict and the three biggest blockers.",
+      "prompt": "Audit our internal API-key guide, llms.txt, and public /api-keys/docs for factual contradictions before launch. List every concrete issue in plain language.",
       "should_trigger": true,
-      "expected_route": "ship-fast"
+      "expected_route": "documentation-consistency"
     },
     {
       "id": "p02",
@@ -145,9 +145,9 @@
     {
       "id": "n10",
       "split": "holdout",
-      "prompt": "Rate these five landing-page headlines for clarity and conversion.",
+      "prompt": "Rewrite these three API-key docs so their tone, capitalization, and headings match. Do not audit product behavior or issue a release verdict.",
       "should_trigger": false,
-      "reason": "narrow copy critique"
+      "reason": "purely stylistic copy editing rather than product-contract consistency audit"
     }
   ]
 }

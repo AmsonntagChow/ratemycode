@@ -10,8 +10,8 @@
       "name": "ratemycode",
       "displayName": "RateMyCode",
       "source": ".",
-      "version": "1.2.0",
-      "description": "Audits AI-built and vibe-coded apps for release risk, then optionally records authorized fixes and independent retests in a durable audit ledger.",
+      "version": "1.3.0",
+      "description": "Audits AI-built and vibe-coded apps for release risk, including cross-document fact drift, then optionally records authorized fixes and independent retests in a durable audit ledger.",
       "author": {
         "name": "AmsonntagChow"
       },

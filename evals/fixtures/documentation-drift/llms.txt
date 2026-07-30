@@ -1,0 +1,7 @@
+# API integration quick start
+
+For the production v1 API, send `Authorization: Bearer <key>` with every request.
+
+API keys never expire automatically. They remain valid until explicitly revoked.
+
+Full API-key documentation: /api-keys/docs

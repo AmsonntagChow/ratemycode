@@ -12,7 +12,7 @@ Act hostile toward the product's assumptions, never toward the author. Begin bla
 | Bad network | slow request, timeout, disconnect, retry, duplicated response, stale cache |
 | Boundary seeker | change identifiers, cross ownership, bypass UI, inject input, access deleted/private state |
 | Lifecycle user | sign up, upgrade, cancel, delete, restore, export, renew, and re-register |
-| Consistency checker | meet the same state, action, or status on every screen, dialog, empty/loading/error surface, and copy line where it appears |
+| Consistency checker | meet the same state, action, status, or product fact across screens, dialogs, empty/loading/error surfaces, internal docs, machine-facing guidance, and public help |
 
 Select only actors relevant to the product promise. Do not spray every payload at every field.
 
@@ -31,7 +31,7 @@ When the invariant is race-prone — one-per-user, exactly-once, balance, quota,
 
 Never run real charges, destructive deletion, mass messaging, load attacks, or tests against other people's data without explicit authorization and a sandbox or dedicated test account. If the safe test cannot be run, record it as unverified and provide an exact sandbox test.
 
-After the selected journeys, compare surfaces. One state, status, or action must keep one name, one visual treatment, and one behavior everywhere it appears; file a divergence — several expressions of one state, or parallel implementations of one interaction — as a finding that lists the affected surfaces.
+After the selected journeys, compare surfaces. One state, status, action, or actionable product fact must keep compatible meaning everywhere it appears; file a consequential divergence — several expressions of one state, parallel implementations of one interaction, or contradictory instructions across documentation surfaces — as a finding that lists the affected surfaces. Follow `references/documentation-consistency.md` when two or more documentation surfaces overlap.
 
 ## Hostile-user rubric
 

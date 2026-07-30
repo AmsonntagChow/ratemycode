@@ -1,0 +1,2 @@
+max_results = 100
+timeout_seconds=30
