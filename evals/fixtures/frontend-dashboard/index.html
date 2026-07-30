@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pulseboard incident search</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <p class="eyebrow">Support workspace</p>
+      <h1>Find a customer incident</h1>
+      <p class="lede">Search recent incidents by customer or summary.</p>
+
+      <section class="search-panel" aria-labelledby="search-heading">
+        <h2 id="search-heading">Incident search</h2>
+        <label for="query">Customer or summary</label>
+        <div class="search-row">
+          <input id="query" autocomplete="off" value="acme">
+          <div id="search-button" class="button">Search</div>
+        </div>
+        <p id="status" class="status">Ready</p>
+      </section>
+
+      <section aria-labelledby="results-heading">
+        <h2 id="results-heading">Results</h2>
+        <ul id="results" class="results"></ul>
+      </section>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>

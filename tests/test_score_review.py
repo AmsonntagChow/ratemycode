@@ -111,6 +111,12 @@ class ScoreReviewTests(unittest.TestCase):
         result = self.compute(payload)
         self.assertEqual(result["mode"], "staff-engineer")
 
+    def test_staff_frontend_engineer_mode_is_supported(self):
+        payload = base_payload()
+        payload["mode"] = "staff-frontend-engineer"
+        result = self.compute(payload)
+        self.assertEqual(result["mode"], "staff-frontend-engineer")
+
     def test_active_gate_blocks_and_cannot_be_averaged_away(self):
         payload = base_payload()
         payload["evidence"].append(

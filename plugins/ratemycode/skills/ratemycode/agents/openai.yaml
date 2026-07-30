@@ -1,6 +1,6 @@
 interface:
   display_name: "RateMyCode"
-  short_description: "Staff-level product review for vibe-coded apps"
-  default_prompt: "Use $ratemycode to audit this product, identify release blockers, and give me the fastest defensible path to ship."
+  short_description: "Systems and frontend product review for AI-built apps"
+  default_prompt: "Use $ratemycode to audit this product from the right Staff-level role, identify release blockers, and give me the fastest defensible path to ship."
 policy:
   allow_implicit_invocation: true

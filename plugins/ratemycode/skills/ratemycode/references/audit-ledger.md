@@ -78,7 +78,7 @@ The review identity is also immutable across the snapshot chain:
 
 ```text
 review = {
-  role: product-lead | hostile-user | staff-engineer | skeptical-vc | oral-defense,
+  role: product-lead | hostile-user | staff-engineer | staff-frontend-engineer | skeptical-vc | oral-defense,
   degree: quick-check | strict-review | launch-gate | real-stakes | life-or-death,
   requested_target,
   rubric_id,

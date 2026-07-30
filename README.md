@@ -75,14 +75,15 @@ Before asking about role or degree, RateMyCode performs a minimal read-only arti
 After one audit target is resolved, the skill asks two questions before it begins whenever the request does not already answer them:
 
 ```text
-1. Role: Product lead / Hostile user / Staff engineer / Skeptical VC / Oral-defense examiner
+1. Role: Product lead / Hostile user / Staff engineer (systems/backend) / Staff Frontend engineer / Skeptical VC / Oral-defense examiner
 2. Degree: Quick checkup / Strict review / Launch gate / Real-revenue tier / Life-or-death review
 ```
 
 | Choose | What the reviewer does |
 |---|---|
 | Product lead | Judges user value, time-to-value, trust, repeat use, and product evidence |
-| Staff engineer | Deeply reviews the artifact, invariants, failure handling, operations, and change safety |
+| Staff engineer (systems/backend) | Deeply reviews invariants, security boundaries, concurrency, failure handling, operations, and change safety |
+| Staff Frontend engineer | Tests real browser behavior, async state, accessibility, performance, responsive support, component systems, and interaction craft |
 | `hostile-user` | Tries impatience, mistakes, retries, stale state, lifecycle edges, and access-boundary abuse |
 | `skeptical-vc` | Separates user behavior and market evidence from founder claims and code aesthetics |
 | `oral-defense` | Asks 3–5 artifact-grounded questions, one at a time; scores understanding separately |
@@ -91,6 +92,8 @@ Try these:
 
 ```text
 I vibe-coded this payments app in two days. Do not teach me backend basics. Review it against the real-revenue standard and tell me what could kill it.
+
+As a Staff Frontend engineer at launch-gate depth, audit this dashboard in a real browser. Check keyboard and screen-reader use, async state, mobile layouts, performance, and interaction quality.
 
 Act like a hostile user. Try to break signup, checkout, recovery, and cancellation, then give me reproducible findings.
 

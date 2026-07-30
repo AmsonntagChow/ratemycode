@@ -43,6 +43,10 @@ REQUIRED_REPO_FILES = [
     "evals/fixtures/documentation-drift/live-api-keys-docs.md",
     "evals/fixtures/documentation-byte-exact/canonical.txt",
     "evals/fixtures/documentation-byte-exact/generated-mirror.txt",
+    "evals/fixtures/frontend-dashboard/product.md",
+    "evals/fixtures/frontend-dashboard/index.html",
+    "evals/fixtures/frontend-dashboard/styles.css",
+    "evals/fixtures/frontend-dashboard/app.js",
     "evals/scorecards/blocked-release.json",
     "evals/ledgers/initial.json",
     "evals/ledgers/closed-loop.json",
@@ -474,6 +478,15 @@ def validate_trigger_evals(errors: list[str]) -> None:
     copy_edit = cases_by_id.get("n10")
     if not isinstance(copy_edit, dict) or copy_edit.get("should_trigger") is not False:
         errors.append("trigger case 'n10' must remain a non-trigger for stylistic copy editing")
+    frontend_audit = cases_by_id.get("p08")
+    if not isinstance(frontend_audit, dict) or (
+        frontend_audit.get("should_trigger") is not True
+        or frontend_audit.get("expected_route") != "staff-frontend-engineer"
+    ):
+        errors.append("trigger case 'p08' must select the staff-frontend-engineer route")
+    isolated_component = cases_by_id.get("n07")
+    if not isinstance(isolated_component, dict) or isolated_component.get("should_trigger") is not False:
+        errors.append("trigger case 'n07' must remain a non-trigger for isolated component review")
 
 
 def validate_execution_evals(errors: list[str]) -> None:
@@ -491,10 +504,10 @@ def validate_execution_evals(errors: list[str]) -> None:
         errors.append("execution evals must state that repository validation is structural, not behavioral proof")
     cases = payload.get("cases")
     if not isinstance(cases, list):
-        errors.append("execution evals must contain exactly fifteen cases")
+        errors.append("execution evals must contain exactly sixteen cases")
         return
-    if len(cases) != 15:
-        errors.append(f"execution evals must contain exactly fifteen cases; received {len(cases)}")
+    if len(cases) != 16:
+        errors.append(f"execution evals must contain exactly sixteen cases; received {len(cases)}")
     ids: set[str] = set()
     for index, case in enumerate(cases):
         if not isinstance(case, dict):
@@ -516,6 +529,7 @@ def validate_execution_evals(errors: list[str]) -> None:
         "missing-explicit-target": "artifact-gate",
         "linked-surfaces-one-subject": "artifact-gate+settings-gate",
         "static-only-release-claim": "staff-engineer",
+        "staff-frontend-engineer-browser-audit": "staff-frontend-engineer",
         "cross-document-fact-consistency": "staff-engineer+documentation-consistency",
         "byte-exact-document-mirror": "staff-engineer+documentation-consistency",
         "unavailable-private-document-surface": "staff-engineer+documentation-consistency",
@@ -561,6 +575,23 @@ def validate_execution_evals(errors: list[str]) -> None:
             if required_phrase not in joined:
                 errors.append(
                     "unavailable-private-document-surface assertions must cover "
+                    f"{required_phrase!r}"
+                )
+
+    frontend_case = cases_by_id.get("staff-frontend-engineer-browser-audit")
+    if isinstance(frontend_case, dict):
+        assertions = frontend_case.get("skill_specific_assertions")
+        joined = " ".join(assertions) if isinstance(assertions, list) else ""
+        for required_phrase in (
+            "keyboard",
+            "out-of-order request",
+            "320 CSS-pixel",
+            "without requiring animation",
+            "Does not claim accessibility",
+        ):
+            if required_phrase not in joined:
+                errors.append(
+                    "staff-frontend-engineer-browser-audit assertions must cover "
                     f"{required_phrase!r}"
                 )
 

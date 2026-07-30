@@ -16,11 +16,11 @@
       "fixture": "Use https://github.com/AmsonntagChow/ratemycode/tree/main/evals/fixtures/insecure-checkout as the current workspace; no account or credential is required."
     },
     {
-      "id": "vc-degree-missing",
-      "prompt": "Be a skeptical VC and review this product.",
-      "expected_behavior": "Invoke RateMyCode, preserve the skeptical-VC role, recognize that only degree is missing, ask exactly that remaining gate question, and wait before judging the evidence.",
-      "expected_result_shape": "One concise clarification with the named degree choices, their VC diligence-depth mapping, and no provisional investment verdict.",
-      "fixture": "Use https://github.com/AmsonntagChow/ratemycode/blob/main/evals/fixtures/claims-only-startup/brief.md; no account or credential is required."
+      "id": "staff-frontend-engineer-browser-audit",
+      "prompt": "As a Staff Frontend engineer at launch-gate depth, audit this dashboard for public launch. Do not edit it. Test the real browser behavior and put every concrete problem in one-line language first.",
+      "expected_behavior": "Invoke RateMyCode on the staff-frontend-engineer/launch-gate route, use the fixture's declared support contract, test actual browser behavior, and distinguish functional, accessibility, state, responsive, and motion findings from personal taste.",
+      "expected_result_shape": "A complete opening issue list, exact tested browser and viewport scope, reproducible keyboard, stale-response, and narrow-layout findings, four separate evidence lanes, no unsupported accessibility or performance claims, and no more than three priority actions.",
+      "fixture": "Use https://github.com/AmsonntagChow/ratemycode/tree/main/evals/fixtures/frontend-dashboard. It is disposable, local, dependency-free, and uses no account, credential, analytics, or external service."
     },
     {
       "id": "cross-document-fact-consistency",

@@ -60,9 +60,10 @@
     {
       "id": "p08",
       "split": "holdout",
-      "prompt": "Would you ship this weekend-built marketplace to real users? Check authorization boundaries, data integrity, false-success states, and recovery.",
+      "prompt": "As a Staff Frontend engineer, audit this deployed dashboard for browser-state bugs, accessibility, performance, responsive behavior, and interaction quality before public launch.",
       "should_trigger": true,
-      "expected_route": "ship-fast"
+      "expected_route": "staff-frontend-engineer",
+      "expected_degree": "launch-gate"
     },
     {
       "id": "p09",
@@ -124,9 +125,9 @@
     {
       "id": "n07",
       "split": "holdout",
-      "prompt": "Review this pull request for code style and suggest refactors.",
+      "prompt": "Review this isolated Button.tsx component for idiomatic React, naming, and prop design.",
       "should_trigger": false,
-      "reason": "ordinary diff review"
+      "reason": "isolated component review rather than a product-level frontend audit"
     },
     {
       "id": "n08",

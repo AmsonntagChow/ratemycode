@@ -179,6 +179,22 @@
       ]
     },
     {
+      "id": "staff-frontend-engineer-browser-audit",
+      "route": "staff-frontend-engineer",
+      "degree": "launch-gate",
+      "artifact": "evals/fixtures/frontend-dashboard, a dependency-free browser fixture with an explicit frontend support contract.",
+      "prompt": "As a Staff Frontend engineer at launch-gate depth, audit this dashboard for public launch. Do not edit it. Test the real browser behavior and put every concrete problem in one-line language first.",
+      "skill_specific_assertions": [
+        "Uses the declared browser, viewport, input, state, and reduced-motion support contract instead of a generic frontend checklist",
+        "Reproduces that the custom Search control cannot complete the critical journey by keyboard and records the missing semantic control as a user consequence rather than a style preference",
+        "Reproduces an out-of-order request sequence in which the slower earlier ACME response overwrites the later Beta result, and connects it to missing stale-response protection",
+        "Checks a 320 CSS-pixel viewport and reports the fixed 960-pixel shell's horizontal overflow with browser evidence",
+        "Separates the broad 600ms transition and missing reduced-motion behavior from higher-severity functional failures, without requiring animation or a preferred library",
+        "Does not claim accessibility, cross-browser support, mobile readiness, performance, or Core Web Vitals beyond the environments and evidence actually tested",
+        "Begins with the complete severity-sorted one-line issue list, shows all four evidence lanes, and limits priority actions to three"
+      ]
+    },
+    {
       "id": "same-rubric-retest",
       "route": "re-review",
       "artifact": "A prior report has stable finding IDs, reproduction steps, and a scorecard; a patch is now present.",

@@ -42,7 +42,7 @@ Create UTF-8 JSON with this shape:
 ```text
 Scorecard = {
   schema_version: "2",
-  mode: ship-fast | staff-engineer | hostile-user | skeptical-vc | oral-defense,
+  mode: ship-fast | staff-engineer | staff-frontend-engineer | hostile-user | skeptical-vc | oral-defense,
   rubric_id: nonempty_string,
   release_target: internal-demo | private-beta | public-launch | real-money | high-stakes | venture-case,
   release_ref: sha256_of_the_exact_artifact_or_deployment_manifest,

@@ -1,7 +1,7 @@
 {
   "name": "ratemycode",
-  "version": "1.3.0",
-  "description": "Audits AI-built and vibe-coded apps for release risk, including cross-document fact drift, then optionally records authorized fixes and independent retests in a durable audit ledger.",
+  "version": "1.4.0",
+  "description": "Audits AI-built and vibe-coded apps from product, systems, frontend, user, and venture perspectives, then optionally records authorized fixes and independent retests in a durable audit ledger.",
   "author": {
     "name": "AmsonntagChow",
     "url": "https://github.com/AmsonntagChow"
@@ -16,13 +16,15 @@
     "release-readiness",
     "security",
     "data-integrity",
+    "frontend",
+    "accessibility",
     "ship-no-ship"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "RateMyCode",
     "shortDescription": "Find blockers before you ship",
-    "longDescription": "RateMyCode audits a real AI-built product, not just its code style. It first confirms one coherent product target from linked artifacts such as a repository, deployment, evidence, and documentation. Then choose a product lead, hostile user, Staff engineer, skeptical VC, or oral-defense professor and how hard to judge it. The plugin tests real flows when possible, compares overlapping facts across internal docs, llms.txt, schemas, examples, UI copy, and live docs, traces failures into the implementation, blocks unsafe launches, and returns every finding in plain language. When explicitly authorized, it records scoped fixes, new release identities, independent retests, and remaining risk in a durable JSON audit ledger with a generated Markdown report.",
+    "longDescription": "RateMyCode audits a real AI-built product, not just its code style. It first confirms one coherent product target from linked artifacts such as a repository, deployment, evidence, and documentation. Then choose a product lead, hostile user, Staff engineer focused on systems, Staff Frontend engineer, skeptical VC, or oral-defense professor and how hard to judge it. The frontend route tests browser behavior, async state, accessibility, performance, responsive support, component systems, and interaction craft. The plugin tests real flows when possible, compares overlapping facts across internal docs, llms.txt, schemas, examples, UI copy, and live docs, traces failures into the implementation, blocks unsafe launches, and returns every finding in plain language. When explicitly authorized, it records scoped fixes, new release identities, independent retests, and remaining risk in a durable JSON audit ledger with a generated Markdown report.",
     "developerName": "AmsonntagChow",
     "category": "Productivity",
     "capabilities": [
@@ -36,9 +38,9 @@
     "privacyPolicyURL": "https://github.com/AmsonntagChow/ratemycode/blob/main/PRIVACY.md",
     "termsOfServiceURL": "https://github.com/AmsonntagChow/ratemycode/blob/main/TERMS.md",
     "defaultPrompt": [
-      "As a Staff engineer, audit this app for a public launch: list every issue and name the three to fix first.",
-      "As a hostile user, strictly test signup, checkout, recovery, and cancellation.",
-      "As a skeptical VC, separate product evidence from founder claims and name the cheapest next test."
+      "As a Staff engineer focused on systems, audit this app for public launch: list every issue and name the three to fix first.",
+      "As a Staff Frontend engineer, audit this app for browser, accessibility, performance, responsive, and interaction risks.",
+      "As a hostile user, strictly test signup, checkout, recovery, and cancellation."
     ],
     "brandColor": "#10B981",
     "composerIcon": "./assets/logo.png",

@@ -177,6 +177,14 @@ def base_payload():
     }
 
 
+class StaffFrontendEngineerRoleTests(unittest.TestCase):
+    def test_staff_frontend_engineer_role_is_supported(self):
+        payload = base_payload()
+        payload["review"]["role"] = "staff-frontend-engineer"
+        validated = audit_ledger.validate(payload)
+        self.assertEqual(validated["review"]["role"], "staff-frontend-engineer")
+
+
 def verified_payload():
     payload = base_payload()
     payload["artifact"]["current_release_ref"] = CURRENT_RELEASE

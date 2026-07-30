@@ -35,6 +35,7 @@ ROLES = {
     "product-lead",
     "hostile-user",
     "staff-engineer",
+    "staff-frontend-engineer",
     "skeptical-vc",
     "oral-defense",
 }

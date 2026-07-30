@@ -1,6 +1,6 @@
 ---
 name: ratemycode
-description: "Use this skill to rate, audit, grade, stress-test, red-team, or issue a ship/no-ship verdict on a vibe-coded, AI-built, prototype, or MVP app, repository, or live deployment. Use for Staff-level product or engineering audits; adversarial testing; cross-surface documentation and API-contract consistency; skeptical-VC reviews grounded in evidence; release readiness, payment safety, security, data integrity, and reliability; oral defense; fix prompts or authorized fixes; audit ledgers; and same-rubric re-reviews. Trigger for equivalent wording such as rate my code/app, would you ship this, try to break it, roast my app, 挑刺, 答辩, 能上线或能收钱吗, 文档是否一致, or VC 打分, even before a product is attached. Resolve an actual product artifact or concrete evidence before settings or audit. Do not use for isolated snippets, routine fixes, generic code review or startup advice, stylistic copy editing or file sync, job-interview prep, or fundamentals teaching unless evaluating the product itself."
+description: "Use this skill to rate, audit, grade, stress-test, red-team, or issue a ship/no-ship verdict on a vibe-coded, AI-built, prototype, or MVP app, repository, or live deployment. Use for Staff-level product, systems, or frontend audits; adversarial testing; cross-surface documentation consistency; evidence-grounded VC reviews; release readiness, browser behavior, accessibility, performance, payment safety, security, data integrity, and reliability; oral defense; authorized fixes; audit ledgers; and same-rubric re-reviews. Trigger for equivalent wording such as rate my code/app, Staff frontend review, would you ship this, try to break it, roast my app, 挑刺, 前端审查, 答辩, 能上线或能收钱吗, 文档是否一致, or VC 打分, even before a product is attached. Resolve an actual product artifact or concrete evidence before settings or audit. Do not use for isolated snippets, routine fixes, generic code review or startup advice, stylistic copy editing or file sync, interview prep, or fundamentals teaching unless evaluating the product itself."
 ---
 
 # RateMyCode
@@ -10,7 +10,8 @@ Read `references/review-contract.md` for every route. It is the single source of
 | Reviewer role | Route reference |
 |---|---|
 | Product lead, product judge, or 产品负责人 | Read `references/product-lead.md` |
-| Staff engineer or deep engineering review | Read `references/staff-engineer.md` |
+| Staff engineer focused on systems/backend, or deep systems review | Read `references/staff-engineer.md` |
+| Staff Frontend engineer, frontend product assurance, or professional browser/UI review | Read `references/staff-frontend-engineer.md` |
 | Hostile, picky, careless, or adversarial user testing | Read `references/hostile-user.md` |
 | Skeptical VC, product evidence, traction, or investment judgment | Read `references/skeptical-vc.md` |
 | Defense professor, quiz, interview, or one question at a time | Read `references/oral-defense.md` |
@@ -55,12 +56,14 @@ Use this product interface:
 
 ```text
 ReviewSettings = {
-  role: product-lead | hostile-user | staff-engineer | skeptical-vc | oral-defense,
+  role: product-lead | hostile-user | staff-engineer | staff-frontend-engineer | skeptical-vc | oral-defense,
   degree: quick-check | strict-review | launch-gate | real-stakes | life-or-death
 }
 ```
 
 After the artifact gate passes, extract values from the request or a cited prior report. Ask only for missing fields, in the user's language, presenting the role choices before the degree choices and preserving the labels and meanings in the tables above. When both are missing, ask both in one message. Wait for the answer before inspecting artifact contents, running it, inventorying evidence, or scoring it. Defer optional context questions until both values are known.
+
+Route an unqualified Staff-engineer request to the existing systems route `staff-engineer`. Select `staff-frontend-engineer` only when the user explicitly asks for frontend, web-client, browser, accessibility, responsive, rendering, or interaction expertise. If the user explicitly requests both perspectives, run two separately identified reviews; do not merge their rubrics, ledger chains, or score deltas.
 
 Map degree to the decision bar above. For `skeptical-vc`, map all five degrees to exact diligence stages: `quick-check` → `screening`, `strict-review` → `structured-diligence`, `launch-gate` → `partner-review`, `real-stakes` → `full-diligence`, and `life-or-death` → `investment-committee`. Use `venture-case`; run any explicitly requested software-release judgment as a separate review and ledger.
 
@@ -135,7 +138,8 @@ Apply the re-review identity and status rules from `references/review-contract.m
 - `references/documentation-consistency.md` — semantic or explicitly byte-exact comparison across internal docs, machine-facing guidance, schemas, examples, UI copy, and live documentation; load when claims overlap or the user requests it.
 - `references/product-lead.md` — product value, time-to-value, trust, repeat use, and product evidence.
 - `references/ship-fast.md` — minimum high-yield quick check.
-- `references/staff-engineer.md` — deep artifact review without irrelevant textbook requirements.
+- `references/staff-engineer.md` — systems and backend review without irrelevant textbook requirements.
+- `references/staff-frontend-engineer.md` — browser behavior, frontend state, accessibility, performance, responsive behavior, component systems, and interaction craft.
 - `references/hostile-user.md` — black-box misuse, edge-state, lifecycle, and adversarial tests.
 - `references/skeptical-vc.md` — behavioral evidence, retention, distribution, economics, and falsifiable experiments.
 - `references/oral-defense.md` — optional one-question-at-a-time author defense, separate from product quality.
