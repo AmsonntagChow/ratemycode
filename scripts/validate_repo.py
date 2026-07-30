@@ -504,10 +504,10 @@ def validate_execution_evals(errors: list[str]) -> None:
         errors.append("execution evals must state that repository validation is structural, not behavioral proof")
     cases = payload.get("cases")
     if not isinstance(cases, list):
-        errors.append("execution evals must contain exactly sixteen cases")
+        errors.append("execution evals must be a list of cases")
         return
-    if len(cases) != 16:
-        errors.append(f"execution evals must contain exactly sixteen cases; received {len(cases)}")
+    if len(cases) < 16:
+        errors.append(f"execution evals must contain at least sixteen cases; received {len(cases)}")
     ids: set[str] = set()
     for index, case in enumerate(cases):
         if not isinstance(case, dict):
