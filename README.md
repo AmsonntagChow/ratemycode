@@ -91,7 +91,8 @@ After one audit target is resolved, the skill asks two questions before it begin
 ### Start with the quick checkup
 
 A full-degree audit runs your product, traces failures through the implementation, and re-runs checks. It costs
-several times a quick checkup in both time and tokens, which matters if you are on a fixed plan. So the quick
+several times a quick checkup in both time and tokens. If you are on a metered or fixed-quota plan — most
+Claude Code, Codex, and Cursor subscriptions are — that cost competes with your actual work, so the quick
 checkup is the default: it spends the review on the handful of checks that most often decide whether something
 is safe to ship, and stops there.
 
