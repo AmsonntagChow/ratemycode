@@ -1,6 +1,6 @@
 # RateMyCode
 
-[English](README.md) | 简体中文 | [code.ratemy.sh](https://code.ratemy.sh/zh/)
+[English](README.md) | 简体中文
 
 为那些开发速度快到作者还来不及了解所有故障模式的应用，提供 Staff 级产品审查。
 
@@ -20,6 +20,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-2f855a.svg)](LICENSE)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-5b5bd6.svg)](https://agentskills.io/)
+[![ratemy.sh](https://img.shields.io/badge/ratemy.sh-code-C4500F.svg)](https://code.ratemy.sh/zh/)
 [![skills.sh](https://skills.sh/b/AmsonntagChow/ratemycode)](https://skills.sh/amsonntagchow/ratemycode/ratemycode)
 
 请选择一种安装方式。`skills` CLI 最短，且在 Codex、Claude Code、Cursor 以及其他所有 Agent Skills 客户端都能用：
