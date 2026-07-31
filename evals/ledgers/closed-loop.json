@@ -1,9 +1,9 @@
 {
-  "schema_version": "2",
+  "schema_version": "3",
   "snapshot_index": 2,
   "recorded_at": "2026-07-31T05:40:00Z",
   "ledger_id": "RMC-checkout-example-001",
-  "previous_ledger_ref": "sha256:9b228ed20852447f7cea256650fdd80cd6e5206c0ea272286f96d52d4ceb2d35",
+  "previous_ledger_ref": "sha256:7608292c061118acdc254efb49f3f5f58e1d04b559b14399237fc4fb8d69b534",
   "artifact": {
     "name": "Disposable checkout fixture",
     "initial_release_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -53,7 +53,23 @@
       "summary": "The order lookup trusted an object identifier without checking the authenticated owner.",
       "finding_ids": [
         "F-001"
-      ]
+      ],
+      "condition_sweep": {
+        "state": "closed",
+        "method": "static-query",
+        "expression": "rg -n --type ts 'repo\\.(findById|getById)\\(' src/ | rg -v 'ownerId|tenantId'",
+        "scope": "src/**/*.ts route handlers and data access, excluding tests and fixtures",
+        "instances_found": 4,
+        "instances_converted": 4,
+        "closure": "converted",
+        "closure_ref": null,
+        "note": null
+      },
+      "cause_sweep": {
+        "state": "done",
+        "summary": "The same missing-owner-predicate habit was checked against the GraphQL resolvers and the export job; both already scope by owner.",
+        "finding_ids": []
+      }
     },
     {
       "id": "RC-002",
@@ -61,7 +77,23 @@
       "summary": "The retry path is safe but does not explain how long recovery can take.",
       "finding_ids": [
         "F-002"
-      ]
+      ],
+      "condition_sweep": {
+        "state": "closed",
+        "method": "text-search",
+        "expression": "rg -n 'retrying…|Please wait' src/components/",
+        "scope": "src/components/**/*.tsx user-facing retry and recovery copy",
+        "instances_found": 7,
+        "instances_converted": 1,
+        "closure": "ratchet",
+        "closure_ref": "tools/ratchets/retry-copy.tsv",
+        "note": "Six unbounded retry messages remain. CI blocks new ones and the allowed count can only decrease; the user accepted the remainder."
+      },
+      "cause_sweep": {
+        "state": "done",
+        "summary": "No other surface makes an open-ended waiting promise; the same cause produced no second defect class.",
+        "finding_ids": []
+      }
     }
   ],
   "evidence": [

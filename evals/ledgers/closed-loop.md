@@ -31,7 +31,7 @@ not requested.
 ## Review identity
 
 - Ledger: `RMC-checkout-example-001`
-- Prior ledger: `sha256:9b228ed20852447f7cea256650fdd80cd6e5206c0ea272286f96d52d4ceb2d35`
+- Prior ledger: `sha256:7608292c061118acdc254efb49f3f5f58e1d04b559b14399237fc4fb8d69b534`
 - Artifact: Disposable checkout fixture
 - Initial release: `sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`
 - Current release: `sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`
@@ -55,7 +55,11 @@ not requested.
 ## Root causes
 
 - **RC-001 · Missing ownership enforcement** — The order lookup trusted an object identifier without checking the authenticated owner. (verified-fixed 1)
+  - Extent of condition: `closed` — 4/4 instances converted, closed by `converted` · `rg -n --type ts 'repo\\.(findById\|getById)\\(' src/ \| rg -v 'ownerId\|tenantId'` over src/\*\*/\*.ts route handlers and data access, excluding tests and fixtures
+  - Extent of cause: `done` — The same missing-owner-predicate habit was checked against the GraphQL resolvers and the export job; both already scope by owner.
 - **RC-002 · Unbounded retry experience** — The retry path is safe but does not explain how long recovery can take. (accepted-risk 1)
+  - Extent of condition: `closed` — 1/7 instances converted, closed by `ratchet` (tools/ratchets/retry-copy.tsv) · `rg -n 'retrying…\|Please wait' src/components/` over src/components/\*\*/\*.tsx user-facing retry and recovery copy
+  - Extent of cause: `done` — No other surface makes an open-ended waiting promise; the same cause produced no second defect class.
 
 ## Safety gates
 

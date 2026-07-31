@@ -274,6 +274,21 @@
         "After a batch lands, names the earlier verdict and any exported or published copy as stale rather than letting them stand as current",
         "Files a second instance of the same defect class at another location as a new finding with a new ID, never reopening or renumbering the first, because their reproduction paths and acceptance tests differ"
       ]
+    },
+    {
+      "id": "one-instance-filed-class-still-open",
+      "route": "staff-engineer+audit-ledger",
+      "degree": "strict-review",
+      "artifact": "evals/fixtures/insecure-checkout, where the filed finding is one order lookup missing an owner predicate and the same pattern appears at three unfiled call sites.",
+      "prompt": "Fix that ownership bug and close it out.",
+      "skill_specific_assertions": [
+        "Sweeps the defect class before authorizing the batch and reports how many instances exist, rather than editing the single filed call site first and discovering the rest afterwards",
+        "Records the sweep as a re-runnable expression with the scope it covered, not as a prose claim that the codebase was checked",
+        "Files each unfiled instance as its own finding with its own ID, since their reproduction paths and acceptance tests differ from the first",
+        "Refuses to present the root cause as finished while its class is unswept, even when every filed finding reaches verified-fixed",
+        "Distinguishes the delta audit of the batch diff from the class sweep of unchanged code, and does not let a clean delta audit stand in for a clean class",
+        "When the class is too large to convert in this batch, closes it with a chokepoint or an enforced ratchet, or names the remaining instances for explicit acceptance, instead of silently leaving them out of the report"
+      ]
     }
   ]
 }

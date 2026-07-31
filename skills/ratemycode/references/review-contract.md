@@ -242,4 +242,17 @@ Preserve the prior target, every finding and unknown ID, reproduction steps, acc
 
 The same defect class found at a second location is a new finding, not a reopening of the first. Two instances of one flaw — the same missing predicate on a second page, the same unguarded retry in a second worker — carry different reproduction paths and different acceptance tests, so merging them under one ID means fixing the first silently closes the second. Give the second instance its own ID even when the root cause is identical; group them with a shared `RC-###` if that helps sequencing, and never renumber or delete an existing finding to make the set look tidier.
 
+That rule assumes the second instance was found. Finding it is a separate obligation, and it splits into two questions that behave differently:
+
+- **Extent of condition** — where else does this same defect sit? Broad but shallow, usually one re-runnable expression, and it terminates. Do it when the root cause is formed, before authorizing a fix: three call sites and forty call sites deserve different fixes, and the user is authorizing a different amount of work in each case. Discovering the count after hand-editing three of forty means the fix was designed on a false premise and now adds a second inconsistency.
+- **Extent of cause** — what *else* did this same cause produce? Narrow but deep, judgment-bound, and it expands without a natural boundary. Do it after the root cause is established, and only where the consequence justifies the cost.
+
+Keep them apart. They are answered at different times, cost different amounts, and drive different actions: the first bounds the current batch, the second opens new ones. Collapsing them is what turns a bounded sweep into an unbounded one.
+
+Record the sweep as a re-runnable expression with the scope it covered, never as a prose claim of thoroughness. An expression can be re-run by someone who doubts it; "I checked" cannot. When no expression can enumerate the class — the defect is semantic, or the instances share no mechanical signature — say so and name what was attempted. A class nobody can enumerate is a class nobody can prove closed, which is itself a finding at a release-blocking degree.
+
+A class closes by one of four routes, and converting every instance is only the first: convert them all; build a chokepoint that makes the remaining ones unreachable; install a ratchet that freezes the count under enforcement so it can only decrease; or name the remainder and have the user accept it. The ratchet is what makes a forty-instance class tractable without pretending it is gone.
+
 Identity rules constrain how prior records are re-scored; they never limit discovery. A fix batch's re-review also opens the changed surface — the diff between the prior and new `release_ref` — as fresh audit surface under the same role rubric, because fix code is new, written under closure pressure, and audited by no earlier pass. File its defects as new findings with new IDs under the same evidence rules; never declare a batch closed while its delta audit is unrun or has open findings.
+
+Delta audit and class sweep look similar and cover opposite ground. The delta audit reads what the batch changed; the class sweep reads what it did not. A batch can pass its delta audit cleanly while leaving every unfiled instance of its own defect untouched, so neither substitutes for the other.

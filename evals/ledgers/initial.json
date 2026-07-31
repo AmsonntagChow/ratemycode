@@ -1,5 +1,5 @@
 {
-  "schema_version": "2",
+  "schema_version": "3",
   "snapshot_index": 1,
   "recorded_at": "2026-07-31T02:10:00Z",
   "ledger_id": "RMC-checkout-example-001",
@@ -53,7 +53,19 @@
       "summary": "The order lookup trusted an object identifier without checking the authenticated owner.",
       "finding_ids": [
         "F-001"
-      ]
+      ],
+      "condition_sweep": {
+        "state": "swept",
+        "method": "static-query",
+        "expression": "rg -n --type ts 'repo\\.(findById|getById)\\(' src/ | rg -v 'ownerId|tenantId'",
+        "scope": "src/**/*.ts route handlers and data access, excluding tests and fixtures",
+        "instances_found": 4,
+        "instances_converted": 0,
+        "closure": null,
+        "closure_ref": null,
+        "note": "Three further lookups share the missing owner predicate; none is filed yet."
+      },
+      "cause_sweep": null
     },
     {
       "id": "RC-002",
@@ -61,7 +73,19 @@
       "summary": "The retry path is safe but does not explain how long recovery can take.",
       "finding_ids": [
         "F-002"
-      ]
+      ],
+      "condition_sweep": {
+        "state": "unswept",
+        "method": "none",
+        "expression": null,
+        "scope": null,
+        "instances_found": 0,
+        "instances_converted": 0,
+        "closure": null,
+        "closure_ref": null,
+        "note": null
+      },
+      "cause_sweep": null
     }
   ],
   "evidence": [

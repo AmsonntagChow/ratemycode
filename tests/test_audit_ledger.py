@@ -14,6 +14,21 @@ SPEC = importlib.util.spec_from_file_location("audit_ledger", SCRIPT)
 audit_ledger = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
 SPEC.loader.exec_module(audit_ledger)
+def unswept_condition_sweep() -> dict:
+    """The honest default: a defect class nobody has searched for yet."""
+    return {
+        "state": "unswept",
+        "method": "none",
+        "expression": None,
+        "scope": None,
+        "instances_found": 0,
+        "instances_converted": 0,
+        "closure": None,
+        "closure_ref": None,
+        "note": None,
+    }
+
+
 INITIAL_RELEASE = "sha256:" + ("a" * 64)
 CURRENT_RELEASE = "sha256:" + ("b" * 64)
 
@@ -101,7 +116,7 @@ def evidence(
 
 def base_payload():
     return {
-        "schema_version": "2",
+        "schema_version": "3",
         "snapshot_index": 1,
         "recorded_at": None,
         "ledger_id": "RMC-test-001",
@@ -894,12 +909,178 @@ class AuditLedgerTests(unittest.TestCase):
                 "title": "Premature success",
                 "summary": "State is acknowledged before completion.",
                 "finding_ids": ["F-001"],
+                "condition_sweep": unswept_condition_sweep(),
+                "cause_sweep": None,
             }
         ]
         self.validate(payload)
         payload["root_causes"][0]["finding_ids"] = ["F-999"]
         with self.assertRaises(audit_ledger.ValidationError):
             self.validate(payload)
+
+    def _closing_root_cause_payload(self, degree="strict-review"):
+        """A fix loop where the only filed finding of RC-001 is verified fixed.
+
+        This is the shape that used to read as a finished root cause while the
+        defect class was still open everywhere else.
+        """
+        payload = verified_payload()
+        payload["review"]["degree"] = degree
+        # degree and requested_target are coupled; move both or the review gate
+        # rejects the payload before it ever reaches the sweep rules.
+        payload["review"]["requested_target"] = {
+            "quick-check": "internal-demo",
+            "strict-review": "private-beta",
+            "launch-gate": "public-launch",
+            "real-stakes": "real-money",
+            "life-or-death": "high-stakes",
+        }[degree]
+        # A launch gate demands runtime release evidence this fixture does not
+        # carry, so the decision engine lands on INSUFFICIENT_EVIDENCE there.
+        if degree == "launch-gate":
+            payload["verdict"]["current_decision"] = "INSUFFICIENT_EVIDENCE"
+            payload["verdict"]["maximum_safe_target"] = "internal-demo"
+        else:
+            payload["verdict"]["maximum_safe_target"] = payload["review"]["requested_target"]
+        payload["findings"][0]["root_cause_id"] = "RC-001"
+        payload["root_causes"] = [
+            {
+                "id": "RC-001",
+                "title": "Missing ownership predicate",
+                "summary": "Lookups trust an identifier without checking the owner.",
+                "finding_ids": [payload["findings"][0]["id"]],
+                "condition_sweep": unswept_condition_sweep(),
+                "cause_sweep": None,
+            }
+        ]
+        return payload
+
+    def _swept(self, **overrides):
+        sweep = {
+            "state": "closed",
+            "method": "static-query",
+            "expression": "rg -n 'findById' src/",
+            "scope": "src/**/*.ts",
+            "instances_found": 3,
+            "instances_converted": 3,
+            "closure": "converted",
+            "closure_ref": None,
+            "note": None,
+        }
+        sweep.update(overrides)
+        return sweep
+
+    def test_closing_a_root_cause_requires_the_class_to_have_been_searched(self):
+        payload = self._closing_root_cause_payload()
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path, "$.root_causes[0].condition_sweep.state"
+        )
+        payload["root_causes"][0]["condition_sweep"] = self._swept()
+        self.validate(payload)
+
+    def test_unswept_class_is_allowed_while_findings_remain_open(self):
+        payload = self._closing_root_cause_payload()
+        payload["findings"][0]["status"] = "fixed-pending-retest"
+        payload["findings"][0]["retest"] = None
+        # An unverified fix cannot be READY, and the sweep rule must not fire here.
+        payload["verdict"]["current_decision"] = "NOT_READY"
+        payload["verdict"]["maximum_safe_target"] = "internal-demo"
+        self.validate(payload)
+
+    def test_converted_closure_cannot_leave_instances_behind(self):
+        payload = self._closing_root_cause_payload()
+        payload["root_causes"][0]["condition_sweep"] = self._swept(instances_converted=1)
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path, "$.root_causes[0].condition_sweep.instances_converted"
+        )
+
+    def test_ratchet_closure_carries_the_enforcing_location(self):
+        payload = self._closing_root_cause_payload()
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            closure="ratchet", instances_converted=1
+        )
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path, "$.root_causes[0].condition_sweep.closure_ref"
+        )
+        payload["root_causes"][0]["condition_sweep"]["closure_ref"] = "tools/ratchets/own.tsv"
+        self.validate(payload)
+
+    def test_swept_state_cannot_claim_a_closure(self):
+        payload = self._closing_root_cause_payload()
+        payload["root_causes"][0]["condition_sweep"] = self._swept(state="swept")
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(context.exception.path, "$.root_causes[0].condition_sweep.closure")
+
+    def test_unswept_state_cannot_carry_counts(self):
+        payload = self._closing_root_cause_payload()
+        payload["findings"][0]["status"] = "open"
+        payload["findings"][0]["fix"] = None
+        payload["findings"][0]["fix_authorization"] = None
+        payload["findings"][0]["retest"] = None
+        sweep = unswept_condition_sweep()
+        sweep["instances_found"] = 4
+        payload["root_causes"][0]["condition_sweep"] = sweep
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(context.exception.path, "$.root_causes[0].condition_sweep.state")
+
+    def test_unsweepable_class_must_say_why(self):
+        payload = self._closing_root_cause_payload()
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            state="unsweepable",
+            method="none",
+            expression=None,
+            instances_found=0,
+            instances_converted=0,
+            closure=None,
+        )
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(context.exception.path, "$.root_causes[0].condition_sweep.note")
+
+    def test_launch_gate_refuses_to_close_an_unenumerable_class(self):
+        payload = self._closing_root_cause_payload(degree="launch-gate")
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            state="unsweepable",
+            method="none",
+            expression=None,
+            instances_found=0,
+            instances_converted=0,
+            closure=None,
+            note="No mechanical predicate distinguishes the unsafe call sites.",
+        )
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(context.exception.path, "$.root_causes[0].condition_sweep.state")
+
+    def test_launch_gate_requires_the_extent_of_cause_review(self):
+        payload = self._closing_root_cause_payload(degree="launch-gate")
+        payload["root_causes"][0]["condition_sweep"] = self._swept()
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(context.exception.path, "$.root_causes[0].cause_sweep")
+        payload["root_causes"][0]["cause_sweep"] = {
+            "state": "done",
+            "summary": "Checked the export job and the GraphQL resolvers.",
+            "finding_ids": [],
+        }
+        self.validate(payload)
+
+    def test_quick_check_may_close_with_the_remainder_accepted(self):
+        payload = self._closing_root_cause_payload(degree="quick-check")
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            instances_converted=1,
+            closure="accepted-risk",
+            note="Two call sites remain; the user accepted them for an internal demo.",
+        )
+        self.validate(payload)
 
     def test_external_change_can_be_retested_without_prior_authorization(self):
         payload = verified_payload()

@@ -146,7 +146,27 @@ RootCause = {
   id: RC-###,
   title,
   summary,
-  finding_ids: unique F-###[1..]
+  finding_ids: unique F-###[1..],
+  condition_sweep: ConditionSweep,
+  cause_sweep: CauseSweep | null
+}
+
+ConditionSweep = {
+  state: unswept | unsweepable | swept | closed,
+  method: none | text-search | static-query | type-check | manual-enumeration,
+  expression: string | null,
+  scope: string | null,
+  instances_found: integer_0_or_more,
+  instances_converted: integer_0_or_more,
+  closure: converted | chokepoint | ratchet | accepted-risk | null,
+  closure_ref: string | null,
+  note: string | null
+}
+
+CauseSweep = {
+  state: pending | done,
+  summary,
+  finding_ids: unique F-###[0..]
 }
 
 LedgerEvidence = {
@@ -466,6 +486,14 @@ Fix one root-cause batch at a time. Prefer the batch that removes the most sever
 
 Each batch's independent re-review includes a delta audit of the batch diff between the prior and new release identity; record the new findings it produces in the same snapshot with new IDs, and keep the batch open until they are resolved or explicitly risk-accepted.
 
+Every root cause carries the state of its own defect class in `condition_sweep`, because a root cause whose filed findings all close is exactly when its unfiled instances stop being visible. `unswept` is a legal and honest state — it means nobody searched, and it must render as that rather than as a clean result. What is not legal is closing a root cause while still in it: the validator refuses a `fix-and-retest` snapshot in which every finding of a root cause is `verified-fixed` or `accepted-risk` while its class is `unswept`.
+
+The states are ordered by what has been established, not by how much work was done. `unswept` means no search ran. `unsweepable` means a search was attempted and the class has no mechanical signature; it requires the reason and the attempted scope. `swept` means the class is enumerated but unresolved, so it carries counts and no closure. `closed` means enumerated and resolved, so it carries exactly one closure route: `converted` requires every found instance converted; `chokepoint` and `ratchet` require the location that enforces them in `closure_ref`; `accepted-risk` requires the remaining exposure named in `note`. A class may legitimately reopen when a later delta audit surfaces instances the first expression missed, but it can never return to `unswept` — that is always a bookkeeping error, and continuity validation rejects it.
+
+`cause_sweep` covers the separate, expanding question of what else the same cause produced, and stays `null` where it was not performed.
+
+Degree grades the formality of the sweep, not whether it happens. Every degree records a state; `launch-gate` and above additionally require each closing root cause to reach `closed` — an unenumerable class cannot pass a release gate — and to carry a completed `cause_sweep`. A `quick-check` may close a class with most instances unconverted, provided the remainder is named and accepted; the rendered report then shows `1/7 instances converted` rather than an unqualified fixed count.
+
 When a batch settles a convention worth keeping — a single source of truth, a canonical expression of one state, a naming or interaction rule — update the project's conventions document in the same batch and list it in the batch's change references, so later maintainers and agents inherit the decision instead of re-forking it.
 
 ## Render and close the loop
@@ -482,7 +510,7 @@ Keep an `unverifiable` finding in the confirmed-finding list because the origina
 
 Stop only when one of these conditions is explicit:
 
-- every finding is `verified-fixed`, every unknown is cleared or promoted to a finding, required evidence lanes are satisfied, and the same-rubric verdict supports the target;
+- every finding is `verified-fixed`, every root cause's defect class is `closed` or its remaining instances are explicitly accepted, every unknown is cleared or promoted to a finding, required evidence lanes are satisfied, and the same-rubric verdict supports the target;
 - the user explicitly accepts named remaining risks, while the report continues to show the resulting technical limits and any active gate;
 - work is `blocked` by a named missing permission, dependency, environment, or external decision, with a concrete resolving action.
 

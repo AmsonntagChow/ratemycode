@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Any
 
 
-SCHEMA_VERSION = "2"
+SCHEMA_VERSION = "3"
 MAX_INPUT_BYTES = 2_097_152
 SHA256_PATTERN = re.compile(r"sha256:[0-9a-f]{64}")
 RECORDED_AT_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
@@ -94,6 +94,24 @@ VENTURE_MATURITY_BY_SIGNAL_COUNT = {
 }
 SEVERITIES = {"BLOCKER", "HIGH", "MEDIUM", "LOW"}
 SEVERITY_ORDER = {"BLOCKER": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3}
+# Extent of condition: the same defect at other locations. Bounded and mechanical.
+CONDITION_SWEEP_STATES = {"unswept", "unsweepable", "swept", "closed"}
+CONDITION_SWEEP_METHODS = {
+    "none",
+    "text-search",
+    "static-query",
+    "type-check",
+    "manual-enumeration",
+}
+# Converting every instance is one way to close a class, not the only one. A
+# chokepoint makes the remaining instances unreachable; a ratchet freezes the
+# count under enforcement so it can only decrease.
+CONDITION_SWEEP_CLOSURES = {"converted", "chokepoint", "ratchet", "accepted-risk"}
+# Extent of cause: what else the same root cause produced. Unbounded, so it is
+# required only where the consequence of missing it justifies the cost.
+CAUSE_SWEEP_STATES = {"pending", "done"}
+SWEEP_STRICT_DEGREES = {"launch-gate", "real-stakes", "life-or-death"}
+CLOSED_FINDING_STATUSES = {"verified-fixed", "accepted-risk"}
 FINDING_STATUSES = {
     "open",
     "fixing",
@@ -1652,8 +1670,160 @@ def validate_findings(
     return sorted(result, key=lambda item: (SEVERITY_ORDER[item["severity"]], item["id"])), by_id
 
 
+def validate_condition_sweep(value: Any, path: str) -> dict[str, Any]:
+    """Extent of condition: the same defect at locations nobody filed yet.
+
+    The point of the schema is that "did not look" and "looked and found
+    nothing" cannot render as the same thing. `unswept` is a legal, honest
+    state; what is illegal is closing a root cause while still in it.
+    """
+    item = require_object(value, path)
+    require_exact_fields(
+        item,
+        {
+            "state",
+            "method",
+            "expression",
+            "scope",
+            "instances_found",
+            "instances_converted",
+            "closure",
+            "closure_ref",
+            "note",
+        },
+        path,
+    )
+    state = require_string(item["state"], f"{path}.state", CONDITION_SWEEP_STATES)
+    method = require_string(item["method"], f"{path}.method", CONDITION_SWEEP_METHODS)
+    expression = require_nullable_string(item["expression"], f"{path}.expression")
+    scope = require_nullable_string(item["scope"], f"{path}.scope")
+    found = require_int(item["instances_found"], f"{path}.instances_found", 0, 1000000)
+    converted = require_int(
+        item["instances_converted"], f"{path}.instances_converted", 0, 1000000
+    )
+    closure = require_nullable_string(item["closure"], f"{path}.closure")
+    closure_ref = require_nullable_string(item["closure_ref"], f"{path}.closure_ref")
+    note = require_nullable_string(item["note"], f"{path}.note")
+
+    if closure is not None and closure not in CONDITION_SWEEP_CLOSURES:
+        raise ValidationError(
+            f"{path}.closure",
+            f"expected one of {sorted(CONDITION_SWEEP_CLOSURES)}, got {closure!r}",
+        )
+    if converted > found:
+        raise ValidationError(
+            f"{path}.instances_converted",
+            f"converted {converted} exceeds the {found} instance(s) the sweep found",
+        )
+
+    if state == "unswept":
+        if (
+            method != "none"
+            or expression is not None
+            or scope is not None
+            or found
+            or converted
+            or closure
+        ):
+            raise ValidationError(
+                f"{path}.state",
+                "'unswept' means nothing was searched: method must be 'none' and "
+                "expression, scope, counts, and closure must be empty",
+            )
+    elif state == "unsweepable":
+        # A class nobody can enumerate is a real outcome, but it has to say why
+        # and what was attempted; otherwise it becomes a place to hide.
+        if not note:
+            raise ValidationError(
+                f"{path}.note", "'unsweepable' requires the reason enumeration failed"
+            )
+        if not scope:
+            raise ValidationError(
+                f"{path}.scope", "'unsweepable' requires the scope that was attempted"
+            )
+        if closure is not None:
+            raise ValidationError(
+                f"{path}.closure", "'unsweepable' cannot carry a closure route"
+            )
+    else:
+        if method == "none" or not expression:
+            raise ValidationError(
+                f"{path}.expression",
+                f"{state!r} requires a re-runnable search expression and a method",
+            )
+        if not scope:
+            raise ValidationError(
+                f"{path}.scope", f"{state!r} requires the scope the expression ran against"
+            )
+        if state == "swept" and closure is not None:
+            raise ValidationError(
+                f"{path}.closure",
+                "'swept' means enumerated but unresolved; use 'closed' to record a closure",
+            )
+        if state == "closed":
+            if closure is None:
+                raise ValidationError(
+                    f"{path}.closure", "'closed' requires how the class was closed"
+                )
+            if closure == "converted" and converted != found:
+                raise ValidationError(
+                    f"{path}.instances_converted",
+                    f"closure 'converted' requires all {found} instance(s) converted, "
+                    f"got {converted}",
+                )
+            if closure in {"chokepoint", "ratchet"} and not closure_ref:
+                raise ValidationError(
+                    f"{path}.closure_ref",
+                    f"closure {closure!r} requires the location that enforces it",
+                )
+            if closure == "accepted-risk" and not note:
+                raise ValidationError(
+                    f"{path}.note",
+                    "closure 'accepted-risk' requires the named remaining exposure",
+                )
+    return {
+        "state": state,
+        "method": method,
+        "expression": expression,
+        "scope": scope,
+        "instances_found": found,
+        "instances_converted": converted,
+        "closure": closure,
+        "closure_ref": closure_ref,
+        "note": note,
+    }
+
+
+def validate_cause_sweep(
+    value: Any, path: str, finding_by_id: dict[str, dict[str, Any]]
+) -> dict[str, Any] | None:
+    """Extent of cause: what else this root cause produced.
+
+    Kept separate from the condition sweep because it is the one that expands
+    without a natural boundary, and it answers a different question.
+    """
+    if value is None:
+        return None
+    item = require_object(value, path)
+    require_exact_fields(item, {"state", "summary", "finding_ids"}, path)
+    state = require_string(item["state"], f"{path}.state", CAUSE_SWEEP_STATES)
+    summary = require_string(item["summary"], f"{path}.summary")
+    finding_ids = require_string_list(
+        item["finding_ids"], f"{path}.finding_ids", minimum=0, unique=True
+    )
+    for offset, finding_id in enumerate(finding_ids):
+        if finding_id not in finding_by_id:
+            raise ValidationError(
+                f"{path}.finding_ids[{offset}]", f"unknown finding id {finding_id!r}"
+            )
+    return {"state": state, "summary": summary, "finding_ids": sorted(finding_ids)}
+
+
 def validate_root_causes(
-    value: Any, finding_by_id: dict[str, dict[str, Any]]
+    value: Any,
+    finding_by_id: dict[str, dict[str, Any]],
+    degree: str,
+    loop_mode: str,
 ) -> list[dict[str, Any]]:
     items = require_list(value, "$.root_causes")
     result: list[dict[str, Any]] = []
@@ -1661,7 +1831,11 @@ def validate_root_causes(
     for index, raw in enumerate(items):
         path = f"$.root_causes[{index}]"
         item = require_object(raw, path)
-        require_exact_fields(item, {"id", "title", "summary", "finding_ids"}, path)
+        require_exact_fields(
+            item,
+            {"id", "title", "summary", "finding_ids", "condition_sweep", "cause_sweep"},
+            path,
+        )
         root_id = require_id(item["id"], f"{path}.id", "root_cause")
         if root_id in by_id:
             raise ValidationError(f"{path}.id", f"duplicate root-cause id {root_id!r}")
@@ -1678,11 +1852,45 @@ def validate_root_causes(
                     f"{path}.finding_ids[{offset}]",
                     f"finding {finding_id!r} does not point back to {root_id!r}",
                 )
+        condition_sweep = validate_condition_sweep(
+            item["condition_sweep"], f"{path}.condition_sweep"
+        )
+        cause_sweep = validate_cause_sweep(
+            item["cause_sweep"], f"{path}.cause_sweep", finding_by_id
+        )
+        # A root cause looks finished when its filed findings all close. That is
+        # exactly the moment the unfiled instances become invisible, so it is the
+        # moment the sweep has to have happened.
+        if loop_mode == "fix-and-retest" and all(
+            finding_by_id[item_id]["status"] in CLOSED_FINDING_STATUSES
+            for item_id in finding_ids
+        ):
+            if condition_sweep["state"] == "unswept":
+                raise ValidationError(
+                    f"{path}.condition_sweep.state",
+                    f"{root_id} has every filed finding closed while its defect class is "
+                    "still 'unswept'; run the extent-of-condition sweep before closing it",
+                )
+            if degree in SWEEP_STRICT_DEGREES:
+                if condition_sweep["state"] != "closed":
+                    raise ValidationError(
+                        f"{path}.condition_sweep.state",
+                        f"degree {degree!r} requires a closed defect class before {root_id} "
+                        f"closes, got {condition_sweep['state']!r}",
+                    )
+                if cause_sweep is None or cause_sweep["state"] != "done":
+                    raise ValidationError(
+                        f"{path}.cause_sweep",
+                        f"degree {degree!r} requires a completed extent-of-cause review "
+                        f"before {root_id} closes",
+                    )
         normalized = {
             "id": root_id,
             "title": require_string(item["title"], f"{path}.title"),
             "summary": require_string(item["summary"], f"{path}.summary"),
             "finding_ids": sorted(finding_ids),
+            "condition_sweep": condition_sweep,
+            "cause_sweep": cause_sweep,
         }
         result.append(normalized)
         by_id[root_id] = normalized
@@ -2189,7 +2397,9 @@ def validate(payload: Any) -> dict[str, Any]:
             "$.artifact.current_release_ref",
             "must differ from initial_release_ref after a recorded fix",
         )
-    root_causes = validate_root_causes(root["root_causes"], finding_by_id)
+    root_causes = validate_root_causes(
+        root["root_causes"], finding_by_id, normalized_review["degree"], loop_mode
+    )
     unknowns = validate_unknowns(
         root["unknowns"],
         evidence_by_id,
@@ -2385,6 +2595,38 @@ def code_span(value: str) -> str:
     return f"{fence} {result} {fence}"
 
 
+def render_root_cause_sweeps(root: dict[str, Any], label: dict[str, str]) -> list[str]:
+    """Put the class state on the page.
+
+    A reader who only sees "3 of 3 findings verified" concludes the class is
+    gone. These lines are what stop that reading when it is not true.
+    """
+    sweep = root["condition_sweep"]
+    detail = f"{label['condition_sweep']}: `{sweep['state']}`"
+    if sweep["state"] in {"swept", "closed"}:
+        detail += (
+            f" — {sweep['instances_converted']}/{sweep['instances_found']} "
+            f"{label['instances_converted']}"
+        )
+        if sweep["closure"]:
+            detail += f", {label['closure']} `{sweep['closure']}`"
+            if sweep["closure_ref"]:
+                detail += f" ({markdown_text(sweep['closure_ref'])})"
+        detail += f" · `{markdown_text(sweep['expression'])}` {label['over_scope']} {markdown_text(sweep['scope'])}"
+    elif sweep["state"] == "unsweepable":
+        detail += f" — {markdown_text(sweep['note'] or '')}"
+    else:
+        detail += f" — {label['unswept_warning']}"
+    lines = [detail]
+    cause = root["cause_sweep"]
+    if cause is not None:
+        cause_line = f"{label['cause_sweep']}: `{cause['state']}` — {markdown_text(cause['summary'])}"
+        if cause["finding_ids"]:
+            cause_line += f" ({render_list(cause['finding_ids'])})"
+        lines.append(cause_line)
+    return lines
+
+
 def render_list(values: list[str]) -> str:
     return "; ".join(markdown_text(value) for value in values)
 
@@ -2415,6 +2657,12 @@ LABELS = {
         "status": "Status",
         "count": "Count",
         "root_causes": "Root causes",
+        "condition_sweep": "Extent of condition",
+        "cause_sweep": "Extent of cause",
+        "instances_converted": "instances converted",
+        "closure": "closed by",
+        "over_scope": "over",
+        "unswept_warning": "the defect class was never searched; other instances may remain unfiled",
         "findings": "Detailed findings",
         "unknowns": "Detailed unknowns",
         "gates": "Safety gates",
@@ -2507,6 +2755,12 @@ LABELS = {
         "status": "状态",
         "count": "数量",
         "root_causes": "共同根因",
+        "condition_sweep": "同类实例扫描",
+        "cause_sweep": "根因延伸审查",
+        "instances_converted": "处已转换",
+        "closure": "结案方式",
+        "over_scope": "扫描范围",
+        "unswept_warning": "从未扫描过这一类缺陷，别处可能仍有未立案的实例",
         "findings": "问题详情",
         "unknowns": "待验证项详情",
         "gates": "安全门禁",
@@ -2828,6 +3082,8 @@ def render_markdown(data: dict[str, Any], language: str) -> str:
                 f"- **{root['id']} · {markdown_text(root['title'])}** — {markdown_text(root['summary'])} "
                 f"({progress})"
             )
+            for sweep_line in render_root_cause_sweeps(root, label):
+                lines.append(f"  - {sweep_line}")
     else:
         lines.append(label["none"])
 
@@ -3061,6 +3317,17 @@ def validate_continuity(previous: dict[str, Any], current: dict[str, Any], prior
             raise ValidationError(
                 f"$.root_causes[{root_cause_id}]",
                 "title, summary, and prior finding links must be preserved",
+            )
+        # A class can legitimately reopen — a later delta audit may surface
+        # instances the first expression missed. Returning to "never looked"
+        # cannot happen, so it is always a bookkeeping error.
+        if (
+            prior_root_cause["condition_sweep"]["state"] != "unswept"
+            and current_root_cause["condition_sweep"]["state"] == "unswept"
+        ):
+            raise ValidationError(
+                f"$.root_causes[{root_cause_id}].condition_sweep.state",
+                "a searched defect class cannot revert to 'unswept'",
             )
     mutable_finding_fields = {
         "status",
