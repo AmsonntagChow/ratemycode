@@ -225,7 +225,8 @@
         "Checks a 320 CSS-pixel viewport and reports the fixed 960-pixel shell's horizontal overflow with browser evidence",
         "Separates the broad 600ms transition and missing reduced-motion behavior from higher-severity functional failures, without requiring animation or a preferred library",
         "Does not claim accessibility, cross-browser support, mobile readiness, performance, or Core Web Vitals beyond the environments and evidence actually tested",
-        "Begins with the complete severity-sorted one-line issue list, shows all four evidence lanes, and limits priority actions to three"
+        "Begins with the complete severity-sorted one-line issue list, shows all four evidence lanes, and limits priority actions to three",
+        "Judges text setting at real widths: reports a stranded one-to-two character last line or line-leading punctuation as a comprehension defect, applies CJK line-breaking conventions rather than Latin defaults, and does not file font preference or an undeclared house style as a finding"
       ]
     },
     {
