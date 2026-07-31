@@ -22,7 +22,21 @@
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-5b5bd6.svg)](https://agentskills.io/)
 [![skills.sh](https://skills.sh/b/AmsonntagChow/ratemycode)](https://skills.sh/amsonntagchow/ratemycode/ratemycode)
 
-请选择一种安装方式。对于 Codex，请将此仓库添加为插件市场：
+请选择一种安装方式。`skills` CLI 最短，且在 Codex、Claude Code、Cursor 以及其他所有 Agent Skills 客户端都能用：
+
+```bash
+npx skills add AmsonntagChow/ratemycode --skill ratemycode
+```
+
+如果想在 Claude Code 里装成插件，下面这几条要**逐条分开执行**——它们是斜杠命令不是 shell，既不能整块粘贴，也不能用反斜杠连成一行：
+
+```text
+/plugin marketplace add AmsonntagChow/ratemycode
+/plugin install ratemycode@amsonntagchow-ratemycode
+/reload-plugins
+```
+
+如果想在 Codex 里装成插件，请将此仓库添加为插件市场：
 
 ```bash
 codex plugin marketplace add AmsonntagChow/ratemycode
@@ -30,21 +44,7 @@ codex plugin marketplace add AmsonntagChow/ratemycode
 
 然后在 Codex CLI 中打开 `/plugins`，或在桌面应用中打开 Plugins Directory，安装 **RateMyCode** 并启动新会话。
 
-对于 Claude Code，请安装插件：
-
-```text
-/plugin marketplace add AmsonntagChow/ratemycode
-/plugin install ratemycode@amsonntagchow
-/reload-plugins
-```
-
-对于 Cursor 或其他 Agent Skills 客户端——也包括只想轻量安装 Codex skill 的情况——请使用开放的 `skills` CLI：
-
-```bash
-npx skills add AmsonntagChow/ratemycode --skill ratemycode
-```
-
-不要在同一作用域内同时使用两种 Claude 安装方式。之后，用上面任意一条提示词开场，即可选中该 skill。
+不要在同一作用域内同时使用两种 Claude 安装方式。所有方式都不会自动更新：要升级到新版本，重新执行一次安装命令即可。之后，用上面任意一条提示词开场，即可选中该 skill。
 
 ## 它是什么
 
@@ -191,7 +191,7 @@ python3 skills/ratemycode/scripts/audit_ledger.py render --prior evals/ledgers/i
 
 请选择原生 Codex 插件、Claude Code 插件或可移植 Agent Skill 安装方式。不要在同一个客户端和作用域内安装重复副本。
 
-切换安装方式时，请先通过 `/plugins`、`npx skills remove ratemycode` 或 `/plugin uninstall ratemycode@amsonntagchow` 移除现有副本，具体取决于你使用的方式。
+切换安装方式时，请先通过 `/plugins`、`npx skills remove ratemycode` 或 `/plugin uninstall ratemycode@amsonntagchow-ratemycode` 移除现有副本，具体取决于你使用的方式。
 
 ### Codex 插件
 
@@ -211,7 +211,7 @@ codex plugin marketplace add AmsonntagChow/ratemycode
 
 ```text
 /plugin marketplace add AmsonntagChow/ratemycode
-/plugin install ratemycode@amsonntagchow
+/plugin install ratemycode@amsonntagchow-ratemycode
 /reload-plugins
 ```
 

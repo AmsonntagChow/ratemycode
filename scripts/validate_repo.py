@@ -187,8 +187,8 @@ def validate_claude_plugin(errors: list[str]) -> None:
     marketplace = load_json(".claude-plugin/marketplace.json", errors)
     if not isinstance(marketplace, dict):
         return
-    if marketplace.get("name") != "amsonntagchow":
-        errors.append("Claude marketplace name must be 'amsonntagchow'")
+    if marketplace.get("name") != "amsonntagchow-ratemycode":
+        errors.append("Claude marketplace name must be 'amsonntagchow-ratemycode'")
     plugins = marketplace.get("plugins")
     if not isinstance(plugins, list):
         errors.append("Claude marketplace plugins must be an array")

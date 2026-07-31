@@ -22,7 +22,21 @@ Attach a durable session goal (`/goal` in Codex; the same sentence as a first me
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-5b5bd6.svg)](https://agentskills.io/)
 [![skills.sh](https://skills.sh/b/AmsonntagChow/ratemycode)](https://skills.sh/amsonntagchow/ratemycode/ratemycode)
 
-Choose one installation method. For Codex, add this repository as a plugin marketplace:
+Choose one installation method. The `skills` CLI is the shortest and works in Codex, Claude Code, Cursor, and every other Agent Skills client:
+
+```bash
+npx skills add AmsonntagChow/ratemycode --skill ratemycode
+```
+
+For Claude Code as a plugin instead, run these as two separate commands — they are slash commands, not shell, so they cannot be pasted as one block or joined with a backslash:
+
+```text
+/plugin marketplace add AmsonntagChow/ratemycode
+/plugin install ratemycode@amsonntagchow-ratemycode
+/reload-plugins
+```
+
+For Codex as a plugin, add this repository as a marketplace:
 
 ```bash
 codex plugin marketplace add AmsonntagChow/ratemycode
@@ -30,21 +44,7 @@ codex plugin marketplace add AmsonntagChow/ratemycode
 
 Then open `/plugins` in Codex CLI or the Plugins Directory in the desktop app, install **RateMyCode**, and start a new session.
 
-For Claude Code, install the plugin:
-
-```text
-/plugin marketplace add AmsonntagChow/ratemycode
-/plugin install ratemycode@amsonntagchow
-/reload-plugins
-```
-
-For Cursor or another Agent Skills client—or a lightweight Codex skill-only install—use the open `skills` CLI:
-
-```bash
-npx skills add AmsonntagChow/ratemycode --skill ratemycode
-```
-
-Do not install both Claude methods in the same scope. Then open with either prompt above so the skill is selected.
+Do not install both Claude methods in the same scope. No method updates itself: to move to a newer release, run the install again. Then open with either prompt above so the skill is selected.
 
 ## What it is
 
@@ -208,7 +208,7 @@ The validator enforces structural consistency, release and procedure binding, re
 
 Choose the native Codex plugin, the Claude Code plugin, or the portable Agent Skill installation. Do not install duplicate copies in the same client and scope.
 
-When switching methods, remove the existing copy first through `/plugins`, `npx skills remove ratemycode`, or `/plugin uninstall ratemycode@amsonntagchow`, as appropriate.
+When switching methods, remove the existing copy first through `/plugins`, `npx skills remove ratemycode`, or `/plugin uninstall ratemycode@amsonntagchow-ratemycode`, as appropriate.
 
 ### Codex plugin
 
@@ -228,7 +228,7 @@ Add this repository as a marketplace, install the plugin, and reload it:
 
 ```text
 /plugin marketplace add AmsonntagChow/ratemycode
-/plugin install ratemycode@amsonntagchow
+/plugin install ratemycode@amsonntagchow-ratemycode
 /reload-plugins
 ```
 
