@@ -59,6 +59,30 @@ containing only that element. Cluster line positions with a tolerance near the l
 Do not file font preference, exact leading values, a hyphenated compound breaking at its hyphen, or a house style the
 product never declared.
 
+To measure it rather than eyeball it, walk the text nodes of each block, take a rectangle per character, group those
+rectangles into lines with a tolerance, and read the last group:
+
+```js
+// last-line content of one block, tolerant of smaller inline elements
+const lh = parseFloat(getComputedStyle(el).lineHeight) || 24;
+const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+const chars = [];
+for (let n; (n = walker.nextNode()); )
+  for (let i = 0; i < n.length; i++) {
+    const r = document.createRange(); r.setStart(n, i); r.setEnd(n, i + 1);
+    const b = r.getBoundingClientRect();
+    if (b.width > 0) chars.push({ c: n.data[i], y: Math.round(b.bottom) });
+  }
+const rows = [...new Set(chars.map(c => c.y))].sort((a, b) => a - b)
+  .reduce((g, y) => (g.length && y - g.at(-1).at(-1) <= lh * 0.6 ? g.at(-1).push(y) : g.push([y]), g), []);
+const last = new Set(rows.at(-1));
+const text = chars.filter(c => last.has(c.y)).map(c => c.c).join('').trim();
+```
+
+Score `text` by units, not by width: words for Latin, characters for CJK. A last line whose ratio to the block width
+looks small is not automatically stranded — fifteen characters of code on a wide measure is fine. Repeat across the
+product's supported widths; the same block can set correctly at one and strand at another.
+
 ## Judgment boundaries
 
 Use the finding, severity, decision, and target-scoped veto protocol in `references/review-contract.md`. A core journey that is unusable for a required input mode or supported browser may be a release blocker by consequence, but only when verified and in scope. A missing preferred library, code style, component taste, or alternate architecture is not a finding.
