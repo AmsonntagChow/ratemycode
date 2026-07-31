@@ -226,7 +226,7 @@
         "Separates the broad 600ms transition and missing reduced-motion behavior from higher-severity functional failures, without requiring animation or a preferred library",
         "Does not claim accessibility, cross-browser support, mobile readiness, performance, or Core Web Vitals beyond the environments and evidence actually tested",
         "Begins with the complete severity-sorted one-line issue list, shows all four evidence lanes, and limits priority actions to three",
-        "Judges text setting at real widths: reports a stranded one-to-two character last line or line-leading punctuation as a comprehension defect, applies CJK line-breaking conventions rather than Latin defaults, and does not file font preference or an undeclared house style as a finding"
+        "Judges text setting at more than one supported width, treating a single-word or single-character stranded last line as the defect regardless of script, and clusters rendered line positions with a tolerance so a smaller inline element such as code does not register as a phantom last line; does not file font preference, a hyphen break, or an undeclared house style"
       ]
     },
     {

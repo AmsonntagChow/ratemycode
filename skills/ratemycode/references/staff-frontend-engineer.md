@@ -9,7 +9,7 @@ Review the shipped client experience as a Staff Frontend engineer: correct, incl
 - Can critical tasks be completed with keyboard, screen reader, zoom/reflow, touch, and reduced motion, with correct semantics, focus, announcements, contrast, and error association?
 - Is loading, responsiveness, and visual stability acceptable on representative devices and networks, based on a reproducible trace or product metric rather than intuition?
 - Do supported browsers, viewport sizes, orientation changes, pointer types, virtual keyboards, safe areas, long content, and localized text preserve every critical control?
-- Does text hold together as set: no stranded last line, no punctuation orphaned at a line start, readable measure and leading, and correct line-breaking for every script the product ships — including CJK, where a one-character last line is a whole morpheme, not a fragment?
+- Does text hold together as set at every supported width: no last line stranded with a single word or character, no punctuation pushed to a line start, a readable measure and leading, and line-breaking correct for every script the product ships?
 - Do components, tokens, variants, states, and interaction conventions form one coherent system, with justified exceptions rather than parallel one-offs?
 - Are forms, pending states, validation, duplicate submission, partial failure, destructive actions, and retry or undo paths safe and recoverable?
 - Is interaction feedback immediate and predictable? Is motion purposeful for its frequency, interruptible, performant, input-aware, and respectful of reduced motion?
@@ -40,13 +40,24 @@ For every scored finding, name the exact journey, environment, browser or device
 
 Use representative targets from the product's declared support contract. If that contract is absent, record the matrix as an unknown and test a minimal risk-based sample without pretending it is complete. Automated accessibility scans, one desktop browser, a fast developer laptop, or a synthetic performance score never prove the whole dimension.
 
-Typography is judged as set text, not as taste. Report a defect when the setting damages comprehension or reads as
-carelessness at a supported width: a last line left with one or two characters, punctuation pushed to the start of a
-line, a measure so wide or narrow that the eye loses the line, or a script whose line-breaking rules the page ignores.
-CJK deserves explicit attention because its rules differ from Latin ones — a single stranded character is a complete
-morpheme, and leading punctuation violates 避头尾 conventions that Western defaults do not encode. Verify at real
-widths in a real browser; a paragraph that reads correctly at one viewport can strand a character at another. Do not
-file font preferences, exact leading values, or a house style the product never declared.
+Typography is judged as set text, not as taste. The defect is script-independent: a paragraph whose last line
+carries a single word, or a heading broken into a long line and a stub. Latin and CJK differ only in what counts as
+stranded — one word in Latin, one or two characters in CJK, where a single character is a complete morpheme — and in
+the extra rules each script brings, such as the CJK convention that punctuation must not open a line.
+
+Check whether the page uses the remedies that are now standard practice rather than hand-tuned line breaks:
+`text-wrap: balance` on headings and other short blocks, `text-wrap: pretty` on body copy, a non-breaking space
+binding the final two words where the algorithm cannot reach, and a measure held near 45–75 characters. Their absence
+is not itself a finding; a stranded line at a supported width is.
+
+Measure in a real browser at real widths, and beware two traps that produce false results. A paragraph that sets
+correctly at one viewport can strand a word at another, so a single width proves nothing. And an inline element with
+a different font size — `code`, `sub`, a smaller badge — produces a line box whose top differs from the surrounding
+text on the same visual line; grouping rendered rectangles by exact position will report a phantom last line
+containing only that element. Cluster line positions with a tolerance near the line height before judging.
+
+Do not file font preference, exact leading values, a hyphenated compound breaking at its hyphen, or a house style the
+product never declared.
 
 ## Judgment boundaries
 
