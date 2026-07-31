@@ -1,6 +1,14 @@
 # Ship-fast review
 
-Use this when the user chooses the quick-check degree. The goal is the shortest defensible path from “it exists” to “this is the safest next release.” Do not turn it into a tutorial or an exhaustive checklist.
+Use this when the user chooses the quick-check degree — the default, and the one most reviews should start at.
+
+It exists because a full-degree audit is genuinely expensive: it runs the product, traces failures through
+implementation, and re-runs checks, costing several times a quick check in both time and tokens. Most people
+are on a fixed plan, and an audit nobody can afford to run is worth nothing. What this degree gives up is the
+**floor of assurance** — it reaches fewer things — not the honesty of the report. Everything it did not reach
+is written down as an explicit `Unknown` with the one test that would resolve it, never quietly assumed fine.
+
+The goal is the shortest defensible path from “it exists” to “this is the safest next release.” Do not turn it into a tutorial or an exhaustive checklist.
 
 ## High-yield sequence
 

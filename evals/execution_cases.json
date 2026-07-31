@@ -90,6 +90,20 @@
       ]
     },
     {
+      "id": "degree-missing-recommends-quick-check",
+      "route": "settings-gate",
+      "degree": "quick-check",
+      "artifact": "evals/fixtures/insecure-checkout, with the user naming a role but no review degree.",
+      "prompt": "Review this as a Staff engineer.",
+      "skill_specific_assertions": [
+        "Keeps the explicitly requested Staff-engineer role and asks only for the missing degree",
+        "Presents quick check first and names it the default, stating that a full-degree audit costs several times more in time and tokens",
+        "States that the cheaper degree lowers the floor of assurance by reaching fewer things, not the completeness of what is reported",
+        "Does not begin inspecting, running, or scoring the artifact before the degree answer arrives",
+        "Does not talk the user out of a higher degree if one is chosen, and does not present a quick check as equivalent to a skipped degree"
+      ]
+    },
+    {
       "id": "cross-tenant-and-duplicate-charge",
       "route": "staff-engineer",
       "degree": "real-stakes",

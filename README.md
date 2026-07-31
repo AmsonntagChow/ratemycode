@@ -76,7 +76,7 @@ After one audit target is resolved, the skill asks two questions before it begin
 
 ```text
 1. Role: Product lead / Hostile user / Staff engineer (systems/backend) / Staff Frontend engineer / Skeptical VC / Oral-defense examiner
-2. Degree: Quick checkup / Strict review / Launch gate / Real-revenue tier / Life-or-death review
+2. Degree: Quick checkup (default) / Strict review / Launch gate / Real-revenue tier / Life-or-death review
 ```
 
 | Choose | What the reviewer does |
@@ -87,6 +87,22 @@ After one audit target is resolved, the skill asks two questions before it begin
 | `hostile-user` | Tries impatience, mistakes, retries, stale state, lifecycle edges, and access-boundary abuse |
 | `skeptical-vc` | Separates user behavior and market evidence from founder claims and code aesthetics |
 | `oral-defense` | Asks 3–5 artifact-grounded questions, one at a time; scores understanding separately |
+
+### Start with the quick checkup
+
+A full-degree audit runs your product, traces failures through the implementation, and re-runs checks. It costs
+several times a quick checkup in both time and tokens, which matters if you are on a fixed plan. So the quick
+checkup is the default: it spends the review on the handful of checks that most often decide whether something
+is safe to ship, and stops there.
+
+What you give up is the **floor of assurance** — fewer things get reached — not the honesty of the report.
+Every issue found is still reported in full, and everything not reached becomes an explicit unknown with the
+one test that would settle it. Escalate when the stakes actually demand it: real money, private data, public
+users, or a decision you cannot walk back.
+
+```text
+Quick checkup on this app. Tell me the few things that would stop me shipping it, and what you did not check.
+```
 
 Try these:
 

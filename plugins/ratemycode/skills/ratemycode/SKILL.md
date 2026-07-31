@@ -18,7 +18,7 @@ Read `references/review-contract.md` for every route. It is the single source of
 
 | Review degree | Decision bar | Additional reference |
 |---|---|---|
-| Quick check — internal-demo standard | `internal-demo`; only the highest-leverage checks | Read `references/ship-fast.md` |
+| **Quick check — start here** | `internal-demo`; only the highest-leverage checks. The cheapest run by a wide margin: it narrows what is investigated, never what is disclosed. | Read `references/ship-fast.md` |
 | Strict review — private-beta standard | `private-beta`; complete the selected role rubric | None |
 | Launch gate — public-release standard | `public-launch`; require runtime release evidence | None |
 | Real stakes — money or sensitive-data standard | `real-money`; verify payment, privacy, recovery, and operations | None |
@@ -66,6 +66,8 @@ ReviewSettings = {
 After the artifact gate passes, extract values from the request or a cited prior report. Ask only for missing fields, in the user's language, presenting the role choices before the degree choices and preserving the labels and meanings in the tables above. When both are missing, ask both in one message. Wait for the answer before inspecting artifact contents, running it, inventorying evidence, or scoring it. Defer optional context questions until both values are known.
 
 Route an unqualified Staff-engineer request to the existing systems route `staff-engineer`. Select `staff-frontend-engineer` only when the user explicitly asks for frontend, web-client, browser, accessibility, responsive, rendering, or interaction expertise. If the user explicitly requests both perspectives, run two separately identified reviews; do not merge their rubrics, ledger chains, or score deltas.
+
+Present quick-check first and name it the default. A full-degree audit runs the product, traces failures through implementation, and re-runs checks, so it costs several times a quick check in both time and tokens — a real constraint for anyone on a fixed plan. What the cheaper run gives up is the floor of assurance, not the honesty of the report: it inspects fewer things, and everything it did not reach is recorded as an explicit `Unknown` rather than quietly assumed fine. Recommend escalating only when the artifact's actual stakes demand it — money, private data, public users, or a regulated decision — or when the user asks. Never talk a user down from a degree they chose, and never present a quick check as equivalent to the degree they skipped.
 
 Map degree to the decision bar above. For `skeptical-vc`, map all five degrees to exact diligence stages: `quick-check` → `screening`, `strict-review` → `structured-diligence`, `launch-gate` → `partner-review`, `real-stakes` → `full-diligence`, and `life-or-death` → `investment-committee`. Use `venture-case`; run any explicitly requested software-release judgment as a separate review and ledger.
 
