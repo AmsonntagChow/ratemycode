@@ -28,13 +28,13 @@
 npx skills add AmsonntagChow/ratemycode --skill ratemycode
 ```
 
-如果想在 Claude Code 里装成插件，下面这几条要**逐条分开执行**——它们是斜杠命令不是 shell，既不能整块粘贴，也不能用反斜杠连成一行：
+如果想在 Claude Code 里装成插件，**只执行下面这一条**——`/plugin` 会把它后面的全部内容当作一个参数，多行粘贴会被读成一个畸形的仓库名：
 
 ```text
 /plugin marketplace add AmsonntagChow/ratemycode
-/plugin install ratemycode@amsonntagchow-ratemycode
-/reload-plugins
 ```
+
+然后打开 `/plugins`，在菜单里安装 **RateMyCode**，再开一个新会话。
 
 如果想在 Codex 里装成插件，请将此仓库添加为插件市场：
 

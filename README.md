@@ -28,13 +28,13 @@ Choose one installation method. The `skills` CLI is the shortest and works in Co
 npx skills add AmsonntagChow/ratemycode --skill ratemycode
 ```
 
-For Claude Code as a plugin instead, run these as two separate commands — they are slash commands, not shell, so they cannot be pasted as one block or joined with a backslash:
+For Claude Code as a plugin instead, run exactly this one command — `/plugin` takes everything after it as a single argument, so a multi-line paste is read as one malformed repository name:
 
 ```text
 /plugin marketplace add AmsonntagChow/ratemycode
-/plugin install ratemycode@amsonntagchow-ratemycode
-/reload-plugins
 ```
+
+Then open `/plugins`, install **RateMyCode** from the menu, and start a new session.
 
 For Codex as a plugin, add this repository as a marketplace:
 
