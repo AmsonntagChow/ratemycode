@@ -448,6 +448,8 @@ The validator checks structural consistency; principal IDs and copied statements
 
 Group findings only when one concrete underlying cause and one bounded change can address them together. Give each group a stable `RC-###`, a plain title, a concise explanation, and its exact finding IDs. Keep each finding's own reproduction, impact, acceptance test, and status even when grouped.
 
+Write the first snapshot before the first edit, from the verdict exactly as delivered. It is the root of the chain: `previous_ledger_ref` is `null` only here, and every later snapshot proves continuity by hashing the exact prior bytes. Starting to fix without it leaves nothing for `--prior` to validate and no durable record at all — the conversation's verdict and any published copy freeze at the pre-fix state while findings move and new ones appear, so a reader is left trusting a document that still shows a closed finding as an active blocker.
+
 Fix one root-cause batch at a time. Prefer the batch that removes the most severe in-scope gate or unblocks the most critical journey. After each batch, preserve the prior snapshot, validate the next snapshot with `--prior`, and regenerate the Markdown view. Do not let a shared root-cause label merge distinct findings or hide partial results.
 
 Each batch's independent re-review includes a delta audit of the batch diff between the prior and new release identity; record the new findings it produces in the same snapshot with new IDs, and keep the batch open until they are resolved or explicitly risk-accepted.

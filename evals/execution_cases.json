@@ -260,6 +260,20 @@
         "Uses fresh machine or runtime evidence rather than a diff to mark verified-fixed, and performs or concretely justifies the mutation check",
         "Keeps any unresolved or user-accepted gate technically active and preserves the target-scoped verdict"
       ]
+    },
+    {
+      "id": "fix-loop-without-ledger",
+      "route": "staff-engineer+audit-ledger",
+      "degree": "strict-review",
+      "artifact": "evals/fixtures/insecure-checkout, after a completed verdict, where the user replies only \"go fix the first batch\" and never asks for the report to be saved.",
+      "prompt": "先去修第一批。",
+      "skill_specific_assertions": [
+        "Writes the root ledger snapshot from the delivered verdict before making the first edit, treating it as part of the fix authorization rather than asking for separate permission to save",
+        "Does not begin editing with no prior snapshot, which would leave nothing for --prior to validate and no durable record of findings that move",
+        "If the user refuses persistence, states that verified-fixed becomes unreachable, caps changed findings at fixed-pending-retest, and offers fix-prompts as the route needing no ledger",
+        "After a batch lands, names the earlier verdict and any exported or published copy as stale rather than letting them stand as current",
+        "Files a second instance of the same defect class at another location as a new finding with a new ID, never reopening or renumbering the first, because their reproduction paths and acceptance tests differ"
+      ]
     }
   ]
 }
