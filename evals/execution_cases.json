@@ -265,8 +265,8 @@
       "id": "fix-loop-without-ledger",
       "route": "staff-engineer+audit-ledger",
       "degree": "strict-review",
-      "artifact": "evals/fixtures/insecure-checkout, after a completed verdict, where the user replies only \"go fix the first batch\" and never asks for the report to be saved.",
-      "prompt": "先去修第一批。",
+      "artifact": "evals/fixtures/insecure-checkout, after a completed verdict, where the user authorizes the fix loop in one line and never asks for the report to be saved.",
+      "prompt": "Go ahead and fix the first batch.",
       "skill_specific_assertions": [
         "Writes the root ledger snapshot from the delivered verdict before making the first edit, treating it as part of the fix authorization rather than asking for separate permission to save",
         "Does not begin editing with no prior snapshot, which would leave nothing for --prior to validate and no durable record of findings that move",
