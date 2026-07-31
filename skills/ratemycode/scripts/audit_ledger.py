@@ -16,9 +16,10 @@ from pathlib import Path
 from typing import Any
 
 
-SCHEMA_VERSION = "1"
+SCHEMA_VERSION = "2"
 MAX_INPUT_BYTES = 2_097_152
 SHA256_PATTERN = re.compile(r"sha256:[0-9a-f]{64}")
+RECORDED_AT_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
 CHANGE_REF_PATTERN = re.compile(
     r"(?:git:[0-9a-f]{40}|patch-sha256:[0-9a-f]{64}|sha256:[0-9a-f]{64})"
 )
@@ -2040,6 +2041,8 @@ def validate(payload: Any) -> dict[str, Any]:
         "gates",
         "findings",
         "unknowns",
+        "snapshot_index",
+        "recorded_at",
     }
     require_exact_fields(root, fields, "$")
     schema_version = require_string(root["schema_version"], "$.schema_version")
@@ -2047,6 +2050,20 @@ def validate(payload: Any) -> dict[str, Any]:
         raise ValidationError(
             "$.schema_version", f"must be {SCHEMA_VERSION!r}; regenerate older ledgers explicitly"
         )
+    snapshot_index = root["snapshot_index"]
+    if not isinstance(snapshot_index, int) or isinstance(snapshot_index, bool) or snapshot_index < 1:
+        raise ValidationError("$.snapshot_index", "must be an integer >= 1")
+    if (root["previous_ledger_ref"] is None) != (snapshot_index == 1):
+        raise ValidationError(
+            "$.snapshot_index",
+            "must be 1 exactly when previous_ledger_ref is null; a root snapshot is the only unlinked one",
+        )
+    recorded_at = root["recorded_at"]
+    if recorded_at is not None:
+        if not isinstance(recorded_at, str) or not RECORDED_AT_PATTERN.fullmatch(recorded_at):
+            raise ValidationError(
+                "$.recorded_at", "must be null or an RFC 3339 UTC timestamp such as 2026-07-31T04:05:06Z"
+            )
     artifact = require_object(root["artifact"], "$.artifact")
     require_exact_fields(
         artifact,
@@ -2319,6 +2336,8 @@ def validate(payload: Any) -> dict[str, Any]:
             )
     return {
         "schema_version": schema_version,
+        "snapshot_index": snapshot_index,
+        "recorded_at": recorded_at,
         "ledger_id": require_string(root["ledger_id"], "$.ledger_id"),
         "previous_ledger_ref": (
             None
@@ -2991,6 +3010,11 @@ def validate_continuity(previous: dict[str, Any], current: dict[str, Any], prior
         )
     if current["ledger_id"] != previous["ledger_id"]:
         raise ValidationError("$.ledger_id", "must match the prior ledger")
+    if current["snapshot_index"] != previous["snapshot_index"] + 1:
+        raise ValidationError(
+            "$.snapshot_index",
+            "must be exactly one greater than the prior ledger; a gap means a snapshot was lost or skipped",
+        )
     stable_artifact_fields = {
         "name",
         "initial_release_ref",

@@ -101,7 +101,9 @@ def evidence(
 
 def base_payload():
     return {
-        "schema_version": "1",
+        "schema_version": "2",
+        "snapshot_index": 1,
+        "recorded_at": None,
         "ledger_id": "RMC-test-001",
         "previous_ledger_ref": None,
         "artifact": {
@@ -950,6 +952,7 @@ class AuditLedgerTests(unittest.TestCase):
 
         deleted = copy.deepcopy(previous)
         deleted["previous_ledger_ref"] = prior_ref
+        deleted["snapshot_index"] = 2
         deleted["workflow_blockers"] = []
         with self.assertRaises(audit_ledger.ValidationError) as context:
             audit_ledger.validate_continuity(previous, deleted, prior_ref)
@@ -957,6 +960,7 @@ class AuditLedgerTests(unittest.TestCase):
 
         reopened = copy.deepcopy(previous)
         reopened["previous_ledger_ref"] = prior_ref
+        reopened["snapshot_index"] = 2
         reopened["workflow_blockers"][0]["status"] = "active"
         reopened["workflow_blockers"][0]["resolution_evidence_ids"] = []
         with self.assertRaises(audit_ledger.ValidationError) as context:
@@ -1286,11 +1290,13 @@ class AuditLedgerTests(unittest.TestCase):
             previous = self.validate(prior_payload)
             current_payload = verified_payload()
             current_payload["previous_ledger_ref"] = prior_ref
+            current_payload["snapshot_index"] = 2
             current = self.validate(current_payload)
             audit_ledger.validate_continuity(previous, current, prior_ref)
 
             wrong_hash = copy.deepcopy(current)
             wrong_hash["previous_ledger_ref"] = "sha256:" + ("c" * 64)
+            wrong_hash["snapshot_index"] = 2
             with self.subTest(case="hash"), self.assertRaises(
                 audit_ledger.ValidationError
             ) as context:
@@ -1437,9 +1443,35 @@ class AuditLedgerTests(unittest.TestCase):
         self.assertTrue(summary["valid"])
         self.assertEqual(summary["unresolved"], 1)
 
+    def test_snapshot_index_marks_the_root_and_detects_a_lost_round(self):
+        # A root snapshot is the only one allowed to be unlinked.
+        orphan = base_payload()
+        orphan["snapshot_index"] = 2
+        result = self.run_cli("validate", orphan)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("must be 1 exactly when previous_ledger_ref is null", result.stderr)
+
+        # A chained snapshot may not claim index 1.
+        chained = verified_payload()
+        chained["previous_ledger_ref"] = "sha256:" + ("c" * 64)
+        chained["snapshot_index"] = 1
+        result = self.run_cli("validate", chained)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("must be 1 exactly when previous_ledger_ref is null", result.stderr)
+
+    def test_recorded_at_is_optional_but_must_be_rfc3339_utc(self):
+        payload = base_payload()
+        payload["recorded_at"] = "2026-07-31T04:05:06Z"
+        self.assertEqual(self.run_cli("validate", payload).returncode, 0)
+        payload["recorded_at"] = "31/07/2026 04:05"
+        result = self.run_cli("validate", payload)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("RFC 3339 UTC timestamp", result.stderr)
+
     def test_cli_requires_prior_file_for_a_chained_snapshot(self):
         payload = verified_payload()
         payload["previous_ledger_ref"] = "sha256:" + ("c" * 64)
+        payload["snapshot_index"] = 2
         result = self.run_cli("validate", payload)
         self.assertEqual(result.returncode, 2)
         self.assertIn("must be validated or rendered with --prior", result.stderr)

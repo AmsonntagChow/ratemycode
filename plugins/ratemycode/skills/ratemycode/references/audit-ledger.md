@@ -42,7 +42,19 @@ python3 <skill-directory>/scripts/audit_ledger.py render \
   --output path/to/audit-report.md path/to/current.json
 ```
 
-Use `--language zh-CN` for Chinese headings. Resolve the script relative to this `SKILL.md`. Keep JSON as the source of truth; regenerate Markdown rather than manually maintaining two records. Choose project-local paths with the user, or default an authorized local fix loop to `.ratemycode/audit-ledger.json` and `.ratemycode/audit-report.md`. Do not create either file during a read-only review unless the user explicitly asked to save the audit.
+Use `--language zh-CN` for Chinese headings. Resolve the script relative to this `SKILL.md`. Keep JSON as the source of truth; regenerate Markdown rather than manually maintaining two records. Do not create either file during a read-only review unless the user explicitly asked to save the audit.
+
+Keep every snapshot, not just the newest one. Choose project-local paths with the user, or default an authorized local fix loop to a retained series:
+
+```text
+.ratemycode/ledger/0001.json   root snapshot, written from the verdict before the first edit
+.ratemycode/ledger/0002.json   after the first fix batch
+.ratemycode/audit-report.md    regenerated view of the newest snapshot
+```
+
+Overwriting one `audit-ledger.json` in place destroys the chain: `previous_ledger_ref` still holds the SHA-256 of bytes that no longer exist anywhere, so `--prior` has nothing to check and continuity becomes unprovable. Numbering the files instead keeps every prior byte available and makes the history queryable by itself — which round found a finding, which release identity each piece of evidence was produced against, and what closed it.
+
+Each snapshot carries `snapshot_index`, an integer starting at 1 that must be exactly one greater than the prior snapshot's. A root snapshot is the only one allowed to pair index 1 with a null `previous_ledger_ref`. The pair makes a lost or skipped snapshot detectable: a hash mismatch says the prior file changed, while an index gap says a whole round went missing. `recorded_at` is optional and either null or an RFC 3339 UTC timestamp such as `2026-07-31T04:05:06Z`; it is caller-supplied context for reading history, never evidence of when anything ran.
 
 The first snapshot sets `previous_ledger_ref` to `null`. Before writing each later snapshot, preserve the prior JSON file and set `previous_ledger_ref` to `sha256:` plus the SHA-256 digest of that file's exact bytes. Whitespace and key-order changes therefore create a different prior reference. Pass the preserved file through `--prior`; the CLI rejects a non-null `previous_ledger_ref` when the prior file is absent because current-file validation alone cannot prove continuity.
 
