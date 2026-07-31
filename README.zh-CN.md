@@ -1,6 +1,6 @@
 # RateMyCode
 
-[English](README.md) | 简体中文
+[English](README.md) | 简体中文 | [code.ratemy.sh](https://code.ratemy.sh/zh/)
 
 为那些开发速度快到作者还来不及了解所有故障模式的应用，提供 Staff 级产品审查。
 

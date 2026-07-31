@@ -1,6 +1,6 @@
 # RateMyCode
 
-English | [简体中文](README.zh-CN.md)
+English | [简体中文](README.zh-CN.md) | [code.ratemy.sh](https://code.ratemy.sh/)
 
 Staff-level product scrutiny for apps built faster than their authors could learn every failure mode.
 
