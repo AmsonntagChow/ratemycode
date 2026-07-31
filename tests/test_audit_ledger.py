@@ -202,10 +202,38 @@ class StaffFrontendEngineerRoleTests(unittest.TestCase):
         self.assertEqual(validated["review"]["role"], "staff-frontend-engineer")
 
 
+def closed_condition_sweep() -> dict:
+    """A defect class that was enumerated and fully converted."""
+    return {
+        "state": "closed",
+        "method": "static-query",
+        "expression": "rg -n 'durableWrite\\(' src/",
+        "scope": "src/**/*.py write paths, excluding tests",
+        "instances_found": 2,
+        "instances_converted": 2,
+        "closure": "converted",
+        "closure_ref": None,
+        "note": None,
+    }
+
+
 def verified_payload():
     payload = base_payload()
     payload["artifact"]["current_release_ref"] = CURRENT_RELEASE
     payload["loop_mode"] = "fix-and-retest"
+    # A verified-fixed finding has to hang off a root cause now, so its defect
+    # class carries a sweep instead of quietly skipping one.
+    payload["findings"][0]["root_cause_id"] = "RC-001"
+    payload["root_causes"] = [
+        {
+            "id": "RC-001",
+            "title": "Unchecked durable write",
+            "summary": "Write results were assumed rather than confirmed.",
+            "finding_ids": ["F-001"],
+            "condition_sweep": closed_condition_sweep(),
+            "cause_sweep": None,
+        }
+    ]
     payload["verdict"]["current_decision"] = "READY"
     payload["verdict"]["maximum_safe_target"] = "private-beta"
     payload["evidence"].extend(
@@ -1072,6 +1100,36 @@ class AuditLedgerTests(unittest.TestCase):
             "finding_ids": [],
         }
         self.validate(payload)
+
+    def test_verified_fix_cannot_skip_the_class_by_having_no_root_cause(self):
+        """The lone observed instance is the likeliest to have siblings."""
+        payload = verified_payload()
+        payload["findings"][0]["root_cause_id"] = None
+        payload["root_causes"] = []
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(context.exception.path, "$.findings[F-001].root_cause_id")
+
+    def test_progress_reports_unconverted_instances_above_the_root_cause_detail(self):
+        """A reader of the top of the report must see what is still out there."""
+        payload = verified_payload()
+        payload["root_causes"][0]["condition_sweep"] = {
+            "state": "closed",
+            "method": "text-search",
+            "expression": "rg -n 'durableWrite' src/",
+            "scope": "src/**/*.py",
+            "instances_found": 7,
+            "instances_converted": 1,
+            "closure": "ratchet",
+            "closure_ref": "tools/ratchets/durable-write.tsv",
+            "note": "Six call sites remain under an enforced, decreasing count.",
+        }
+        report = audit_ledger.render_markdown(self.validate(payload), "en")
+        progress = report.index("## Progress")
+        detail = report.index("## Root causes")
+        self.assertIn("**6** instance(s) of a filed defect still unconverted", report)
+        self.assertLess(report.index("still unconverted"), detail)
+        self.assertGreater(report.index("still unconverted"), progress)
 
     def test_quick_check_may_close_with_the_remainder_accepted(self):
         payload = self._closing_root_cause_payload(degree="quick-check")

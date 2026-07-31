@@ -2400,6 +2400,17 @@ def validate(payload: Any) -> dict[str, Any]:
     root_causes = validate_root_causes(
         root["root_causes"], finding_by_id, normalized_review["degree"], loop_mode
     )
+    # The sweep hangs off the root cause, so a finding with no root cause would
+    # skip it entirely — and a lone observed instance is the likeliest of all to
+    # have unobserved siblings. A one-finding root cause is legal; going without
+    # one is not, once the finding claims the defect is gone.
+    for finding_id, finding in sorted(finding_by_id.items()):
+        if finding["status"] == "verified-fixed" and finding["root_cause_id"] is None:
+            raise ValidationError(
+                f"$.findings[{finding_id}].root_cause_id",
+                "a verified-fixed finding must belong to a root cause so its defect "
+                "class carries a sweep; group a lone finding under its own RC-###",
+            )
     unknowns = validate_unknowns(
         root["unknowns"],
         evidence_by_id,
@@ -2658,6 +2669,9 @@ LABELS = {
         "count": "Count",
         "root_causes": "Root causes",
         "condition_sweep": "Extent of condition",
+        "class_state": "Defect classes",
+        "unconverted": "instance(s) of a filed defect still unconverted",
+        "unswept_classes": "class(es) never searched or unenumerable",
         "cause_sweep": "Extent of cause",
         "instances_converted": "instances converted",
         "closure": "closed by",
@@ -2756,6 +2770,9 @@ LABELS = {
         "count": "数量",
         "root_causes": "共同根因",
         "condition_sweep": "同类实例扫描",
+        "class_state": "缺陷类",
+        "unconverted": "处同类实例仍未转换",
+        "unswept_classes": "个类从未扫描或无法枚举",
         "cause_sweep": "根因延伸审查",
         "instances_converted": "处已转换",
         "closure": "结案方式",
@@ -3061,6 +3078,29 @@ def render_markdown(data: dict[str, Any], language: str) -> str:
             "",
             f"- {label['workflow']}: **{workflow_state}**",
             f"- {label['technical']}: **{label['pass'] if technically_closed else label['not_closed']}**",
+        ]
+    )
+    # Findings closing and the defect class closing are different facts, and the
+    # status table below only counts the first. Without this line a reader of the
+    # top of the report sees "1 verified-fixed" and never learns six instances
+    # of the same defect are still out there.
+    open_instances = sum(
+        root["condition_sweep"]["instances_found"]
+        - root["condition_sweep"]["instances_converted"]
+        for root in data["root_causes"]
+    )
+    unswept_classes = sum(
+        1
+        for root in data["root_causes"]
+        if root["condition_sweep"]["state"] in {"unswept", "unsweepable"}
+    )
+    if data["root_causes"]:
+        lines.append(
+            f"- {label['class_state']}: **{open_instances}** {label['unconverted']}"
+            f", **{unswept_classes}** {label['unswept_classes']}"
+        )
+    lines.extend(
+        [
             "",
             f"| {label['status']} | {label['count']} |",
             "|---|---:|",
@@ -3336,6 +3376,12 @@ def validate_continuity(previous: dict[str, Any], current: dict[str, Any], prior
         "retest",
         "risk_acceptance",
         "blocker",
+        # Grouping a finding under a root cause is a sequencing decision the fix
+        # loop makes after the initial verdict, so an unassigned finding may
+        # later join one. Regrouping an already-grouped finding needs no rule
+        # here: the bidirectional link check and the preserved-finding-links
+        # subset check below already make it unreachable.
+        "root_cause_id",
     }
     current_findings = {item["id"]: item for item in current["findings"]}
     for prior_finding in previous["findings"]:

@@ -46,6 +46,7 @@ not requested.
 
 - Workflow state: **stopped-with-accepted-risk**
 - Technical closure: **NOT CLOSED**
+- Defect classes: **6** instance(s) of a filed defect still unconverted, **0** class(es) never searched or unenumerable
 
 | Status | Count |
 |---|---:|
