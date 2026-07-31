@@ -41,9 +41,10 @@ npx skills add AmsonntagChow/ratemycode --skill ratemycode
 
 ```bash
 codex plugin marketplace add AmsonntagChow/ratemycode
+codex plugin add ratemycode@amsonntagchow-ratemycode
 ```
 
-然后在 Codex CLI 中打开 `/plugins`，或在桌面应用中打开 Plugins Directory，安装 **RateMyCode** 并启动新会话。
+然后启动新会话。Codex 桌面应用里可以用 Plugins Directory 代替第二条命令。
 
 不要在同一作用域内同时使用两种 Claude 安装方式。所有方式都不会自动更新：要升级到新版本，重新执行一次安装命令即可。之后，用上面任意一条提示词开场，即可选中该 skill。
 
@@ -200,9 +201,10 @@ python3 skills/ratemycode/scripts/audit_ledger.py render --prior evals/ledgers/i
 
 ```bash
 codex plugin marketplace add AmsonntagChow/ratemycode
+codex plugin add ratemycode@amsonntagchow-ratemycode
 ```
 
-在 Codex CLI 中打开 `/plugins`，安装 **RateMyCode**，然后启动新会话，以便加载其捆绑的 skill。在 Codex 桌面应用中，请先添加市场，再使用 Plugins Directory。
+启动新会话，以便加载其捆绑的 skill。Codex 桌面应用里可以用 Plugins Directory 代替第二条命令。
 
 此仓库还包含一个可直接提交的纯 skills 包，适用于 ChatGPT 和 Codex 共用的通用 OpenAI Plugins Directory。请参阅 [submission/PLUGIN_DIRECTORY.md](submission/PLUGIN_DIRECTORY.md)；只有通过 OpenAI 审核且发布者执行最终发布操作后，才会公开可用。
 

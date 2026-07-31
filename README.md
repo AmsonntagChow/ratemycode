@@ -41,9 +41,10 @@ For Codex as a plugin, add this repository as a marketplace:
 
 ```bash
 codex plugin marketplace add AmsonntagChow/ratemycode
+codex plugin add ratemycode@amsonntagchow-ratemycode
 ```
 
-Then open `/plugins` in Codex CLI or the Plugins Directory in the desktop app, install **RateMyCode**, and start a new session.
+Then start a new session. In the Codex desktop app, install from the Plugins Directory instead of running the second command.
 
 Do not install both Claude methods in the same scope. No method updates itself: to move to a newer release, run the install again. Then open with either prompt above so the skill is selected.
 
@@ -217,9 +218,10 @@ Add the repository marketplace:
 
 ```bash
 codex plugin marketplace add AmsonntagChow/ratemycode
+codex plugin add ratemycode@amsonntagchow-ratemycode
 ```
 
-Open `/plugins` in Codex CLI, install **RateMyCode**, and start a new session so its bundled skill is loaded. In the Codex desktop app, use the Plugins Directory after adding the marketplace.
+Start a new session so its bundled skill is loaded. In the Codex desktop app, use the Plugins Directory instead of running the second command.
 
 The repository also contains a submission-ready skills-only bundle for the universal OpenAI Plugins Directory shared by ChatGPT and Codex. See [submission/PLUGIN_DIRECTORY.md](submission/PLUGIN_DIRECTORY.md); public availability begins only after OpenAI review and the publisher's final publish action.
 
