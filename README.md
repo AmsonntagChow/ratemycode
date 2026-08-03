@@ -95,10 +95,12 @@ After one audit target is resolved, the skill asks two questions before it begin
 ### Start with the quick checkup
 
 A full-degree audit runs your product, traces failures through the implementation, and re-runs checks. It costs
-several times a quick checkup in both time and tokens. If you are on Claude Code Pro or Max, or a Codex or
-Cursor subscription, that quota is finite — what the audit spends is what you had for writing code — so
-the quick checkup is the default: it spends the review on the handful of checks that most often decide whether something
-is safe to ship, and stops there.
+several times a quick checkup in both time and tokens.
+
+On Claude Code Pro, spend it carefully — one full audit eats a real share of the day you had for writing
+code. On Max, run it freely. Codex and Cursor subscriptions are worth watching too. So the quick checkup is
+the default: it spends the review on the handful of checks that most often decide whether something is safe
+to ship, and stops there.
 
 What you give up is the **floor of assurance** — fewer things get reached — not the honesty of the report.
 Every issue found is still reported in full, and everything not reached becomes an explicit unknown with the
