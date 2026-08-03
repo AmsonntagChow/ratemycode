@@ -15,10 +15,10 @@ Audit this app for a public launch. Test the real product, show evidence, block 
 Attach a durable session goal (`/goal` in Codex; the same sentence as a first message in Claude Code) and the same skill stays on that target across many turns:
 
 ```text
-/goal use ratemycode to get this app to a defensible public launch: audit it, fix what I authorize, retest each batch.
-Stop at one of three — everything verified, I accept the remaining risk explicitly, or you hit something concrete and name it.
-Report how many instances of each defect class are still unconverted, not only how many findings closed.
+/goal use ratemycode to get this app to a defensible public launch
 ```
+
+You do not have to spell out when it is done: a batch only counts once a separate context retests it, and how many instances of the same defect are still open elsewhere gets reported on its own — it will not overstate a result because nobody was watching.
 
 [![MIT License](https://img.shields.io/badge/license-MIT-2f855a.svg)](LICENSE)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-5b5bd6.svg)](https://agentskills.io/)

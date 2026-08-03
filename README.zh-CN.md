@@ -2,23 +2,23 @@
 
 [English](README.md) | 简体中文
 
-应用做得比作者摸清它的故障模式还快 —— 这是给这种应用的 Staff 级产品审查。
+应用做出来了，但它有哪些坏法，作者还没来得及摸清 —— 这个 Skill 给这种应用做 Staff 级产品审查。
 
 > 做完了，不等于能上线。
 
-问一句，拿到的是一个结论，不是一堆待办：
+发这一段过去，它还你一个结论，不是一份建议清单：
 
 ```text
 审这个应用能不能公开上线。真的把产品跑一遍，证据摆出来，不安全就别放行，问题一条不漏地列，再告诉我先动哪三件。
 ```
 
-给会话挂一个长期目标（Codex 用 `/goal`；Claude Code 把同一句话当第一条消息发出去），它就会一轮一轮盯着这件事往下推：
+懒得盯着？把下面这段挂成会话的长期目标就行 —— Codex 里用 `/goal`，Claude Code 里把它当第一条消息发出去：
 
 ```text
-/goal 用 ratemycode 把这个应用推到能公开上线：先审，我授权的部分就修，逐批复测。
-停在三种情况之一 —— 全部验证通过 / 我明确接受剩余风险 / 卡在某处并说明卡在哪。
-每批同时报缺陷类还剩几处未转换。
+/goal 用 ratemycode 把这个应用推进到可以公开上线
 ```
+
+什么时候算完不用你在 goal 里写：一批改完，得换一个上下文独立复测才算数；同一个毛病在别处还剩几处，它会自己报出来 —— 不会因为你没盯着就把话说满。
 
 [![MIT License](https://img.shields.io/badge/license-MIT-2f855a.svg)](LICENSE)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-5b5bd6.svg)](https://agentskills.io/)
