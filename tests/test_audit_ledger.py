@@ -25,7 +25,9 @@ def unswept_condition_sweep() -> dict:
         "instances_converted": 0,
         "closure": None,
         "closure_ref": None,
+        "closure_evidence_id": None,
         "note": None,
+        "seeded_check": None,
     }
 
 
@@ -213,7 +215,14 @@ def closed_condition_sweep() -> dict:
         "instances_converted": 2,
         "closure": "converted",
         "closure_ref": None,
+        "closure_evidence_id": None,
         "note": None,
+        "seeded_check": {
+            "status": "killed",
+            "seed_description": "Planted an unchecked write in a second module under a "
+            "differently named helper, so an over-fitted expression would miss it.",
+            "reason": None,
+        },
     }
 
 
@@ -983,6 +992,33 @@ class AuditLedgerTests(unittest.TestCase):
         ]
         return payload
 
+    def _add_sweep_evidence(self, payload, evidence_id="E-091", subject_id="F-001"):
+        """A class-sweep record: the ratchet was watched refusing a new instance."""
+        payload["evidence"].append(
+            evidence(
+                evidence_id,
+                state="E2",
+                kind="test",
+                lane="deterministic-checks",
+                result="pass",
+                release_ref=CURRENT_RELEASE,
+                subject_id=subject_id,
+                procedure="class-sweep",
+                summary="The ratchet refuses a newly added unchecked write and its "
+                "allowed count cannot be raised without review.",
+                locator="ci/ratchet-check on tools/ratchets/own.tsv",
+            )
+        )
+        return payload
+
+    def _killed_seed(self):
+        return {
+            "status": "killed",
+            "seed_description": "Planted the same defect in a second module with a "
+            "differently named accessor, so an over-fitted expression would miss it.",
+            "reason": None,
+        }
+
     def _swept(self, **overrides):
         sweep = {
             "state": "closed",
@@ -993,7 +1029,9 @@ class AuditLedgerTests(unittest.TestCase):
             "instances_converted": 3,
             "closure": "converted",
             "closure_ref": None,
+            "closure_evidence_id": None,
             "note": None,
+            "seeded_check": self._killed_seed(),
         }
         sweep.update(overrides)
         return sweep
@@ -1027,7 +1065,7 @@ class AuditLedgerTests(unittest.TestCase):
         )
 
     def test_ratchet_closure_carries_the_enforcing_location(self):
-        payload = self._closing_root_cause_payload()
+        payload = self._add_sweep_evidence(self._closing_root_cause_payload())
         payload["root_causes"][0]["condition_sweep"] = self._swept(
             closure="ratchet", instances_converted=1
         )
@@ -1037,6 +1075,12 @@ class AuditLedgerTests(unittest.TestCase):
             context.exception.path, "$.root_causes[0].condition_sweep.closure_ref"
         )
         payload["root_causes"][0]["condition_sweep"]["closure_ref"] = "tools/ratchets/own.tsv"
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path, "$.root_causes[0].condition_sweep.closure_evidence_id"
+        )
+        payload["root_causes"][0]["condition_sweep"]["closure_evidence_id"] = "E-091"
         self.validate(payload)
 
     def test_swept_state_cannot_claim_a_closure(self):
@@ -1112,7 +1156,7 @@ class AuditLedgerTests(unittest.TestCase):
 
     def test_progress_reports_unconverted_instances_above_the_root_cause_detail(self):
         """A reader of the top of the report must see what is still out there."""
-        payload = verified_payload()
+        payload = self._add_sweep_evidence(verified_payload())
         payload["root_causes"][0]["condition_sweep"] = {
             "state": "closed",
             "method": "text-search",
@@ -1122,7 +1166,9 @@ class AuditLedgerTests(unittest.TestCase):
             "instances_converted": 1,
             "closure": "ratchet",
             "closure_ref": "tools/ratchets/durable-write.tsv",
+            "closure_evidence_id": "E-091",
             "note": "Six call sites remain under an enforced, decreasing count.",
+            "seeded_check": self._killed_seed(),
         }
         report = audit_ledger.render_markdown(self.validate(payload), "en")
         progress = report.index("## Progress")
@@ -1130,6 +1176,169 @@ class AuditLedgerTests(unittest.TestCase):
         self.assertIn("**6** instance(s) of a filed defect still unconverted", report)
         self.assertLess(report.index("still unconverted"), detail)
         self.assertGreater(report.index("still unconverted"), progress)
+
+    # ── Seeded-instance check: a sweep that cannot find a planted instance is
+    # too narrow, and unlike "thoroughness" that is mechanically decidable.
+
+    def test_a_closed_class_at_a_release_gate_needs_a_seeded_check(self):
+        payload = self._closing_root_cause_payload(degree="launch-gate")
+        payload["root_causes"][0]["condition_sweep"] = self._swept(seeded_check=None)
+        payload["root_causes"][0]["cause_sweep"] = {
+            "state": "done", "summary": "Checked adjacent subsystems.", "finding_ids": [],
+        }
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path, "$.root_causes[0].condition_sweep.seeded_check"
+        )
+
+    def test_every_degree_records_the_seeded_check_even_if_it_was_skipped(self):
+        """Degree grades how strong the answer must be, not whether it is asked."""
+        payload = self._closing_root_cause_payload(degree="strict-review")
+        payload["root_causes"][0]["condition_sweep"] = self._swept(seeded_check=None)
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path, "$.root_causes[0].condition_sweep.seeded_check"
+        )
+        payload["root_causes"][0]["condition_sweep"]["seeded_check"] = {
+            "status": "not-applicable",
+            "seed_description": None,
+            "reason": "The class is a documentation contradiction; no code instance "
+            "can be planted.",
+        }
+        self.validate(payload)
+
+    def test_a_seed_the_expression_missed_cannot_close_the_class(self):
+        payload = self._closing_root_cause_payload()
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            seeded_check={
+                "status": "survived",
+                "seed_description": "Planted the same missing predicate in a second "
+                "module using a differently named accessor.",
+                "reason": None,
+            }
+        )
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path, "$.root_causes[0].condition_sweep.seeded_check.status"
+        )
+
+    def test_a_seeded_check_must_say_how_the_seed_differed(self):
+        payload = self._closing_root_cause_payload()
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            seeded_check={"status": "killed", "seed_description": "", "reason": None}
+        )
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertIn("seed_description", context.exception.path)
+
+    # ── closure_ref must point into the audited artifact and be observed.
+
+    def test_a_ratchet_outside_the_identity_scope_is_refused(self):
+        payload = self._closing_root_cause_payload()
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            closure="ratchet",
+            instances_converted=1,
+            closure_ref="/Users/someone/elsewhere/ratchet.tsv",
+            note="Two remain under an enforced count.",
+            seeded_check=self._killed_seed(),
+        )
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path, "$.root_causes[0].condition_sweep.closure_ref"
+        )
+
+    def test_a_ratchet_under_an_excluded_path_is_refused(self):
+        payload = self._closing_root_cause_payload()
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            closure="ratchet",
+            instances_converted=1,
+            closure_ref="__pycache__/ratchet.tsv",
+            note="Two remain under an enforced count.",
+            seeded_check=self._killed_seed(),
+        )
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path, "$.root_causes[0].condition_sweep.closure_ref"
+        )
+
+    def test_an_enforced_closure_needs_evidence_it_was_observed(self):
+        """A ratchet nobody ran is a claim, not a control."""
+        payload = self._add_sweep_evidence(self._closing_root_cause_payload())
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            closure="ratchet",
+            instances_converted=1,
+            closure_ref="tools/ratchets/own.tsv",
+            note="Two remain under an enforced count.",
+            seeded_check=self._killed_seed(),
+        )
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path, "$.root_causes[0].condition_sweep.closure_evidence_id"
+        )
+
+    # ── An open class belongs where readers look, not forty lines down.
+
+    def test_a_wildcard_leading_exclusion_still_excludes(self):
+        """A containment check that fails open is worse than none."""
+        payload = self._add_sweep_evidence(self._closing_root_cause_payload())
+        payload["artifact"]["identity_scope"]["excluded"] = ["**/secrets/**"]
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            closure="ratchet",
+            instances_converted=1,
+            closure_ref="secrets/ratchet.tsv",
+            closure_evidence_id="E-091",
+            note="Two remain under an enforced count.",
+        )
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path, "$.root_causes[0].condition_sweep.closure_ref"
+        )
+
+    def test_enforcement_evidence_must_have_exercised_the_control(self):
+        payload = self._add_sweep_evidence(self._closing_root_cause_payload())
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            closure="ratchet",
+            instances_converted=1,
+            closure_ref="tools/ratchets/own.tsv",
+            closure_evidence_id="E-002",  # a passing acceptance record, not a sweep
+            note="Two remain under an enforced count.",
+        )
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path, "$.root_causes[0].condition_sweep.closure_evidence_id"
+        )
+
+    def test_glob_matcher_does_not_let_a_star_cross_a_path_separator(self):
+        self.assertTrue(audit_ledger.path_matches_glob("secrets/x.tsv", "**/secrets/**"))
+        self.assertTrue(audit_ledger.path_matches_glob("a/b/secrets/x", "**/secrets/**"))
+        self.assertTrue(audit_ledger.path_matches_glob("src/a.ts", "src/*"))
+        self.assertFalse(audit_ledger.path_matches_glob("src/a/b.ts", "src/*"))
+        self.assertFalse(audit_ledger.path_matches_glob("tools/x.tsv", "**/secrets/**"))
+
+    def test_an_open_class_appears_under_pending_verification(self):
+        payload = self._add_sweep_evidence(verified_payload())
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            instances_found=7,
+            instances_converted=1,
+            closure="ratchet",
+            closure_ref="tools/ratchets/durable-write.tsv",
+            note="Six call sites remain under an enforced, decreasing count.",
+            seeded_check=self._killed_seed(),
+            closure_evidence_id="E-091",
+        )
+        report = audit_ledger.render_markdown(self.validate(payload), "en")
+        pending = report.index("### Pending verification")
+        root_detail = report.index("## Root causes")
+        self.assertIn("RC-001", report[pending:root_detail])
+        self.assertIn("6", report[pending:root_detail])
 
     def test_quick_check_may_close_with_the_remainder_accepted(self):
         payload = self._closing_root_cause_payload(degree="quick-check")

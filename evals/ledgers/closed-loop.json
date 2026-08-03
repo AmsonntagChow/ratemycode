@@ -3,7 +3,7 @@
   "snapshot_index": 2,
   "recorded_at": "2026-07-31T05:40:00Z",
   "ledger_id": "RMC-checkout-example-001",
-  "previous_ledger_ref": "sha256:7608292c061118acdc254efb49f3f5f58e1d04b559b14399237fc4fb8d69b534",
+  "previous_ledger_ref": "sha256:31878795d1478d081967b4b77cfffd64a4d3bf01444b003822bc4e358b228810",
   "artifact": {
     "name": "Disposable checkout fixture",
     "initial_release_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -63,7 +63,13 @@
         "instances_converted": 4,
         "closure": "converted",
         "closure_ref": null,
-        "note": null
+        "note": null,
+        "seeded_check": {
+          "status": "killed",
+          "seed_description": "Planted the same missing owner predicate in the export job using a differently named accessor, so an expression fitted to the original call site would have missed it.",
+          "reason": null
+        },
+        "closure_evidence_id": null
       },
       "cause_sweep": {
         "state": "done",
@@ -87,7 +93,13 @@
         "instances_converted": 1,
         "closure": "ratchet",
         "closure_ref": "tools/ratchets/retry-copy.tsv",
-        "note": "Six unbounded retry messages remain. CI blocks new ones and the allowed count can only decrease; the user accepted the remainder."
+        "note": "Six unbounded retry messages remain. CI blocks new ones and the allowed count can only decrease; the user accepted the remainder.",
+        "seeded_check": {
+          "status": "killed",
+          "seed_description": "Planted the same missing owner predicate in the export job using a differently named accessor, so an expression fitted to the original call site would have missed it.",
+          "reason": null
+        },
+        "closure_evidence_id": "E-008"
       },
       "cause_sweep": {
         "state": "done",
@@ -196,6 +208,20 @@
       "locator": "launch monitor sample window-004",
       "subject_id": null,
       "procedure": "release-lane"
+    },
+    {
+      "id": "E-008",
+      "state": "E3",
+      "kind": "test",
+      "lane": "deterministic-checks",
+      "result": "pass",
+      "reproducible": true,
+      "fresh": true,
+      "release_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "summary": "CI refuses a newly added unbounded retry message and the allowed count in the ratchet file cannot be raised without review.",
+      "locator": "ci/ratchet-check job on tools/ratchets/retry-copy.tsv",
+      "subject_id": "F-002",
+      "procedure": "class-sweep"
     }
   ],
   "evidence_lanes": {

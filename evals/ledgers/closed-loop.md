@@ -7,7 +7,7 @@
 
 ### Pending verification
 
-None.
+- [CLASS · RC-002 · 6 UNCONVERTED] Unbounded retry experience: Six unbounded retry messages remain. CI blocks new ones and the allowed count can only decrease; the user accepted the remainder.
 
 ## Evidence lanes
 
@@ -31,7 +31,7 @@ not requested.
 ## Review identity
 
 - Ledger: `RMC-checkout-example-001`
-- Prior ledger: `sha256:7608292c061118acdc254efb49f3f5f58e1d04b559b14399237fc4fb8d69b534`
+- Prior ledger: `sha256:31878795d1478d081967b4b77cfffd64a4d3bf01444b003822bc4e358b228810`
 - Artifact: Disposable checkout fixture
 - Initial release: `sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`
 - Current release: `sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`
@@ -124,3 +124,4 @@ not requested.
 - **E-005 · E2 · pass** — The ownership acceptance suite kills a missing-owner-check mutation. (`tests/test_orders.py::test_owner_mutation`; `sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`; `test` / `deterministic-checks`; `F-001`; `mutation`; fresh=true; reproducible=true)
 - **E-006 · E3 · pass** — Refreshing after a timeout preserves the order and displays its final state. (`runtime trace recovery-after-003`; `sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`; `runtime` / `critical-journey-e2e`; `U-001`; `unknown-resolution`; fresh=true; reproducible=true)
 - **E-007 · E2 · pass** — The identified release emits owner-denial and timeout-recovery events to the launch monitor. (`launch monitor sample window-004`; `sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`; `log` / `continuous-evidence`; `release`; `release-lane`; fresh=true; reproducible=true)
+- **E-008 · E3 · pass** — CI refuses a newly added unbounded retry message and the allowed count in the ratchet file cannot be raised without review. (`ci/ratchet-check job on tools/ratchets/retry-copy.tsv`; `sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`; `test` / `deterministic-checks`; `F-002`; `class-sweep`; fresh=true; reproducible=true)

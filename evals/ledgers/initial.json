@@ -63,7 +63,13 @@
         "instances_converted": 0,
         "closure": null,
         "closure_ref": null,
-        "note": "Three further lookups share the missing owner predicate; none is filed yet."
+        "note": "Three further lookups share the missing owner predicate; none is filed yet.",
+        "closure_evidence_id": null,
+        "seeded_check": {
+          "status": "killed",
+          "seed_description": "Planted the same missing owner predicate in the export job using a differently named accessor, so an expression fitted to the original call site would have missed it.",
+          "reason": null
+        }
       },
       "cause_sweep": null
     },
@@ -83,7 +89,9 @@
         "instances_converted": 0,
         "closure": null,
         "closure_ref": null,
-        "note": null
+        "note": null,
+        "closure_evidence_id": null,
+        "seeded_check": null
       },
       "cause_sweep": null
     }

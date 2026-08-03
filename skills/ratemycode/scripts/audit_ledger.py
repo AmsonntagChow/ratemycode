@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 import os
+import pathlib
 import re
 import sys
 import tempfile
@@ -111,6 +112,13 @@ CONDITION_SWEEP_CLOSURES = {"converted", "chokepoint", "ratchet", "accepted-risk
 # required only where the consequence of missing it justifies the cost.
 CAUSE_SWEEP_STATES = {"pending", "done"}
 SWEEP_STRICT_DEGREES = {"launch-gate", "real-stakes", "life-or-death"}
+# Thoroughness cannot be measured, but narrowness can be refuted: plant an
+# instance of the class that differs from the original the way real instances
+# differ, and see whether the recorded expression finds it. Same vocabulary as
+# the mutation check on a fix, because it is the same idea pointed sideways.
+SEEDED_CHECK_RESULTS = {"killed", "survived", "not-applicable"}
+# Closures that claim an ongoing control rather than a finished conversion.
+ENFORCED_CLOSURES = {"chokepoint", "ratchet"}
 CLOSED_FINDING_STATUSES = {"verified-fixed", "accepted-risk"}
 FINDING_STATUSES = {
     "open",
@@ -170,6 +178,9 @@ PROCEDURES = {
     "mutation",
     "unknown-resolution",
     "release-lane",
+    # Running the recorded sweep expression, or demonstrating that a chokepoint
+    # or ratchet actually refuses a new instance of the class.
+    "class-sweep",
 }
 LANE_STATUSES = {"PASS", "FAIL", "UNVERIFIED", "N/A"}
 GATE_IDS = {
@@ -1670,7 +1681,69 @@ def validate_findings(
     return sorted(result, key=lambda item: (SEVERITY_ORDER[item["severity"]], item["id"])), by_id
 
 
-def validate_condition_sweep(value: Any, path: str) -> dict[str, Any]:
+def path_matches_glob(candidate: str, pattern: str) -> bool:
+    """Match a POSIX path against a glob, treating `**` as any run of segments.
+
+    fnmatch is not usable here: its `*` crosses `/`, so `src/*` would match
+    `src/a/b`, and a leading `**/` would fail to match a top-level path. A
+    containment check that silently fails open is worse than none.
+    """
+    out, index = ["^"], 0
+    while index < len(pattern):
+        char = pattern[index]
+        if pattern.startswith("**/", index):
+            out.append("(?:.*/)?")
+            index += 3
+        elif pattern.startswith("**", index):
+            out.append(".*")
+            index += 2
+        elif char == "*":
+            out.append("[^/]*")
+            index += 1
+        elif char == "?":
+            out.append("[^/]")
+            index += 1
+        else:
+            out.append(re.escape(char))
+            index += 1
+    out.append("$")
+    return re.fullmatch("".join(out), candidate) is not None
+
+
+def validate_seeded_check(value: Any, path: str) -> dict[str, Any] | None:
+    """Did a deliberately different-looking instance survive the expression?"""
+    if value is None:
+        return None
+    item = require_object(value, path)
+    require_exact_fields(item, {"status", "seed_description", "reason"}, path)
+    status = require_string(item["status"], f"{path}.status", SEEDED_CHECK_RESULTS)
+    description = require_nullable_string(
+        item["seed_description"], f"{path}.seed_description"
+    )
+    reason = require_nullable_string(item["reason"], f"{path}.reason")
+    if status == "not-applicable":
+        if not reason:
+            raise ValidationError(
+                f"{path}.reason", "not-applicable requires why no instance could be planted"
+            )
+    else:
+        # Without this the seed can be a copy of the original defect, which an
+        # over-fitted expression finds trivially and learns nothing from.
+        if not description:
+            raise ValidationError(
+                f"{path}.seed_description",
+                "state how the planted instance differed from the filed one",
+            )
+    return {"status": status, "seed_description": description, "reason": reason}
+
+
+def validate_condition_sweep(
+    value: Any,
+    path: str,
+    identity_scope: dict[str, Any],
+    evidence_by_id: dict[str, dict[str, Any]],
+    current_release_ref: str,
+) -> dict[str, Any]:
     """Extent of condition: the same defect at locations nobody filed yet.
 
     The point of the schema is that "did not look" and "looked and found
@@ -1689,7 +1762,9 @@ def validate_condition_sweep(value: Any, path: str) -> dict[str, Any]:
             "instances_converted",
             "closure",
             "closure_ref",
+            "closure_evidence_id",
             "note",
+            "seeded_check",
         },
         path,
     )
@@ -1704,6 +1779,10 @@ def validate_condition_sweep(value: Any, path: str) -> dict[str, Any]:
     closure = require_nullable_string(item["closure"], f"{path}.closure")
     closure_ref = require_nullable_string(item["closure_ref"], f"{path}.closure_ref")
     note = require_nullable_string(item["note"], f"{path}.note")
+    closure_evidence_id = require_nullable_string(
+        item["closure_evidence_id"], f"{path}.closure_evidence_id"
+    )
+    seeded_check = validate_seeded_check(item["seeded_check"], f"{path}.seeded_check")
 
     if closure is not None and closure not in CONDITION_SWEEP_CLOSURES:
         raise ValidationError(
@@ -1724,6 +1803,8 @@ def validate_condition_sweep(value: Any, path: str) -> dict[str, Any]:
             or found
             or converted
             or closure
+            or closure_evidence_id
+            or seeded_check
         ):
             raise ValidationError(
                 f"{path}.state",
@@ -1771,10 +1852,75 @@ def validate_condition_sweep(value: Any, path: str) -> dict[str, Any]:
                     f"closure 'converted' requires all {found} instance(s) converted, "
                     f"got {converted}",
                 )
-            if closure in {"chokepoint", "ratchet"} and not closure_ref:
+            if closure in ENFORCED_CLOSURES:
+                if not closure_ref:
+                    raise ValidationError(
+                        f"{path}.closure_ref",
+                        f"closure {closure!r} requires the location that enforces it",
+                    )
+                # A control outside the audited tree is not part of what was
+                # audited, and one under an excluded path is not even hashed
+                # into the release identity the closure is being claimed against.
+                if closure_ref.startswith("/") or ".." in pathlib.PurePosixPath(
+                    closure_ref
+                ).parts:
+                    raise ValidationError(
+                        f"{path}.closure_ref",
+                        "must be a relative path inside the artifact identity scope",
+                    )
+                for excluded in identity_scope["excluded"]:
+                    if path_matches_glob(closure_ref, excluded):
+                        raise ValidationError(
+                            f"{path}.closure_ref",
+                            f"points under excluded scope {excluded!r}, so it is not part "
+                            "of the audited artifact",
+                        )
+                # An enforcing control nobody observed is a claim, not a control.
+                if not closure_evidence_id:
+                    raise ValidationError(
+                        f"{path}.closure_evidence_id",
+                        f"closure {closure!r} requires evidence that the control was "
+                        "observed working against the current release",
+                    )
+                enforcement = evidence_by_id.get(closure_evidence_id)
+                if enforcement is None:
+                    raise ValidationError(
+                        f"{path}.closure_evidence_id",
+                        f"unknown evidence id {closure_evidence_id!r}",
+                    )
+                if enforcement["state"] not in {"E2", "E3"} or enforcement["result"] != "pass":
+                    raise ValidationError(
+                        f"{path}.closure_evidence_id",
+                        "enforcement evidence must be an observed passing run (E2 or E3)",
+                    )
+                if enforcement["release_ref"] != current_release_ref:
+                    raise ValidationError(
+                        f"{path}.closure_evidence_id",
+                        "enforcement evidence must be bound to the current release",
+                    )
+                # Without this any passing acceptance record satisfies the rule,
+                # and the control is evidenced by something that never touched it.
+                if enforcement["procedure"] != "class-sweep":
+                    raise ValidationError(
+                        f"{path}.closure_evidence_id",
+                        "enforcement evidence must use procedure 'class-sweep'; a "
+                        "record from another procedure did not exercise this control",
+                    )
+            # Same principle as the sweep itself: degree grades how strong the
+            # answer must be, never whether the question is on the record. A
+            # closed class with no seeded_check reproduces the original defect —
+            # "did not check" and "checked and it held" rendering identically.
+            if seeded_check is None:
                 raise ValidationError(
-                    f"{path}.closure_ref",
-                    f"closure {closure!r} requires the location that enforces it",
+                    f"{path}.seeded_check",
+                    "closing a class requires the result of planting an instance the "
+                    "expression should have found, or a reason none could be planted",
+                )
+            if seeded_check["status"] == "survived":
+                raise ValidationError(
+                    f"{path}.seeded_check.status",
+                    "a planted instance the expression missed proves it too narrow; "
+                    "widen the expression and sweep again before closing",
                 )
             if closure == "accepted-risk" and not note:
                 raise ValidationError(
@@ -1790,7 +1936,9 @@ def validate_condition_sweep(value: Any, path: str) -> dict[str, Any]:
         "instances_converted": converted,
         "closure": closure,
         "closure_ref": closure_ref,
+        "closure_evidence_id": closure_evidence_id,
         "note": note,
+        "seeded_check": seeded_check,
     }
 
 
@@ -1824,6 +1972,9 @@ def validate_root_causes(
     finding_by_id: dict[str, dict[str, Any]],
     degree: str,
     loop_mode: str,
+    identity_scope: dict[str, Any],
+    evidence_by_id: dict[str, dict[str, Any]],
+    current_release_ref: str,
 ) -> list[dict[str, Any]]:
     items = require_list(value, "$.root_causes")
     result: list[dict[str, Any]] = []
@@ -1853,7 +2004,11 @@ def validate_root_causes(
                     f"finding {finding_id!r} does not point back to {root_id!r}",
                 )
         condition_sweep = validate_condition_sweep(
-            item["condition_sweep"], f"{path}.condition_sweep"
+            item["condition_sweep"],
+            f"{path}.condition_sweep",
+            identity_scope,
+            evidence_by_id,
+            current_release_ref,
         )
         cause_sweep = validate_cause_sweep(
             item["cause_sweep"], f"{path}.cause_sweep", finding_by_id
@@ -1877,6 +2032,13 @@ def validate_root_causes(
                         f"{path}.condition_sweep.state",
                         f"degree {degree!r} requires a closed defect class before {root_id} "
                         f"closes, got {condition_sweep['state']!r}",
+                    )
+                seeded = condition_sweep["seeded_check"]
+                if seeded is None or seeded["status"] == "not-applicable":
+                    raise ValidationError(
+                        f"{path}.condition_sweep.seeded_check",
+                        f"degree {degree!r} requires a planted instance the recorded "
+                        f"expression actually found before {root_id} closes",
                     )
                 if cause_sweep is None or cause_sweep["state"] != "done":
                     raise ValidationError(
@@ -2398,7 +2560,13 @@ def validate(payload: Any) -> dict[str, Any]:
             "must differ from initial_release_ref after a recorded fix",
         )
     root_causes = validate_root_causes(
-        root["root_causes"], finding_by_id, normalized_review["degree"], loop_mode
+        root["root_causes"],
+        finding_by_id,
+        normalized_review["degree"],
+        loop_mode,
+        normalized_artifact["identity_scope"],
+        evidence_by_id,
+        normalized_artifact["current_release_ref"],
     )
     # The sweep hangs off the root cause, so a finding with no root cause would
     # skip it entirely — and a lone observed instance is the likeliest of all to
@@ -2670,6 +2838,8 @@ LABELS = {
         "root_causes": "Root causes",
         "condition_sweep": "Extent of condition",
         "class_state": "Defect classes",
+        "unconverted_tag": "UNCONVERTED",
+        "class_open": "Instances of this defect class remain unconverted.",
         "unconverted": "instance(s) of a filed defect still unconverted",
         "unswept_classes": "class(es) never searched or unenumerable",
         "cause_sweep": "Extent of cause",
@@ -2771,6 +2941,8 @@ LABELS = {
         "root_causes": "共同根因",
         "condition_sweep": "同类实例扫描",
         "class_state": "缺陷类",
+        "unconverted_tag": "处未转换",
+        "class_open": "这一类缺陷仍有实例没有转换。",
         "unconverted": "处同类实例仍未转换",
         "unswept_classes": "个类从未扫描或无法枚举",
         "cause_sweep": "根因延伸审查",
@@ -2943,8 +3115,19 @@ def render_markdown(data: dict[str, Any], language: str) -> str:
     active_workflow_blockers = [
         item for item in data["workflow_blockers"] if item["status"] == "active"
     ]
+    # A defect class that is still open is not a finding — nobody filed its
+    # remaining instances — but it is exactly what this section is for: things
+    # the report has not settled. Leaving it only under Root causes puts it
+    # below where readers stop, which is the failure this feature exists to stop.
+    open_classes = [
+        root
+        for root in data["root_causes"]
+        if root["condition_sweep"]["state"] != "closed"
+        or root["condition_sweep"]["instances_converted"]
+        < root["condition_sweep"]["instances_found"]
+    ]
     lines.extend(["", f"### {label['pending']}", ""])
-    if unverifiable_findings or open_unknowns or active_workflow_blockers:
+    if unverifiable_findings or open_unknowns or active_workflow_blockers or open_classes:
         lines.extend(
             f"- [{item['severity']} · {item['id']} · UNVERIFIED] "
             f"{label['unverifiable_prefix']} {markdown_text(item['title'])} "
@@ -2962,6 +3145,25 @@ def render_markdown(data: dict[str, Any], language: str) -> str:
             f"{markdown_text(item['missing_requirement'])}."
             for item in active_workflow_blockers
         )
+        for root in open_classes:
+            sweep = root["condition_sweep"]
+            remaining = sweep["instances_found"] - sweep["instances_converted"]
+            if sweep["state"] in {"unswept", "unsweepable"}:
+                tag = sweep["state"].upper()
+                detail = (
+                    markdown_text(sweep["note"])
+                    if sweep["note"]
+                    else label["unswept_warning"]
+                )
+            else:
+                tag = f"{remaining} {label['unconverted_tag']}"
+                detail = (
+                    markdown_text(sweep["note"]) if sweep["note"] else label["class_open"]
+                )
+            lines.append(
+                f"- [CLASS · {root['id']} · {tag}] "
+                f"{markdown_text(root['title'])}: {detail}"
+            )
     else:
         lines.append(label["none"])
 
