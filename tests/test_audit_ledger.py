@@ -23,6 +23,9 @@ def unswept_condition_sweep() -> dict:
         "scope": None,
         "instances_found": 0,
         "instances_converted": 0,
+        "denominator": None,
+        "population": None,
+        "instances_unconvertible": 0,
         "closure": None,
         "closure_ref": None,
         "closure_evidence_id": None,
@@ -211,8 +214,11 @@ def closed_condition_sweep() -> dict:
         "method": "static-query",
         "expression": "rg -n 'durableWrite\\(' src/",
         "scope": "src/**/*.py write paths, excluding tests",
+        "denominator": "structural",
+        "population": "durable write call sites reached from request handlers",
         "instances_found": 2,
         "instances_converted": 2,
+        "instances_unconvertible": 0,
         "closure": "converted",
         "closure_ref": None,
         "closure_evidence_id": None,
@@ -1025,8 +1031,11 @@ class AuditLedgerTests(unittest.TestCase):
             "method": "static-query",
             "expression": "rg -n 'findById' src/",
             "scope": "src/**/*.ts",
+            "denominator": "structural",
+            "population": "repository lookup call sites",
             "instances_found": 3,
             "instances_converted": 3,
+            "instances_unconvertible": 0,
             "closure": "converted",
             "closure_ref": None,
             "closure_evidence_id": None,
@@ -1162,6 +1171,9 @@ class AuditLedgerTests(unittest.TestCase):
             "method": "text-search",
             "expression": "rg -n 'durableWrite' src/",
             "scope": "src/**/*.py",
+            "denominator": "structural",
+            "population": "durable write call sites",
+            "instances_unconvertible": 0,
             "instances_found": 7,
             "instances_converted": 1,
             "closure": "ratchet",
@@ -1322,6 +1334,89 @@ class AuditLedgerTests(unittest.TestCase):
         self.assertTrue(audit_ledger.path_matches_glob("src/a.ts", "src/*"))
         self.assertFalse(audit_ledger.path_matches_glob("src/a/b.ts", "src/*"))
         self.assertFalse(audit_ledger.path_matches_glob("tools/x.tsv", "**/secrets/**"))
+
+    # ── A count is only as meaningful as what it is counted against.
+
+    def test_a_structural_denominator_must_name_what_it_enumerates(self):
+        payload = self._closing_root_cause_payload()
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            denominator="structural", population=None
+        )
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path, "$.root_causes[0].condition_sweep.population"
+        )
+
+    def test_a_symptom_count_cannot_claim_the_class_was_exhausted(self):
+        """`converted` says "all of them"; a pattern count is not a class size."""
+        payload = self._closing_root_cause_payload()
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            denominator="pattern", population=None, closure="converted"
+        )
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path, "$.root_causes[0].condition_sweep.denominator"
+        )
+
+    def test_a_symptom_count_may_still_close_under_an_enforced_control(self):
+        payload = self._add_sweep_evidence(self._closing_root_cause_payload())
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            denominator="pattern",
+            population=None,
+            instances_converted=1,
+            closure="ratchet",
+            closure_ref="tools/ratchets/own.tsv",
+            closure_evidence_id="E-091",
+            note="Two remain under an enforced, decreasing count.",
+        )
+        self.validate(payload)
+
+    def test_instances_that_cannot_be_converted_are_counted_apart(self):
+        payload = self._closing_root_cause_payload()
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            instances_found=3, instances_converted=3, instances_unconvertible=1
+        )
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path,
+            "$.root_causes[0].condition_sweep.instances_unconvertible",
+        )
+
+    def test_an_unconvertible_instance_blocks_a_converted_closure(self):
+        """Needing a restructure is not the same as not having got to it yet."""
+        payload = self._closing_root_cause_payload()
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            instances_found=3,
+            instances_converted=2,
+            instances_unconvertible=1,
+            closure="converted",
+        )
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path, "$.root_causes[0].condition_sweep.closure"
+        )
+
+    def test_the_report_separates_not_yet_done_from_cannot_be_done(self):
+        payload = self._add_sweep_evidence(verified_payload())
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            instances_found=45,
+            instances_converted=15,
+            instances_unconvertible=1,
+            closure="ratchet",
+            closure_ref="tools/ratchets/reads.tsv",
+            closure_evidence_id="E-091",
+            note="Twenty-nine read sites are still unguarded.",
+        )
+        report = audit_ledger.render_markdown(self.validate(payload), "en")
+        pending = report.index("### Pending verification")
+        detail = report.index("## Root causes")
+        head = report[pending:detail]
+        self.assertIn("29", head)   # still convertible
+        self.assertIn("1", head)    # needs restructuring
 
     def test_an_open_class_appears_under_pending_verification(self):
         payload = self._add_sweep_evidence(verified_payload())

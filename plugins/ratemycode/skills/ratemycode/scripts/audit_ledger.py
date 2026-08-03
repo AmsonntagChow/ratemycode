@@ -119,6 +119,12 @@ SWEEP_STRICT_DEGREES = {"launch-gate", "real-stakes", "life-or-death"}
 SEEDED_CHECK_RESULTS = {"killed", "survived", "not-applicable"}
 # Closures that claim an ongoing control rather than a finished conversion.
 ENFORCED_CLOSURES = {"chokepoint", "ratchet"}
+# What the instance count is counted against. `structural` enumerates a
+# population the code itself defines — API call sites, router entries, schema
+# tables — so the number means something and cannot be lowered by rewriting the
+# search. `pattern` counts occurrences of a shape the reviewer invented, which
+# is a symptom count and not a class size.
+SWEEP_DENOMINATORS = {"structural", "pattern"}
 CLOSED_FINDING_STATUSES = {"verified-fixed", "accepted-risk"}
 FINDING_STATUSES = {
     "open",
@@ -1758,7 +1764,10 @@ def validate_condition_sweep(
             "method",
             "expression",
             "scope",
+            "denominator",
+            "population",
             "instances_found",
+            "instances_unconvertible",
             "instances_converted",
             "closure",
             "closure_ref",
@@ -1776,6 +1785,16 @@ def validate_condition_sweep(
     converted = require_int(
         item["instances_converted"], f"{path}.instances_converted", 0, 1000000
     )
+    unconvertible = require_int(
+        item["instances_unconvertible"], f"{path}.instances_unconvertible", 0, 1000000
+    )
+    denominator = require_nullable_string(item["denominator"], f"{path}.denominator")
+    population = require_nullable_string(item["population"], f"{path}.population")
+    if denominator is not None and denominator not in SWEEP_DENOMINATORS:
+        raise ValidationError(
+            f"{path}.denominator",
+            f"expected one of {sorted(SWEEP_DENOMINATORS)}, got {denominator!r}",
+        )
     closure = require_nullable_string(item["closure"], f"{path}.closure")
     closure_ref = require_nullable_string(item["closure_ref"], f"{path}.closure_ref")
     note = require_nullable_string(item["note"], f"{path}.note")
@@ -1794,6 +1813,12 @@ def validate_condition_sweep(
             f"{path}.instances_converted",
             f"converted {converted} exceeds the {found} instance(s) the sweep found",
         )
+    if converted + unconvertible > found:
+        raise ValidationError(
+            f"{path}.instances_unconvertible",
+            f"{converted} converted plus {unconvertible} unconvertible exceeds the "
+            f"{found} instance(s) the sweep found",
+        )
 
     if state == "unswept":
         if (
@@ -1805,6 +1830,9 @@ def validate_condition_sweep(
             or closure
             or closure_evidence_id
             or seeded_check
+            or unconvertible
+            or denominator is not None
+            or population is not None
         ):
             raise ValidationError(
                 f"{path}.state",
@@ -1836,6 +1864,18 @@ def validate_condition_sweep(
             raise ValidationError(
                 f"{path}.scope", f"{state!r} requires the scope the expression ran against"
             )
+        if denominator is None:
+            raise ValidationError(
+                f"{path}.denominator",
+                f"{state!r} requires whether the count is against a structural "
+                "population or a reviewer-invented pattern",
+            )
+        if denominator == "structural" and not population:
+            raise ValidationError(
+                f"{path}.population",
+                "a structural denominator must name what the code enumerates, such as "
+                "the API call sites or router entries being counted",
+            )
         if state == "swept" and closure is not None:
             raise ValidationError(
                 f"{path}.closure",
@@ -1845,6 +1885,19 @@ def validate_condition_sweep(
             if closure is None:
                 raise ValidationError(
                     f"{path}.closure", "'closed' requires how the class was closed"
+                )
+            if closure == "converted" and denominator != "structural":
+                raise ValidationError(
+                    f"{path}.denominator",
+                    "closure 'converted' claims the class was exhausted, which a "
+                    "symptom count cannot establish; enumerate a structural "
+                    "population or close under an enforced control instead",
+                )
+            if closure == "converted" and unconvertible:
+                raise ValidationError(
+                    f"{path}.closure",
+                    f"{unconvertible} instance(s) cannot be converted without "
+                    "restructuring, so the class was not exhausted",
                 )
             if closure == "converted" and converted != found:
                 raise ValidationError(
@@ -1932,8 +1985,11 @@ def validate_condition_sweep(
         "method": method,
         "expression": expression,
         "scope": scope,
+        "denominator": denominator,
+        "population": population,
         "instances_found": found,
         "instances_converted": converted,
+        "instances_unconvertible": unconvertible,
         "closure": closure,
         "closure_ref": closure_ref,
         "closure_evidence_id": closure_evidence_id,
@@ -2839,6 +2895,8 @@ LABELS = {
         "condition_sweep": "Extent of condition",
         "class_state": "Defect classes",
         "unconverted_tag": "UNCONVERTED",
+        "unconvertible_tag": "NEED RESTRUCTURING",
+        "symptom_count": "counted against a reviewer-invented pattern, not a structural population",
         "class_open": "Instances of this defect class remain unconverted.",
         "unconverted": "instance(s) of a filed defect still unconverted",
         "unswept_classes": "class(es) never searched or unenumerable",
@@ -2942,6 +3000,8 @@ LABELS = {
         "condition_sweep": "同类实例扫描",
         "class_state": "缺陷类",
         "unconverted_tag": "处未转换",
+        "unconvertible_tag": "处需重构才能转换",
+        "symptom_count": "这个计数的分母是审查者自拟的模式,不是结构性总体",
         "class_open": "这一类缺陷仍有实例没有转换。",
         "unconverted": "处同类实例仍未转换",
         "unswept_classes": "个类从未扫描或无法枚举",
@@ -3156,10 +3216,17 @@ def render_markdown(data: dict[str, Any], language: str) -> str:
                     else label["unswept_warning"]
                 )
             else:
-                tag = f"{remaining} {label['unconverted_tag']}"
+                blocked = sweep["instances_unconvertible"]
+                tag = f"{remaining - blocked} {label['unconverted_tag']}"
+                if blocked:
+                    # Needing a restructure is a different cost from not having
+                    # got to it yet; one number for both hides that.
+                    tag += f" + {blocked} {label['unconvertible_tag']}"
                 detail = (
                     markdown_text(sweep["note"]) if sweep["note"] else label["class_open"]
                 )
+                if sweep["denominator"] == "pattern":
+                    detail += f" ({label['symptom_count']})"
             lines.append(
                 f"- [CLASS · {root['id']} · {tag}] "
                 f"{markdown_text(root['title'])}: {detail}"

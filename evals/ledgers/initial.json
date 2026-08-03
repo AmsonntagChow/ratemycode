@@ -69,7 +69,10 @@
           "status": "killed",
           "seed_description": "Planted the same missing owner predicate in the export job using a differently named accessor, so an expression fitted to the original call site would have missed it.",
           "reason": null
-        }
+        },
+        "denominator": "structural",
+        "population": "order lookup call sites reached from request handlers",
+        "instances_unconvertible": 0
       },
       "cause_sweep": null
     },
@@ -91,7 +94,10 @@
         "closure_ref": null,
         "note": null,
         "closure_evidence_id": null,
-        "seeded_check": null
+        "seeded_check": null,
+        "denominator": null,
+        "population": null,
+        "instances_unconvertible": 0
       },
       "cause_sweep": null
     }

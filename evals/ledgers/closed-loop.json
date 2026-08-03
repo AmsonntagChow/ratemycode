@@ -3,7 +3,7 @@
   "snapshot_index": 2,
   "recorded_at": "2026-07-31T05:40:00Z",
   "ledger_id": "RMC-checkout-example-001",
-  "previous_ledger_ref": "sha256:31878795d1478d081967b4b77cfffd64a4d3bf01444b003822bc4e358b228810",
+  "previous_ledger_ref": "sha256:c2c8009d63c066242fc3aff6078c94694d12410d92eb084de87ef05a07685c85",
   "artifact": {
     "name": "Disposable checkout fixture",
     "initial_release_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -69,7 +69,10 @@
           "seed_description": "Planted the same missing owner predicate in the export job using a differently named accessor, so an expression fitted to the original call site would have missed it.",
           "reason": null
         },
-        "closure_evidence_id": null
+        "closure_evidence_id": null,
+        "denominator": "structural",
+        "population": "order lookup call sites reached from request handlers",
+        "instances_unconvertible": 0
       },
       "cause_sweep": {
         "state": "done",
@@ -99,7 +102,10 @@
           "seed_description": "Planted the same missing owner predicate in the export job using a differently named accessor, so an expression fitted to the original call site would have missed it.",
           "reason": null
         },
-        "closure_evidence_id": "E-008"
+        "closure_evidence_id": "E-008",
+        "denominator": "structural",
+        "population": "user-facing retry and recovery messages rendered by components",
+        "instances_unconvertible": 0
       },
       "cause_sweep": {
         "state": "done",
