@@ -94,9 +94,9 @@ build → audit → complete verdict
 | Product lead | 判断用户价值、价值实现速度、信任度、重复使用情况和产品证据 |
 | Staff engineer (systems/backend) | 深入审查不变量、安全边界、并发、故障处理、运维和变更安全性 |
 | Staff Frontend engineer | 测试真实浏览器行为、异步状态、无障碍、性能、响应式支持、组件体系和交互细节 |
-| `hostile-user` | 尝试缺乏耐心、误操作、重试、陈旧状态、生命周期边界和访问边界滥用等情形 |
-| `skeptical-vc` | 将用户行为和市场证据与创始人的主张及代码观感区分开 |
-| `oral-defense` | 基于产物一次提出一个问题，共 3–5 个。单独评估理解程度 |
+| Hostile user | 尝试缺乏耐心、误操作、重试、陈旧状态、生命周期边界和访问边界滥用等情形 |
+| Skeptical VC | 将用户行为和市场证据与创始人的主张及代码观感区分开 |
+| Oral-defense examiner | 基于产物一次提出一个问题，共 3–5 个。单独评估理解程度 |
 
 ### 从快速体检开始
 

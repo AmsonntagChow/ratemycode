@@ -88,9 +88,9 @@ After one audit target is resolved, the skill asks two questions before it begin
 | Product lead | Judges user value, time-to-value, trust, repeat use, and product evidence |
 | Staff engineer (systems/backend) | Deeply reviews invariants, security boundaries, concurrency, failure handling, operations, and change safety |
 | Staff Frontend engineer | Tests real browser behavior, async state, accessibility, performance, responsive support, component systems, and interaction craft |
-| `hostile-user` | Tries impatience, mistakes, retries, stale state, lifecycle edges, and access-boundary abuse |
-| `skeptical-vc` | Separates user behavior and market evidence from founder claims and code aesthetics |
-| `oral-defense` | Asks 3–5 artifact-grounded questions, one at a time; scores understanding separately |
+| Hostile user | Tries impatience, mistakes, retries, stale state, lifecycle edges, and access-boundary abuse |
+| Skeptical VC | Separates user behavior and market evidence from founder claims and code aesthetics |
+| Oral-defense examiner | Asks 3–5 artifact-grounded questions, one at a time; scores understanding separately |
 
 ### Start with the quick checkup
 
