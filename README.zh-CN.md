@@ -18,7 +18,7 @@
 /goal 用 ratemycode 把这个应用推进到可以公开上线
 ```
 
-不用你规定什么时候算完。它不会自己说自己修好了，改完得重新验过才算。还剩多少没弄完，它也会讲。
+不用你规定 goal 要做多少。它不会自己说自己修好了，改完得重新验过才算。还剩什么没弄完，它也会讲。
 
 [![MIT License](https://img.shields.io/badge/license-MIT-2f855a.svg)](LICENSE)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-5b5bd6.svg)](https://agentskills.io/)
