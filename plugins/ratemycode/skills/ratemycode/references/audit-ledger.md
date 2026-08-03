@@ -514,6 +514,8 @@ Degree grades the formality of the sweep, not whether it happens. Every degree r
 
 When a batch settles a convention worth keeping — a single source of truth, a canonical expression of one state, a naming or interaction rule — update the project's conventions document in the same batch and list it in the batch's change references, so later maintainers and agents inherit the decision instead of re-forking it.
 
+`validate` prints a machine-readable summary to stdout, and that summary is what a CI gate reads instead of the Markdown. It therefore reports the defect-class state alongside the finding counts — `defect_classes`, `classes_open`, `classes_unswept`, `instances_unconverted`, `instances_unconvertible` — because a gate that sees only `unresolved: 0` would pass a release with a class still open, which is the same failure this record exists to prevent, one layer down. Read the two together: findings closing and classes closing are different facts.
+
 ## Render and close the loop
 
 The generated Markdown deliberately leads with the answer rather than metadata. Its order is:

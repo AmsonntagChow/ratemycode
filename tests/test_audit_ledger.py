@@ -1418,6 +1418,35 @@ class AuditLedgerTests(unittest.TestCase):
         self.assertIn("29", head)   # still convertible
         self.assertIn("1", head)    # needs restructuring
 
+    def test_the_machine_readable_summary_carries_the_class_state(self):
+        """A CI gate reads this, not the Markdown. Green counts must not hide it."""
+        payload = self._add_sweep_evidence(verified_payload())
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            instances_found=45,
+            instances_converted=15,
+            instances_unconvertible=1,
+            closure="ratchet",
+            closure_ref="tools/ratchets/reads.tsv",
+            closure_evidence_id="E-091",
+            note="Twenty-nine read sites are still unguarded.",
+        )
+        result = audit_ledger.summary(self.validate(payload))
+        self.assertEqual(result["unresolved"], 0)
+        self.assertEqual(result["instances_unconverted"], 29)
+        self.assertEqual(result["instances_unconvertible"], 1)
+        self.assertEqual(result["classes_open"], 0)
+        self.assertEqual(result["defect_classes"], 1)
+
+    def test_the_summary_reports_a_class_nobody_searched(self):
+        payload = self._closing_root_cause_payload()
+        payload["findings"][0]["status"] = "fixed-pending-retest"
+        payload["findings"][0]["retest"] = None
+        payload["verdict"]["current_decision"] = "NOT_READY"
+        payload["verdict"]["maximum_safe_target"] = "internal-demo"
+        result = audit_ledger.summary(self.validate(payload))
+        self.assertEqual(result["classes_unswept"], 1)
+        self.assertEqual(result["classes_open"], 1)
+
     def test_an_open_class_appears_under_pending_verification(self):
         payload = self._add_sweep_evidence(verified_payload())
         payload["root_causes"][0]["condition_sweep"] = self._swept(

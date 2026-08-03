@@ -3834,6 +3834,30 @@ def summary(data: dict[str, Any]) -> dict[str, Any]:
             if status not in {"verified-fixed", "accepted-risk"}
         ),
         "open_unknowns": sum(item["status"] == "open" for item in data["unknowns"]),
+        # Findings closing and classes closing are different facts. This summary
+        # is the surface a CI gate reads, so leaving the class state out of it
+        # reproduces the whole defect one layer down: green counts, open class.
+        "defect_classes": len(data["root_causes"]),
+        "classes_open": sum(
+            1
+            for root in data["root_causes"]
+            if root["condition_sweep"]["state"] != "closed"
+        ),
+        "classes_unswept": sum(
+            1
+            for root in data["root_causes"]
+            if root["condition_sweep"]["state"] in {"unswept", "unsweepable"}
+        ),
+        "instances_unconverted": sum(
+            root["condition_sweep"]["instances_found"]
+            - root["condition_sweep"]["instances_converted"]
+            - root["condition_sweep"]["instances_unconvertible"]
+            for root in data["root_causes"]
+        ),
+        "instances_unconvertible": sum(
+            root["condition_sweep"]["instances_unconvertible"]
+            for root in data["root_causes"]
+        ),
         "current_decision": data["verdict"]["current_decision"],
     }
 
