@@ -2,7 +2,7 @@
 
 English | [简体中文](README.zh-CN.md)
 
-When an app is vibe-coded, nobody knows which features actually work. This is the Staff-level product review that finds out.
+On most apps nobody can say for certain which features actually work. This is the Staff-level product review that finds out.
 
 > Your app is finished. Now it has to survive a Staff-level review.
 
