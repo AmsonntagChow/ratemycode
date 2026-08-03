@@ -52,7 +52,7 @@ Do not install both Claude methods in the same scope. No method updates itself: 
 
 ## What it is
 
-RateMyCode is a portable [Agent Skill](https://agentskills.io/) for judging an actual product—not merely styling a code review as a persona.
+RateMyCode is a portable [Agent Skill](https://agentskills.io/) for judging an actual product — not merely styling a code review as a persona.
 
 It starts from product promises and real user journeys, tests behavior when possible, compares overlapping facts across internal docs, `llms.txt`, schemas, examples, UI copy, and live documentation, traces failures into code, distinguishes proof from inference, and ends with a release decision. A fatal authorization or payment failure cannot disappear inside a flattering average score.
 
@@ -72,11 +72,11 @@ It deliberately separates four things that generic reviewers often mix together:
 - release readiness and hard vetoes
 - the author's understanding, only when oral defense is requested
 
-Before asking about role or degree, RateMyCode performs a minimal read-only artifact gate. It resolves one coherent product target while allowing linked surfaces such as its repository, deployment, logs, analytics, and documentation. If the current workspace is empty or unrelated, a supplied target is missing, or several independent products are ambiguous, it asks for a project path, repository, deployment URL, attachment, or product-evidence file and stops without inspecting, scoring, or issuing a verdict. An existing project that cannot run still proceeds as a clearly limited static review.
+Before asking about role or degree, RateMyCode runs a minimal read-only artifact gate. It resolves one coherent product target while allowing linked surfaces such as its repository, deployment, logs, analytics, and documentation. If the current workspace is empty or unrelated, a supplied target is missing, or several independent products are ambiguous, it asks for a project path, repository, deployment URL, attachment, or product-evidence file and stops without inspecting, scoring, or issuing a verdict. An existing project that cannot run still proceeds as a clearly limited static review.
 
 ## Roles and degree
 
-After one audit target is resolved, the skill asks two questions before it begins whenever the request does not already answer them:
+After one audit target is resolved, the skill asks two questions before it begins, unless the request already answers them:
 
 ```text
 1. Role: Product lead / Hostile user / Staff engineer (systems/backend) / Staff Frontend engineer / Skeptical VC / Oral-defense examiner
@@ -102,7 +102,7 @@ code. On Max, run it freely. Codex and Cursor subscriptions are worth watching t
 the default: it spends the review on the handful of checks that most often decide whether something is safe
 to ship, and stops there.
 
-What you give up is the **floor of assurance** — fewer things get reached — not the honesty of the report.
+You reach fewer things. You do not get a less honest report.
 Every issue found is still reported in full, and everything not reached becomes an explicit unknown with the
 one test that would settle it. Escalate when the stakes actually demand it: real money, private data, public
 users, or a decision you cannot walk back.
@@ -158,7 +158,7 @@ Top 3 actions:
 Retest plan:
 ```
 
-The opening list includes every confirmed finding—open, in progress, accepted, or independently fixed—in one severity-sorted view, with exactly one plain-language sentence saying what happens and why it matters. It never hides findings behind a “top three” cap. Unverifiable fixes, open unknowns, and active workflow blockers stay under `Pending verification` and are not presented as resolved facts. The four evidence lanes then show exactly what is proven; one green lane cannot cover another. Detailed findings close the loop from product invariant to exact reproduction, visible evidence, consequence, minimum fix, and acceptance test. Missing or stale evidence never counts as a pass.
+The opening list includes every confirmed finding (open, in progress, accepted, or independently fixed) in one severity-sorted view, with exactly one plain-language sentence saying what happens and why it matters. It never hides findings behind a “top three” cap. Unverifiable fixes, open unknowns, and active workflow blockers stay under `Pending verification` and are not presented as resolved facts. The four evidence lanes then show exactly what is proven; one green lane cannot cover another. Detailed findings close the loop from product invariant to exact reproduction, visible evidence, consequence, minimum fix, and acceptance test. Missing or stale evidence never counts as a pass.
 
 When documentation surfaces overlap, the default comparison is fact-level rather than byte-level: wording may differ, but endpoints, permissions, defaults, limits, expiry, errors, and lifecycle rules must remain compatible in the same version and environment. Byte-exact comparison is used only when explicitly requested or required by a generated-mirror contract. A confirmed textual contradiction becomes a normal finding in the opening list. An inaccessible private document or live page stays explicitly unknown; it is never silently counted as consistent, and documentation alone is never treated as proof of runtime behavior.
 
