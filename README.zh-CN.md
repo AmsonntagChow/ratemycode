@@ -18,7 +18,7 @@
 /goal 用 ratemycode 把这个应用推进到可以公开上线
 ```
 
-什么时候算完不用你在 goal 里写：一批改完，得换一个上下文独立复测才算数；同一个毛病在别处还剩几处，它会自己报出来 —— 不会因为你没盯着就把话说满。
+不用你规定什么时候算完。它不会自己说自己修好了，改完得重新验过才算。还剩多少没弄完，它也会讲。
 
 [![MIT License](https://img.shields.io/badge/license-MIT-2f855a.svg)](LICENSE)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-5b5bd6.svg)](https://agentskills.io/)

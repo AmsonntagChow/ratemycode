@@ -18,7 +18,7 @@ Attach a durable session goal (`/goal` in Codex; the same sentence as a first me
 /goal use ratemycode to get this app to a defensible public launch
 ```
 
-You do not have to spell out when it is done: a batch only counts once a separate context retests it, and how many instances of the same defect are still open elsewhere gets reported on its own — it will not overstate a result because nobody was watching.
+You do not have to define done. It will not sign off on its own fix — a change has to survive a fresh retest first. And whatever is still open, it says so.
 
 [![MIT License](https://img.shields.io/badge/license-MIT-2f855a.svg)](LICENSE)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-5b5bd6.svg)](https://agentskills.io/)
