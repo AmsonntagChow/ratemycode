@@ -3,7 +3,7 @@
   "snapshot_index": 2,
   "recorded_at": "2026-07-31T05:40:00Z",
   "ledger_id": "RMC-checkout-example-001",
-  "previous_ledger_ref": "sha256:c2c8009d63c066242fc3aff6078c94694d12410d92eb084de87ef05a07685c85",
+  "previous_ledger_ref": "sha256:2500c6485a6dc6e09f1a3540e0473e8faebc6ad4d79ec9702e39d0194d762740",
   "artifact": {
     "name": "Disposable checkout fixture",
     "initial_release_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -72,7 +72,8 @@
         "closure_evidence_id": null,
         "denominator": "structural",
         "population": "order lookup call sites reached from request handlers",
-        "instances_unconvertible": 0
+        "instances_unconvertible": 0,
+        "seeded_write": null
       },
       "cause_sweep": {
         "state": "done",
@@ -105,7 +106,11 @@
         "closure_evidence_id": "E-008",
         "denominator": "structural",
         "population": "user-facing retry and recovery messages rendered by components",
-        "instances_unconvertible": 0
+        "instances_unconvertible": 0,
+        "seeded_write": {
+          "status": "unwritable",
+          "attempt_description": "Added a new unbounded retry message; the ratchet check refused the commit and the allowed count could not be raised."
+        }
       },
       "cause_sweep": {
         "state": "done",
@@ -329,6 +334,10 @@
         "adjacent_regression_check": "pass",
         "mutation_test": {
           "status": "killed"
+        },
+        "revert_mutation": {
+          "status": "killed",
+          "reason": null
         }
       },
       "risk_acceptance": null,

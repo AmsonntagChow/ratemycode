@@ -117,6 +117,10 @@ SWEEP_STRICT_DEGREES = {"launch-gate", "real-stakes", "life-or-death"}
 # differ, and see whether the recorded expression finds it. Same vocabulary as
 # the mutation check on a fix, because it is the same idea pointed sideways.
 SEEDED_CHECK_RESULTS = {"killed", "survived", "not-applicable"}
+# A fix nothing misses is not a fix. Same instrument as the mutation check on
+# the acceptance test, pointed at the change instead of at the defect: take the
+# fix back out and something has to go red.
+SEEDED_WRITE_RESULTS = {"unwritable", "written", "not-attempted"}
 # Closures that claim an ongoing control rather than a finished conversion.
 ENFORCED_CLOSURES = {"chokepoint", "ratchet"}
 # What the instance count is counted against. `structural` enumerates a
@@ -1302,6 +1306,7 @@ def validate_retest(
             "acceptance_test",
             "adjacent_regression_check",
             "mutation_test",
+            "revert_mutation",
         },
         path,
     )
@@ -1322,6 +1327,23 @@ def validate_retest(
     normalized_mutation = {"status": mutation_status}
     if mutation_reason is not None:
         normalized_mutation["reason"] = mutation_reason
+    # The mutation check above proves the acceptance test can see the defect. It
+    # does not prove the shipped change is what makes it pass: a guard that
+    # computes an identity satisfies every rule and can be deleted with nothing
+    # going red. Recorded by the retest, never by the pass that wrote the fix.
+    revert_path = f"{path}.revert_mutation"
+    revert = require_object(item["revert_mutation"], revert_path)
+    require_exact_fields(revert, {"status", "reason"}, revert_path)
+    revert_status = require_string(revert["status"], f"{revert_path}.status", MUTATION_RESULTS)
+    revert_reason = require_nullable_string(revert["reason"], f"{revert_path}.reason")
+    if revert_status == "not-applicable" and not revert_reason:
+        raise ValidationError(
+            f"{revert_path}.reason",
+            "not-applicable requires why removing the change could not be observed",
+        )
+    if revert_status != "not-applicable" and revert_reason:
+        raise ValidationError(f"{revert_path}.reason", "is allowed only for not-applicable")
+    normalized_revert = {"status": revert_status, "reason": revert_reason}
     return {
         "classification": require_string(
             item["classification"], f"{path}.classification", set(RETEST_STATE_MAP.values())
@@ -1343,6 +1365,7 @@ def validate_retest(
             CHECK_RESULTS,
         ),
         "mutation_test": normalized_mutation,
+        "revert_mutation": normalized_revert,
     }
 
 
@@ -1352,6 +1375,7 @@ def validate_retest_outcome(
     finding_id: str,
     current_release_ref: str,
     path: str,
+    degree: str,
 ) -> None:
     """Validate a retest even when a later snapshot ends blocked or accepted-risk."""
 
@@ -1454,6 +1478,20 @@ def validate_retest_outcome(
             raise ValidationError(
                 path, "FIXED requires passing acceptance and adjacent checks"
             )
+        if retest["revert_mutation"]["status"] == "survived":
+            raise ValidationError(
+                f"{path}.revert_mutation.status",
+                "the change was removed and nothing failed, so it is not what makes "
+                "the acceptance pass; it cannot support FIXED",
+            )
+        if degree in SWEEP_STRICT_DEGREES and (
+            retest["revert_mutation"]["status"] == "not-applicable"
+        ):
+            raise ValidationError(
+                f"{path}.revert_mutation.status",
+                f"degree {degree!r} requires the change to be removed and something to "
+                "fail; 'not-applicable' cannot close a finding at this degree",
+            )
         if mutation_status == "survived":
             raise ValidationError(
                 f"{path}.mutation_test.status", "a survived mutation cannot support FIXED"
@@ -1492,6 +1530,7 @@ def validate_findings(
     evidence_by_id: dict[str, dict[str, Any]],
     current_release_ref: str,
     loop_mode: str,
+    degree: str,
 ) -> tuple[list[dict[str, Any]], dict[str, dict[str, Any]]]:
     items = require_list(value, "$.findings")
     result: list[dict[str, Any]] = []
@@ -1590,6 +1629,7 @@ def validate_findings(
                 finding_id,
                 current_release_ref,
                 f"{path}.retest",
+                degree,
             )
         if status == "open" and any(
             part is not None for part in (authorization, fix, retest, risk_acceptance, blocker)
@@ -1743,6 +1783,31 @@ def validate_seeded_check(value: Any, path: str) -> dict[str, Any] | None:
     return {"status": status, "seed_description": description, "reason": reason}
 
 
+def validate_seeded_write(value: Any, path: str) -> dict[str, Any] | None:
+    """Could someone still write a new instance past the control?
+
+    Seeding a find tests the expression. Seeding a write tests the control: a
+    chokepoint you can write around is not a chokepoint, and a ratchet a new
+    instance can be merged past is not enforcing anything. `unwritable` covers
+    both — the type system refused it, or the gate refused to land it.
+    """
+    if value is None:
+        return None
+    item = require_object(value, path)
+    require_exact_fields(item, {"status", "attempt_description"}, path)
+    status = require_string(item["status"], f"{path}.status", SEEDED_WRITE_RESULTS)
+    description = require_nullable_string(
+        item["attempt_description"], f"{path}.attempt_description"
+    )
+    if status != "not-attempted" and not description:
+        raise ValidationError(
+            f"{path}.attempt_description",
+            "state what was written, or tried and refused; the claim is only as "
+            "strong as the attempt behind it",
+        )
+    return {"status": status, "attempt_description": description}
+
+
 def validate_condition_sweep(
     value: Any,
     path: str,
@@ -1774,6 +1839,7 @@ def validate_condition_sweep(
             "closure_evidence_id",
             "note",
             "seeded_check",
+            "seeded_write",
         },
         path,
     )
@@ -1802,6 +1868,7 @@ def validate_condition_sweep(
         item["closure_evidence_id"], f"{path}.closure_evidence_id"
     )
     seeded_check = validate_seeded_check(item["seeded_check"], f"{path}.seeded_check")
+    seeded_write = validate_seeded_write(item["seeded_write"], f"{path}.seeded_write")
 
     if closure is not None and closure not in CONDITION_SWEEP_CLOSURES:
         raise ValidationError(
@@ -1830,6 +1897,7 @@ def validate_condition_sweep(
             or closure
             or closure_evidence_id
             or seeded_check
+            or seeded_write
             or unconvertible
             or denominator is not None
             or population is not None
@@ -1928,6 +1996,19 @@ def validate_condition_sweep(
                             f"points under excluded scope {excluded!r}, so it is not part "
                             "of the audited artifact",
                         )
+                # Evidence that the control ran is not evidence that it holds.
+                if seeded_write is None:
+                    raise ValidationError(
+                        f"{path}.seeded_write",
+                        f"closure {closure!r} claims new instances cannot get in; "
+                        "record the attempt to write one",
+                    )
+                if seeded_write["status"] != "unwritable":
+                    raise ValidationError(
+                        f"{path}.seeded_write.status",
+                        f"a new instance was {seeded_write['status']}, so {closure!r} "
+                        "does not close the class",
+                    )
                 # An enforcing control nobody observed is a claim, not a control.
                 if not closure_evidence_id:
                     raise ValidationError(
@@ -1995,6 +2076,7 @@ def validate_condition_sweep(
         "closure_evidence_id": closure_evidence_id,
         "note": note,
         "seeded_check": seeded_check,
+        "seeded_write": seeded_write,
     }
 
 
@@ -2606,7 +2688,11 @@ def validate(payload: Any) -> dict[str, Any]:
             "skeptical-vc uses venture signals; record any separate software release review in its own ledger",
         )
     findings, finding_by_id = validate_findings(
-        root["findings"], evidence_by_id, normalized_artifact["current_release_ref"], loop_mode
+        root["findings"],
+        evidence_by_id,
+        normalized_artifact["current_release_ref"],
+        loop_mode,
+        normalized_review["degree"],
     )
     if any(item["fix"] is not None for item in findings) and (
         normalized_artifact["current_release_ref"] == normalized_artifact["initial_release_ref"]

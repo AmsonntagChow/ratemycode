@@ -31,6 +31,7 @@ def unswept_condition_sweep() -> dict:
         "closure_evidence_id": None,
         "note": None,
         "seeded_check": None,
+        "seeded_write": None,
     }
 
 
@@ -229,6 +230,7 @@ def closed_condition_sweep() -> dict:
             "differently named helper, so an over-fitted expression would miss it.",
             "reason": None,
         },
+        "seeded_write": None,
     }
 
 
@@ -333,6 +335,7 @@ def verified_payload():
         "acceptance_test": "pass",
         "adjacent_regression_check": "pass",
         "mutation_test": {"status": "killed"},
+            "revert_mutation": {"status": "killed", "reason": None},
     }
     return payload
 
@@ -420,6 +423,10 @@ def unverifiable_payload(*, maximum_safe_target="internal-demo"):
         "acceptance_test": "unverified",
         "adjacent_regression_check": "unverified",
         "mutation_test": {
+            "status": "not-applicable",
+            "reason": "No executable retest environment is available.",
+        },
+        "revert_mutation": {
             "status": "not-applicable",
             "reason": "No executable retest environment is available.",
         },
@@ -1041,6 +1048,11 @@ class AuditLedgerTests(unittest.TestCase):
             "closure_evidence_id": None,
             "note": None,
             "seeded_check": self._killed_seed(),
+            "seeded_write": {
+                "status": "unwritable",
+                "attempt_description": "Tried to add an unchecked write through a new "
+                "helper; the type system refused the unguarded shape.",
+            },
         }
         sweep.update(overrides)
         return sweep
@@ -1181,6 +1193,10 @@ class AuditLedgerTests(unittest.TestCase):
             "closure_evidence_id": "E-091",
             "note": "Six call sites remain under an enforced, decreasing count.",
             "seeded_check": self._killed_seed(),
+            "seeded_write": {
+                "status": "unwritable",
+                "attempt_description": "A new unbounded retry message was rejected by CI.",
+            },
         }
         report = audit_ledger.render_markdown(self.validate(payload), "en")
         progress = report.index("## Progress")
@@ -1188,6 +1204,100 @@ class AuditLedgerTests(unittest.TestCase):
         self.assertIn("**6** instance(s) of a filed defect still unconverted", report)
         self.assertLess(report.index("still unconverted"), detail)
         self.assertGreater(report.index("still unconverted"), progress)
+
+    # ── Revert mutation: a fix nothing misses is not a fix.
+
+    def test_a_fix_whose_removal_breaks_nothing_is_not_verified(self):
+        payload = verified_payload()
+        payload["findings"][0]["retest"]["revert_mutation"] = {
+            "status": "survived",
+            "reason": None,
+        }
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path, "$.findings[0].retest.revert_mutation.status"
+        )
+
+    def test_skipping_the_revert_mutation_needs_a_reason(self):
+        payload = verified_payload()
+        payload["findings"][0]["retest"]["revert_mutation"] = {
+            "status": "not-applicable",
+            "reason": None,
+        }
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path, "$.findings[0].retest.revert_mutation.reason"
+        )
+
+    def test_a_release_gate_will_not_accept_an_unrun_revert_mutation(self):
+        payload = self._closing_root_cause_payload(degree="launch-gate")
+        payload["root_causes"][0]["condition_sweep"] = self._swept()
+        payload["root_causes"][0]["cause_sweep"] = {
+            "state": "done", "summary": "Checked adjacent subsystems.", "finding_ids": [],
+        }
+        payload["findings"][0]["retest"]["revert_mutation"] = {
+            "status": "not-applicable",
+            "reason": "The change is a copy edit with no runtime path.",
+        }
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path, "$.findings[0].retest.revert_mutation.status"
+        )
+
+    # ── Seeded write: a chokepoint that still lets you write one is not a chokepoint.
+
+    def test_an_enforced_closure_requires_a_failed_attempt_to_write_a_new_instance(self):
+        payload = self._add_sweep_evidence(self._closing_root_cause_payload())
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            closure="ratchet",
+            instances_converted=1,
+            closure_ref="tools/ratchets/own.tsv",
+            closure_evidence_id="E-091",
+            note="Two remain under an enforced count.",
+            seeded_write=None,
+        )
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path, "$.root_causes[0].condition_sweep.seeded_write"
+        )
+
+    def test_a_chokepoint_you_can_still_write_past_does_not_close_the_class(self):
+        payload = self._add_sweep_evidence(self._closing_root_cause_payload())
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            closure="chokepoint",
+            instances_converted=1,
+            closure_ref="src/data/readGuard.ts",
+            closure_evidence_id="E-091",
+            note="Remaining call sites route through the guarded accessor.",
+            seeded_write={
+                "status": "written",
+                "attempt_description": "Added a second unguarded accessor beside the "
+                "guarded one; it compiled and shipped.",
+            },
+        )
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path, "$.root_causes[0].condition_sweep.seeded_write.status"
+        )
+
+    def test_a_failed_write_attempt_must_say_what_was_tried(self):
+        payload = self._add_sweep_evidence(self._closing_root_cause_payload())
+        payload["root_causes"][0]["condition_sweep"] = self._swept(
+            closure="ratchet",
+            instances_converted=1,
+            closure_ref="tools/ratchets/own.tsv",
+            closure_evidence_id="E-091",
+            note="Two remain under an enforced count.",
+            seeded_write={"status": "unwritable", "attempt_description": None},
+        )
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertIn("attempt_description", context.exception.path)
 
     # ── Seeded-instance check: a sweep that cannot find a planted instance is
     # too narrow, and unlike "thoroughness" that is mechanically decidable.

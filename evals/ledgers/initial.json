@@ -72,7 +72,8 @@
         },
         "denominator": "structural",
         "population": "order lookup call sites reached from request handlers",
-        "instances_unconvertible": 0
+        "instances_unconvertible": 0,
+        "seeded_write": null
       },
       "cause_sweep": null
     },
@@ -97,7 +98,8 @@
         "seeded_check": null,
         "denominator": null,
         "population": null,
-        "instances_unconvertible": 0
+        "instances_unconvertible": 0,
+        "seeded_write": null
       },
       "cause_sweep": null
     }
