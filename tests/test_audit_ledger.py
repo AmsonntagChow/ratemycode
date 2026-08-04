@@ -122,7 +122,7 @@ def evidence(
 
 def base_payload():
     return {
-        "schema_version": "3",
+        "schema_version": "4",
         "snapshot_index": 1,
         "recorded_at": None,
         "ledger_id": "RMC-test-001",
@@ -1204,6 +1204,59 @@ class AuditLedgerTests(unittest.TestCase):
         self.assertIn("**6** instance(s) of a filed defect still unconverted", report)
         self.assertLess(report.index("still unconverted"), detail)
         self.assertGreater(report.index("still unconverted"), progress)
+
+    # ── Schema versions coexist: a snapshot is validated by the rules it was
+    # written under, because the chain's whole claim is that prior bytes stand.
+
+    def _v3(self, payload):
+        """Strip what v4 added, so the document is a valid v3 again."""
+        payload["schema_version"] = "3"
+        for finding in payload["findings"]:
+            if finding.get("retest"):
+                finding["retest"].pop("revert_mutation", None)
+        for root in payload["root_causes"]:
+            root["condition_sweep"].pop("seeded_write", None)
+        return payload
+
+    def test_a_v3_snapshot_still_validates_without_the_v4_fields(self):
+        self.validate(self._v3(verified_payload()))
+
+    def test_a_v3_snapshot_may_not_carry_v4_fields(self):
+        payload = self._v3(verified_payload())
+        payload["findings"][0]["retest"]["revert_mutation"] = {
+            "status": "killed", "reason": None,
+        }
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(context.exception.path, "$.findings[0].retest")
+
+    def test_a_v4_snapshot_requires_the_v4_fields(self):
+        payload = verified_payload()
+        payload["findings"][0]["retest"].pop("revert_mutation")
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(context.exception.path, "$.findings[0].retest")
+
+    def test_an_unknown_schema_version_is_still_refused(self):
+        payload = verified_payload()
+        payload["schema_version"] = "5"
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(context.exception.path, "$.schema_version")
+
+    def test_a_chain_cannot_go_back_to_an_older_schema(self):
+        prior_ref = "sha256:" + ("c" * 64)
+        prior = verified_payload()
+        current = self._v3(copy.deepcopy(prior))
+        current["previous_ledger_ref"] = prior_ref
+        current["snapshot_index"] = prior["snapshot_index"] + 1
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            audit_ledger.validate_continuity(
+                audit_ledger.validate(copy.deepcopy(prior)),
+                audit_ledger.validate(copy.deepcopy(current)),
+                prior_ref,
+            )
+        self.assertEqual(context.exception.path, "$.schema_version")
 
     # ── Revert mutation: a fix nothing misses is not a fix.
 

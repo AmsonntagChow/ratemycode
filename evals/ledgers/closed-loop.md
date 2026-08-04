@@ -31,7 +31,7 @@ not requested.
 ## Review identity
 
 - Ledger: `RMC-checkout-example-001`
-- Prior ledger: `sha256:2500c6485a6dc6e09f1a3540e0473e8faebc6ad4d79ec9702e39d0194d762740`
+- Prior ledger: `sha256:6d0386d25780a65b1adba3f9df3e0fd13696f786f42737d8445dd62d68a4e581`
 - Artifact: Disposable checkout fixture
 - Initial release: `sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`
 - Current release: `sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`

@@ -17,7 +17,14 @@ from pathlib import Path
 from typing import Any
 
 
-SCHEMA_VERSION = "3"
+# The chain's whole claim is that prior bytes stand unchanged. A validator that
+# only knows today's rules forces old snapshots to be rewritten to stay valid,
+# which contradicts that claim — so it keeps the older rule sets and validates
+# each document under the version it declares. Bump on any change to a required
+# field, not only on a large one: version 3 silently meant four different field
+# sets in a single day before this existed.
+SCHEMA_VERSION = "4"
+SUPPORTED_SCHEMA_VERSIONS = ("3", "4")
 MAX_INPUT_BYTES = 2_097_152
 SHA256_PATTERN = re.compile(r"sha256:[0-9a-f]{64}")
 RECORDED_AT_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
@@ -1287,10 +1294,27 @@ def validate_blocker(value: Any, path: str) -> dict[str, str] | None:
     }
 
 
+def _validate_revert_mutation(value: Any, path: str) -> tuple[dict[str, Any], str]:
+    """Take the change back out; something has to go red."""
+    revert = require_object(value, path)
+    require_exact_fields(revert, {"status", "reason"}, path)
+    status = require_string(revert["status"], f"{path}.status", MUTATION_RESULTS)
+    reason = require_nullable_string(revert["reason"], f"{path}.reason")
+    if status == "not-applicable" and not reason:
+        raise ValidationError(
+            f"{path}.reason",
+            "not-applicable requires why removing the change could not be observed",
+        )
+    if status != "not-applicable" and reason:
+        raise ValidationError(f"{path}.reason", "is allowed only for not-applicable")
+    return {"status": status, "reason": reason}, status
+
+
 def validate_retest(
     value: Any,
     path: str,
     evidence_by_id: dict[str, dict[str, Any]],
+    schema_version: str,
 ) -> dict[str, Any] | None:
     if value is None:
         return None
@@ -1306,8 +1330,8 @@ def validate_retest(
             "acceptance_test",
             "adjacent_regression_check",
             "mutation_test",
-            "revert_mutation",
-        },
+        }
+        | ({"revert_mutation"} if schema_version >= "4" else set()),
         path,
     )
     mutation_path = f"{path}.mutation_test"
@@ -1331,19 +1355,14 @@ def validate_retest(
     # does not prove the shipped change is what makes it pass: a guard that
     # computes an identity satisfies every rule and can be deleted with nothing
     # going red. Recorded by the retest, never by the pass that wrote the fix.
-    revert_path = f"{path}.revert_mutation"
-    revert = require_object(item["revert_mutation"], revert_path)
-    require_exact_fields(revert, {"status", "reason"}, revert_path)
-    revert_status = require_string(revert["status"], f"{revert_path}.status", MUTATION_RESULTS)
-    revert_reason = require_nullable_string(revert["reason"], f"{revert_path}.reason")
-    if revert_status == "not-applicable" and not revert_reason:
-        raise ValidationError(
-            f"{revert_path}.reason",
-            "not-applicable requires why removing the change could not be observed",
+    if schema_version < "4":
+        # Version 3 had no such field; a document from then cannot be asked for it.
+        normalized_revert = None
+        revert_status = None
+    else:
+        normalized_revert, revert_status = _validate_revert_mutation(
+            item["revert_mutation"], f"{path}.revert_mutation"
         )
-    if revert_status != "not-applicable" and revert_reason:
-        raise ValidationError(f"{revert_path}.reason", "is allowed only for not-applicable")
-    normalized_revert = {"status": revert_status, "reason": revert_reason}
     return {
         "classification": require_string(
             item["classification"], f"{path}.classification", set(RETEST_STATE_MAP.values())
@@ -1365,7 +1384,7 @@ def validate_retest(
             CHECK_RESULTS,
         ),
         "mutation_test": normalized_mutation,
-        "revert_mutation": normalized_revert,
+        **({"revert_mutation": normalized_revert} if normalized_revert is not None else {}),
     }
 
 
@@ -1478,14 +1497,14 @@ def validate_retest_outcome(
             raise ValidationError(
                 path, "FIXED requires passing acceptance and adjacent checks"
             )
-        if retest["revert_mutation"]["status"] == "survived":
+        if retest.get("revert_mutation", {}).get("status") == "survived":
             raise ValidationError(
                 f"{path}.revert_mutation.status",
                 "the change was removed and nothing failed, so it is not what makes "
                 "the acceptance pass; it cannot support FIXED",
             )
         if degree in SWEEP_STRICT_DEGREES and (
-            retest["revert_mutation"]["status"] == "not-applicable"
+            retest.get("revert_mutation", {}).get("status") == "not-applicable"
         ):
             raise ValidationError(
                 f"{path}.revert_mutation.status",
@@ -1531,6 +1550,7 @@ def validate_findings(
     current_release_ref: str,
     loop_mode: str,
     degree: str,
+    schema_version: str,
 ) -> tuple[list[dict[str, Any]], dict[str, dict[str, Any]]]:
     items = require_list(value, "$.findings")
     result: list[dict[str, Any]] = []
@@ -1590,7 +1610,9 @@ def validate_findings(
         status = require_string(item["status"], f"{path}.status", FINDING_STATUSES)
         authorization = validate_authorization(item["fix_authorization"], f"{path}.fix_authorization")
         fix = validate_fix(item["fix"], f"{path}.fix")
-        retest = validate_retest(item["retest"], f"{path}.retest", evidence_by_id)
+        retest = validate_retest(
+            item["retest"], f"{path}.retest", evidence_by_id, schema_version
+        )
         risk_acceptance = validate_risk_acceptance(
             item["risk_acceptance"], f"{path}.risk_acceptance"
         )
@@ -1814,6 +1836,7 @@ def validate_condition_sweep(
     identity_scope: dict[str, Any],
     evidence_by_id: dict[str, dict[str, Any]],
     current_release_ref: str,
+    schema_version: str,
 ) -> dict[str, Any]:
     """Extent of condition: the same defect at locations nobody filed yet.
 
@@ -1839,8 +1862,8 @@ def validate_condition_sweep(
             "closure_evidence_id",
             "note",
             "seeded_check",
-            "seeded_write",
-        },
+        }
+        | ({"seeded_write"} if schema_version >= "4" else set()),
         path,
     )
     state = require_string(item["state"], f"{path}.state", CONDITION_SWEEP_STATES)
@@ -1868,7 +1891,11 @@ def validate_condition_sweep(
         item["closure_evidence_id"], f"{path}.closure_evidence_id"
     )
     seeded_check = validate_seeded_check(item["seeded_check"], f"{path}.seeded_check")
-    seeded_write = validate_seeded_write(item["seeded_write"], f"{path}.seeded_write")
+    seeded_write = (
+        validate_seeded_write(item["seeded_write"], f"{path}.seeded_write")
+        if schema_version >= "4"
+        else None
+    )
 
     if closure is not None and closure not in CONDITION_SWEEP_CLOSURES:
         raise ValidationError(
@@ -1997,13 +2024,13 @@ def validate_condition_sweep(
                             "of the audited artifact",
                         )
                 # Evidence that the control ran is not evidence that it holds.
-                if seeded_write is None:
+                if schema_version >= "4" and seeded_write is None:
                     raise ValidationError(
                         f"{path}.seeded_write",
                         f"closure {closure!r} claims new instances cannot get in; "
                         "record the attempt to write one",
                     )
-                if seeded_write["status"] != "unwritable":
+                if seeded_write is not None and seeded_write["status"] != "unwritable":
                     raise ValidationError(
                         f"{path}.seeded_write.status",
                         f"a new instance was {seeded_write['status']}, so {closure!r} "
@@ -2076,7 +2103,7 @@ def validate_condition_sweep(
         "closure_evidence_id": closure_evidence_id,
         "note": note,
         "seeded_check": seeded_check,
-        "seeded_write": seeded_write,
+        **({"seeded_write": seeded_write} if schema_version >= "4" else {}),
     }
 
 
@@ -2113,6 +2140,7 @@ def validate_root_causes(
     identity_scope: dict[str, Any],
     evidence_by_id: dict[str, dict[str, Any]],
     current_release_ref: str,
+    schema_version: str,
 ) -> list[dict[str, Any]]:
     items = require_list(value, "$.root_causes")
     result: list[dict[str, Any]] = []
@@ -2147,6 +2175,7 @@ def validate_root_causes(
             identity_scope,
             evidence_by_id,
             current_release_ref,
+            schema_version,
         )
         cause_sweep = validate_cause_sweep(
             item["cause_sweep"], f"{path}.cause_sweep", finding_by_id
@@ -2554,9 +2583,11 @@ def validate(payload: Any) -> dict[str, Any]:
     }
     require_exact_fields(root, fields, "$")
     schema_version = require_string(root["schema_version"], "$.schema_version")
-    if schema_version != SCHEMA_VERSION:
+    if schema_version not in SUPPORTED_SCHEMA_VERSIONS:
         raise ValidationError(
-            "$.schema_version", f"must be {SCHEMA_VERSION!r}; regenerate older ledgers explicitly"
+            "$.schema_version",
+            f"must be one of {list(SUPPORTED_SCHEMA_VERSIONS)}; write new snapshots at "
+            f"{SCHEMA_VERSION!r}",
         )
     snapshot_index = root["snapshot_index"]
     if not isinstance(snapshot_index, int) or isinstance(snapshot_index, bool) or snapshot_index < 1:
@@ -2693,6 +2724,7 @@ def validate(payload: Any) -> dict[str, Any]:
         normalized_artifact["current_release_ref"],
         loop_mode,
         normalized_review["degree"],
+        schema_version,
     )
     if any(item["fix"] is not None for item in findings) and (
         normalized_artifact["current_release_ref"] == normalized_artifact["initial_release_ref"]
@@ -2709,6 +2741,7 @@ def validate(payload: Any) -> dict[str, Any]:
         normalized_artifact["identity_scope"],
         evidence_by_id,
         normalized_artifact["current_release_ref"],
+        schema_version,
     )
     # The sweep hangs off the root cause, so a finding with no root cause would
     # skip it entirely — and a lone observed instance is the likeliest of all to
@@ -3724,6 +3757,12 @@ def validate_continuity(previous: dict[str, Any], current: dict[str, Any], prior
                 f"$.root_causes[{root_cause_id}].condition_sweep.state",
                 "a searched defect class cannot revert to 'unswept'",
             )
+    if current["schema_version"] < previous["schema_version"]:
+        raise ValidationError(
+            "$.schema_version",
+            f"a chain cannot return to schema {current['schema_version']!r} after "
+            f"{previous['schema_version']!r}; older rules cannot judge newer records",
+        )
     mutable_finding_fields = {
         "status",
         "fix_authorization",

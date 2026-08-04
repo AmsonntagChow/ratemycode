@@ -1,9 +1,9 @@
 {
-  "schema_version": "3",
+  "schema_version": "4",
   "snapshot_index": 2,
   "recorded_at": "2026-07-31T05:40:00Z",
   "ledger_id": "RMC-checkout-example-001",
-  "previous_ledger_ref": "sha256:2500c6485a6dc6e09f1a3540e0473e8faebc6ad4d79ec9702e39d0194d762740",
+  "previous_ledger_ref": "sha256:6d0386d25780a65b1adba3f9df3e0fd13696f786f42737d8445dd62d68a4e581",
   "artifact": {
     "name": "Disposable checkout fixture",
     "initial_release_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
