@@ -170,7 +170,7 @@ The opening list includes every confirmed finding (open, in progress, accepted, 
 
 When documentation surfaces overlap, the default comparison is fact-level rather than byte-level: wording may differ, but endpoints, permissions, defaults, limits, expiry, errors, and lifecycle rules must remain compatible in the same version and environment. Byte-exact comparison is used only when explicitly requested or required by a generated-mirror contract. A confirmed textual contradiction becomes a normal finding in the opening list. An inaccessible private document or live page stays explicitly unknown; it is never silently counted as consistent, and documentation alone is never treated as proof of runtime behavior.
 
-[![First-match software-release ladder from hard blocker to ready](docs/diagrams/decision-engine.svg)](docs/diagrams/decision-engine.svg)
+<a href="docs/diagrams/decision-engine.svg"><picture><source media="(max-width: 600px)" srcset="docs/diagrams/decision-engine-tall.svg"><img src="docs/diagrams/decision-engine.svg" alt="First-match software-release ladder from hard blocker to ready"></picture></a>
 
 *Decision ladder — the first serious problem decides; a score cannot erase it.*
 
@@ -196,7 +196,7 @@ any work or verification state → blocked (named reason, missing requirement, r
 any technically unresolved state → accepted-risk (only from an explicit user statement)
 ```
 
-[![Four-step fix loop requiring a fresh reviewer before recording the result](docs/diagrams/fix-retest-loop.svg)](docs/diagrams/fix-retest-loop.svg)
+<a href="docs/diagrams/fix-retest-loop.svg"><picture><source media="(max-width: 600px)" srcset="docs/diagrams/fix-retest-loop-tall.svg"><img src="docs/diagrams/fix-retest-loop.svg" alt="Four-step fix loop requiring a fresh reviewer before recording the result"></picture></a>
 
 *Fix loop — save the audit, fix one kind of problem, and let someone fresh prove it.*
 

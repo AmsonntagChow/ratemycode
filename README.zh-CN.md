@@ -70,7 +70,7 @@ build → audit → complete verdict
                   └─ authorized fixes → same-path + adjacent retests → updated audit ledger
 ```
 
-[![RateMyCode 从找到一个产品到判断能否安全上线的五步审查](docs/diagrams/audit-pipeline.svg)](docs/diagrams/audit-pipeline.svg)
+<a href="docs/diagrams/audit-pipeline.svg"><picture><source media="(max-width: 600px)" srcset="docs/diagrams/audit-pipeline-tall.svg"><img src="docs/diagrams/audit-pipeline.svg" alt="RateMyCode 从找到一个产品到判断能否安全上线的五步审查"></picture></a>
 
 *审查：先找到一个产品，像用户一样真用一遍，再照证据决定能否上线。*
 
@@ -176,7 +176,7 @@ Retest plan:
 
 已确认的文字矛盾，作为普通问题进入开头清单。打不开的内部文档或在线页面，明确保留为未知。它不会被偷偷算成“一致”。文档本身，永远不能当成运行时行为的证明。
 
-[![RateMyCode 从致命问题到可以上线的顺序判断](docs/diagrams/decision-engine.svg)](docs/diagrams/decision-engine.svg)
+<a href="docs/diagrams/decision-engine.svg"><picture><source media="(max-width: 600px)" srcset="docs/diagrams/decision-engine-tall.svg"><img src="docs/diagrams/decision-engine.svg" alt="RateMyCode 从致命问题到可以上线的顺序判断"></picture></a>
 
 *决策：按顺序问五个问题；先遇到的严重问题直接决定结果。*
 
@@ -238,7 +238,7 @@ any work or verification state → blocked (named reason, missing requirement, r
 any technically unresolved state → accepted-risk (only from an explicit user statement)
 ```
 
-[![RateMyCode 修改后必须换一个检查者复测的四步修复闭环](docs/diagrams/fix-retest-loop.svg)](docs/diagrams/fix-retest-loop.svg)
+<a href="docs/diagrams/fix-retest-loop.svg"><picture><source media="(max-width: 600px)" srcset="docs/diagrams/fix-retest-loop-tall.svg"><img src="docs/diagrams/fix-retest-loop.svg" alt="RateMyCode 修改后必须换一个检查者复测的四步修复闭环"></picture></a>
 
 *修复：先留底，一次修一类，再换一个检查者重新验证。*
 
