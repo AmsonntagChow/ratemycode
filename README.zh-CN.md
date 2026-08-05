@@ -2,6 +2,10 @@
 
 [English](README.md) | 简体中文
 
+[![skills.sh](https://skills.sh/b/AmsonntagChow/ratemycode)](https://skills.sh/amsonntagchow/ratemycode/ratemycode)
+[![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-5b5bd6.svg)](https://agentskills.io/)
+[![ratemy.sh](https://img.shields.io/badge/ratemy.sh-code-C4500F.svg)](https://code.ratemy.sh/zh/)
+
 一个给代码做审计和修复的 Agent Skill。它要解决的是：现在的 coding agent loop
 自己又当裁判员又当运动员，于是有了惰性修复——把改动撤掉，测试还是全绿。
 
@@ -22,10 +26,6 @@
 ```
 
 不用你规定 goal 要做多少。它不会自己说自己修好了，改完得重新验过才算。还剩什么没弄完，它也会讲。
-
-[![skills.sh](https://skills.sh/b/AmsonntagChow/ratemycode)](https://skills.sh/amsonntagchow/ratemycode/ratemycode)
-[![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-5b5bd6.svg)](https://agentskills.io/)
-[![ratemy.sh](https://img.shields.io/badge/ratemy.sh-code-C4500F.svg)](https://code.ratemy.sh/zh/)
 
 请选择一种安装方式。`skills` CLI 最短，且在 Codex、Claude Code、Cursor 以及其他所有 Agent Skills 客户端都能用：
 

@@ -2,6 +2,10 @@
 
 English | [简体中文](README.zh-CN.md)
 
+[![skills.sh](https://skills.sh/b/AmsonntagChow/ratemycode)](https://skills.sh/amsonntagchow/ratemycode/ratemycode)
+[![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-5b5bd6.svg)](https://agentskills.io/)
+[![ratemy.sh](https://img.shields.io/badge/ratemy.sh-code-C4500F.svg)](https://code.ratemy.sh/)
+
 An Agent Skill that audits code and fixes it. It exists because a coding agent
 marks its own homework: it decides for itself that a change worked, and you get
 fixes that do nothing — take one back out and every test still passes.
@@ -23,10 +27,6 @@ Attach a durable session goal (`/goal` in Codex; the same sentence as a first me
 ```
 
 The goal does not have to spell out how much to do. It will not sign off on its own fix — a change has to survive a fresh retest first. And whatever is still open, it says so.
-
-[![skills.sh](https://skills.sh/b/AmsonntagChow/ratemycode)](https://skills.sh/amsonntagchow/ratemycode/ratemycode)
-[![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-5b5bd6.svg)](https://agentskills.io/)
-[![ratemy.sh](https://img.shields.io/badge/ratemy.sh-code-C4500F.svg)](https://code.ratemy.sh/)
 
 Choose one installation method. The `skills` CLI is the shortest and works in Codex, Claude Code, Cursor, and every other Agent Skills client:
 
