@@ -105,6 +105,20 @@ class ScoreReviewTests(unittest.TestCase):
         self.assertEqual(result["policy_version"], "3")
         self.assertEqual(result["evidence_lanes"]["probabilistic-eval"]["status"], "N/A")
 
+    def test_product_lead_mode_is_supported(self):
+        payload = base_payload()
+        payload["mode"] = "product-lead"
+        result = self.compute(payload)
+        self.assertEqual(result["mode"], "product-lead")
+
+    def test_numeric_scoring_reference_lists_every_supported_mode(self):
+        reference = (
+            ROOT / "skills" / "ratemycode" / "references" / "numeric-scoring.md"
+        ).read_text(encoding="utf-8")
+        for mode in score_review.MODES:
+            with self.subTest(mode=mode):
+                self.assertIn(mode, reference)
+
     def test_staff_engineer_mode_is_supported(self):
         payload = base_payload()
         payload["mode"] = "staff-engineer"

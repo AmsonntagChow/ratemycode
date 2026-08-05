@@ -65,6 +65,10 @@ build → audit → complete verdict
                   └─ authorized fixes → same-path + adjacent retests → updated audit ledger
 ```
 
+[![Five-step RateMyCode audit from finding one app to a safe-release verdict](docs/diagrams/audit-pipeline.svg)](docs/diagrams/audit-pipeline.svg)
+
+*Find one product, test it like a user, separate facts from unknowns, and decide what is safe.*
+
 It deliberately separates four things that generic reviewers often mix together:
 
 - raw product quality
@@ -162,6 +166,10 @@ The opening list includes every confirmed finding (open, in progress, accepted, 
 
 When documentation surfaces overlap, the default comparison is fact-level rather than byte-level: wording may differ, but endpoints, permissions, defaults, limits, expiry, errors, and lifecycle rules must remain compatible in the same version and environment. Byte-exact comparison is used only when explicitly requested or required by a generated-mirror contract. A confirmed textual contradiction becomes a normal finding in the opening list. An inaccessible private document or live page stays explicitly unknown; it is never silently counted as consistent, and documentation alone is never treated as proof of runtime behavior.
 
+[![First-match software-release ladder from hard blocker to ready](docs/diagrams/decision-engine.svg)](docs/diagrams/decision-engine.svg)
+
+*Decision ladder — the first serious problem decides; a score cannot erase it.*
+
 ## Audit ledger and fix loop
 
 When you ask to save the audit or authorize direct fixes, RateMyCode stores a canonical JSON ledger and generates a readable English or Chinese Markdown view. JSON remains the source of truth. The generated report starts with the complete one-line problem list, immediately shows all four evidence lanes, then exposes workflow blockers, release checks, optional scoring, venture evidence when applicable, review identity, progress, root causes, gates, detailed findings, unknowns, and evidence. An `unverifiable` re-review stays in pending verification rather than being presented as fixed.
@@ -183,6 +191,10 @@ external-change ─────→ fixed-pending-retest
 any work or verification state → blocked (named reason, missing requirement, resolving action)
 any technically unresolved state → accepted-risk (only from an explicit user statement)
 ```
+
+[![Four-step fix loop requiring a fresh reviewer before recording the result](docs/diagrams/fix-retest-loop.svg)](docs/diagrams/fix-retest-loop.svg)
+
+*Fix loop — save the audit, fix one kind of problem, and let someone fresh prove it.*
 
 A direct Agent fix uses `origin: authorized-agent` and preserves the user's exact bounded authorization. A change made elsewhere uses `origin: external-change` and leaves authorization `null`; RateMyCode can retest it without inventing retroactive permission. A diff is never enough to claim a fix. `verified-fixed` requires separate current-release acceptance and adjacent-regression evidence in an independent agent or fresh review context. A mutation check must catch the reintroduced failure when practical. Only the user can accept risk; the rationale is optional, the statement and scope are required, and accepted risk remains technically unresolved. A gate whose scope was omitted in the review contract is expanded to an explicit sorted `affected_targets` list in the ledger and cannot be waived by risk acceptance.
 
@@ -287,6 +299,7 @@ Repository content, web pages, logs, and fixtures are treated as untrusted evide
 .agents/plugins/        Codex repository marketplace
 plugins/ratemycode/     self-contained Codex plugin and store assets
 skills/ratemycode/      canonical skill, review/ledger/scoring contracts, UI metadata, validators and renderers
+docs/diagrams/          GitHub-ready audit, decision, and fix-loop diagrams
 evals/trigger_cases.json trigger-selection evals with near-miss negatives
 evals/execution_cases.json with-skill versus without-skill behavior evals
 evals/fixtures/          reproducible local test artifact

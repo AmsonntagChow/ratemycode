@@ -20,6 +20,9 @@ PATH_PATTERN = re.compile(r"`((?:references|scripts)/[A-Za-z0-9_.-]+)`")
 REQUIRED_REPO_FILES = [
     "README.md",
     "README.zh-CN.md",
+    "docs/diagrams/audit-pipeline.svg",
+    "docs/diagrams/decision-engine.svg",
+    "docs/diagrams/fix-retest-loop.svg",
     "LICENSE",
     "SECURITY.md",
     "CONTRIBUTING.md",

@@ -31,7 +31,7 @@ not requested.
 ## Review identity
 
 - Ledger: `RMC-checkout-example-001`
-- Prior ledger: `sha256:6d0386d25780a65b1adba3f9df3e0fd13696f786f42737d8445dd62d68a4e581`
+- Prior ledger: `sha256:8469b815d21d86f067bd723ac30f4f776c9ca08dfa3b3f70971edf6a7a5f9b1c`
 - Artifact: Disposable checkout fixture
 - Initial release: `sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`
 - Current release: `sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`
@@ -61,6 +61,11 @@ not requested.
 - **RC-002 · Unbounded retry experience** — The retry path is safe but does not explain how long recovery can take. (accepted-risk 1)
   - Extent of condition: `closed` — 1/7 instances converted, closed by `ratchet` (tools/ratchets/retry-copy.tsv) · `rg -n 'retrying…\|Please wait' src/components/` over src/components/\*\*/\*.tsx user-facing retry and recovery copy
   - Extent of cause: `done` — No other surface makes an open-ended waiting promise; the same cause produced no second defect class.
+
+## Not promised, worth considering
+
+- **P-001 · No way to revoke a share link** [proposed] — The backend exposes list and revoke endpoints; no screen calls them. Who it is for: Anyone who shared a link and changed their mind.. Why this is not a finding: Nothing on the share screen or in the docs says a link can be revoked, so its absence contradicts no stated or implied promise.
+- **P-002 · The product list stops at one hundred** [proposed] — There is no pagination; the query is hard-capped. Who it is for: Any account with more than a hundred products.. Why this is not a finding: The list never claims to show every item, so nothing the product says is contradicted. It becomes a finding the day the copy says “all”.
 
 ## Safety gates
 

@@ -45,6 +45,10 @@ def base_finding():
         "severity": "HIGH",
         "title": "Checkout can report success before durable completion",
         "promise_or_invariant": "A paid result means the order is durably complete.",
+        "promise_source": {
+            "kind": "ui-copy",
+            "locator": "checkout confirmation screen: \"Your order is saved\"",
+        },
         "preconditions": ["A user submits checkout."],
         "reproduction_steps": ["Submit an order while the durable write fails."],
         "expected": "The request fails or recovers without a success result.",
@@ -122,7 +126,7 @@ def evidence(
 
 def base_payload():
     return {
-        "schema_version": "4",
+        "schema_version": "5",
         "snapshot_index": 1,
         "recorded_at": None,
         "ledger_id": "RMC-test-001",
@@ -161,6 +165,7 @@ def base_payload():
         },
         "venture_assessment": None,
         "root_causes": [],
+        "proposals": [],
         "evidence": [
             evidence(
                 "E-001",
@@ -206,6 +211,41 @@ class StaffFrontendEngineerRoleTests(unittest.TestCase):
         payload["review"]["role"] = "staff-frontend-engineer"
         validated = audit_ledger.validate(payload)
         self.assertEqual(validated["review"]["role"], "staff-frontend-engineer")
+
+
+class AuditLedgerDocumentationTests(unittest.TestCase):
+    def test_exact_schema_examples_track_the_current_contract(self):
+        # One canonical copy. A duplicate at the skill root drifted four lines
+        # within hours of being created by a stray two-source cp; it is gone.
+        relative_paths = (Path("skills/ratemycode/references/audit-ledger.md"),)
+        required_fields = (
+            "snapshot_index: integer_1_or_more",
+            "recorded_at: RFC_3339_UTC_timestamp | null",
+            "denominator: structural | pattern | null",
+            "population: string | null",
+            "instances_unconvertible: integer_0_or_more",
+            "closure_evidence_id: E-### | null",
+            "seeded_check: SeededCheck | null",
+            "seeded_write: SeededWrite | null",
+            "revert_mutation:",
+            "unknown-resolution | release-lane | class-sweep",
+            "promise_source: PromiseSource",
+            "proposals: Proposal[]",
+        )
+        for relative_path in relative_paths:
+            with self.subTest(path=str(relative_path)):
+                reference = (ROOT / relative_path).read_text(encoding="utf-8")
+                schema_section = reference.split(
+                    "## Use the exact ledger schema", 1
+                )[1].split("## Record blockers, checks, scoring, and venture evidence", 1)[0]
+                schema = schema_section.split("AuditLedger = {", 1)[1].split(
+                    "}\n```", 1
+                )[0]
+                self.assertIn(
+                    f'schema_version: "{audit_ledger.SCHEMA_VERSION}"', schema
+                )
+                for field in required_fields:
+                    self.assertIn(field, schema_section)
 
 
 def closed_condition_sweep() -> dict:
@@ -1205,13 +1245,107 @@ class AuditLedgerTests(unittest.TestCase):
         self.assertLess(report.index("still unconverted"), detail)
         self.assertGreater(report.index("still unconverted"), progress)
 
+    # ── A finding claims a promise was broken. Say where the promise is.
+
+    def test_a_finding_must_say_where_its_promise_comes_from(self):
+        payload = verified_payload()
+        payload["findings"][0].pop("promise_source")
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(context.exception.path, "$.findings[0]")
+
+    def test_an_inferred_promise_must_say_what_behaviour_implies_it(self):
+        payload = verified_payload()
+        payload["findings"][0]["promise_source"] = {
+            "kind": "implied-by-behavior",
+            "locator": "",
+        }
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(
+            context.exception.path, "$.findings[0].promise_source.locator"
+        )
+
+    # ── What the product never promised is the reviewer's idea, not its defect.
+
+    def test_a_proposal_carries_no_severity_and_cannot_gate(self):
+        payload = verified_payload()
+        payload["proposals"] = [
+            {
+                "id": "P-001",
+                "title": "No way to revoke a share link",
+                "absent_capability": "The backend exposes revoke endpoints; no screen calls them.",
+                "who_would_use_it": "Anyone who shared a link and changed their mind.",
+                "why_not_a_finding": "Nothing in the product says a link can be revoked, so no "
+                "stated or implied promise is broken by its absence.",
+                "status": "proposed",
+                "note": None,
+            }
+        ]
+        result = self.validate(payload)
+        self.assertEqual(len(result["proposals"]), 1)
+        self.assertNotIn("severity", result["proposals"][0])
+
+    def test_a_proposal_must_say_why_it_is_not_a_finding(self):
+        payload = verified_payload()
+        payload["proposals"] = [
+            {
+                "id": "P-001",
+                "title": "Pagination",
+                "absent_capability": "The list stops at 100.",
+                "who_would_use_it": "Anyone with more than 100 products.",
+                "why_not_a_finding": "",
+                "status": "proposed",
+                "note": None,
+            }
+        ]
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(context.exception.path, "$.proposals[0].why_not_a_finding")
+
+    def test_a_declined_proposal_says_why(self):
+        payload = verified_payload()
+        payload["proposals"] = [
+            {
+                "id": "P-001",
+                "title": "Static asset compression",
+                "absent_capability": "Assets ship uncompressed.",
+                "who_would_use_it": "Anyone on a slow connection.",
+                "why_not_a_finding": "The product makes no claim about page weight.",
+                "status": "declined",
+                "note": None,
+            }
+        ]
+        with self.assertRaises(audit_ledger.ValidationError) as context:
+            self.validate(payload)
+        self.assertEqual(context.exception.path, "$.proposals[0].note")
+
+    def test_proposals_are_counted_apart_from_findings(self):
+        payload = verified_payload()
+        payload["proposals"] = [
+            {
+                "id": "P-001",
+                "title": "Pagination",
+                "absent_capability": "The list stops at 100.",
+                "who_would_use_it": "Anyone with more than 100 products.",
+                "why_not_a_finding": "Nothing in the product claims to show every item.",
+                "status": "proposed",
+                "note": None,
+            }
+        ]
+        result = audit_ledger.summary(self.validate(payload))
+        self.assertEqual(result["findings"], 1)
+        self.assertEqual(result["proposals"], 1)
+
     # ── Schema versions coexist: a snapshot is validated by the rules it was
     # written under, because the chain's whole claim is that prior bytes stand.
 
     def _v3(self, payload):
         """Strip what v4 added, so the document is a valid v3 again."""
         payload["schema_version"] = "3"
+        payload.pop("proposals", None)
         for finding in payload["findings"]:
+            finding.pop("promise_source", None)
             if finding.get("retest"):
                 finding["retest"].pop("revert_mutation", None)
         for root in payload["root_causes"]:
@@ -1239,7 +1373,7 @@ class AuditLedgerTests(unittest.TestCase):
 
     def test_an_unknown_schema_version_is_still_refused(self):
         payload = verified_payload()
-        payload["schema_version"] = "5"
+        payload["schema_version"] = "9"
         with self.assertRaises(audit_ledger.ValidationError) as context:
             self.validate(payload)
         self.assertEqual(context.exception.path, "$.schema_version")

@@ -23,8 +23,8 @@ from typing import Any
 # each document under the version it declares. Bump on any change to a required
 # field, not only on a large one: version 3 silently meant four different field
 # sets in a single day before this existed.
-SCHEMA_VERSION = "4"
-SUPPORTED_SCHEMA_VERSIONS = ("3", "4")
+SCHEMA_VERSION = "5"
+SUPPORTED_SCHEMA_VERSIONS = ("3", "4", "5")
 MAX_INPUT_BYTES = 2_097_152
 SHA256_PATTERN = re.compile(r"sha256:[0-9a-f]{64}")
 RECORDED_AT_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
@@ -38,6 +38,7 @@ ID_PATTERNS = {
     "root_cause": re.compile(r"RC-[0-9]{3}"),
     "evidence": re.compile(r"E-[0-9]{3}"),
     "blocker": re.compile(r"B-[0-9]{3}"),
+    "proposal": re.compile(r"P-[0-9]{3}"),
 }
 
 ROLES = {
@@ -137,6 +138,21 @@ ENFORCED_CLOSURES = {"chokepoint", "ratchet"}
 # is a symptom count and not a class size.
 SWEEP_DENOMINATORS = {"structural", "pattern"}
 CLOSED_FINDING_STATUSES = {"verified-fixed", "accepted-risk"}
+# A finding asserts that the product broke a promise. That assertion is a claim
+# like any other, and it is the one claim the schema used to take on trust: name
+# where the promise is, or what is missing is a capability, not a defect.
+PROMISE_SOURCES = {
+    "ui-copy",
+    "documentation",
+    "api-contract",
+    "implied-by-behavior",
+    "user-stated",
+    "regulatory",
+}
+# What the product never promised is the reviewer's idea. Useful, often worth
+# building — but it carries no severity, cannot gate a release, and closes by
+# being scheduled or declined rather than fixed or risk-accepted.
+PROPOSAL_STATUSES = {"proposed", "scheduled", "declined"}
 FINDING_STATUSES = {
     "open",
     "fixing",
@@ -1582,7 +1598,11 @@ def validate_findings(
     for index, raw in enumerate(items):
         path = f"$.findings[{index}]"
         item = require_object(raw, path)
-        require_exact_fields(item, fields, path)
+        require_exact_fields(
+            item,
+            fields | ({"promise_source"} if schema_version >= "5" else set()),
+            path,
+        )
         finding_id = require_id(item["id"], f"{path}.id", "finding")
         if finding_id in by_id:
             raise ValidationError(f"{path}.id", f"duplicate finding id {finding_id!r}")
@@ -1704,6 +1724,15 @@ def validate_findings(
             "title": require_string(item["title"], f"{path}.title"),
             "promise_or_invariant": require_string(
                 item["promise_or_invariant"], f"{path}.promise_or_invariant"
+            ),
+            **(
+                {
+                    "promise_source": validate_promise_source(
+                        item["promise_source"], f"{path}.promise_source"
+                    )
+                }
+                if schema_version >= "5"
+                else {}
             ),
             "preconditions": require_string_list(
                 item["preconditions"], f"{path}.preconditions", minimum=1
@@ -2130,6 +2159,75 @@ def validate_cause_sweep(
                 f"{path}.finding_ids[{offset}]", f"unknown finding id {finding_id!r}"
             )
     return {"state": state, "summary": summary, "finding_ids": sorted(finding_ids)}
+
+
+def validate_promise_source(value: Any, path: str) -> dict[str, str]:
+    """Where the broken promise is written down, or what behaviour implies it."""
+    item = require_object(value, path)
+    require_exact_fields(item, {"kind", "locator"}, path)
+    kind = require_string(item["kind"], f"{path}.kind", PROMISE_SOURCES)
+    locator = require_nullable_string(item["locator"], f"{path}.locator")
+    if not locator:
+        raise ValidationError(
+            f"{path}.locator",
+            "point at the words, the contract, or the behaviour this promise comes from; "
+            "an unsourced promise makes the finding a request, not a defect",
+        )
+    return {"kind": kind, "locator": locator}
+
+
+def validate_proposals(value: Any) -> list[dict[str, Any]]:
+    """Capabilities the product never promised. Not defects; still worth knowing."""
+    items = require_list(value, "$.proposals")
+    result: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for index, raw in enumerate(items):
+        path = f"$.proposals[{index}]"
+        item = require_object(raw, path)
+        require_exact_fields(
+            item,
+            {
+                "id",
+                "title",
+                "absent_capability",
+                "who_would_use_it",
+                "why_not_a_finding",
+                "status",
+                "note",
+            },
+            path,
+        )
+        proposal_id = require_id(item["id"], f"{path}.id", "proposal")
+        if proposal_id in seen:
+            raise ValidationError(f"{path}.id", f"duplicate proposal id {proposal_id!r}")
+        seen.add(proposal_id)
+        why = require_nullable_string(item["why_not_a_finding"], f"{path}.why_not_a_finding")
+        if not why:
+            raise ValidationError(
+                f"{path}.why_not_a_finding",
+                "name the promise its absence would have broken, and say why the product "
+                "does not make it; without that this belongs in findings",
+            )
+        status = require_string(item["status"], f"{path}.status", PROPOSAL_STATUSES)
+        note = require_nullable_string(item["note"], f"{path}.note")
+        if status == "declined" and not note:
+            raise ValidationError(f"{path}.note", "a declined proposal records why")
+        result.append(
+            {
+                "id": proposal_id,
+                "title": require_string(item["title"], f"{path}.title"),
+                "absent_capability": require_string(
+                    item["absent_capability"], f"{path}.absent_capability"
+                ),
+                "who_would_use_it": require_string(
+                    item["who_would_use_it"], f"{path}.who_would_use_it"
+                ),
+                "why_not_a_finding": why,
+                "status": status,
+                "note": note,
+            }
+        )
+    return sorted(result, key=lambda item: item["id"])
 
 
 def validate_root_causes(
@@ -2581,6 +2679,9 @@ def validate(payload: Any) -> dict[str, Any]:
         "snapshot_index",
         "recorded_at",
     }
+    declared = root.get("schema_version") if isinstance(root, dict) else None
+    if isinstance(declared, str) and declared >= "5":
+        fields = fields | {"proposals"}
     require_exact_fields(root, fields, "$")
     schema_version = require_string(root["schema_version"], "$.schema_version")
     if schema_version not in SUPPORTED_SCHEMA_VERSIONS:
@@ -2733,6 +2834,7 @@ def validate(payload: Any) -> dict[str, Any]:
             "$.artifact.current_release_ref",
             "must differ from initial_release_ref after a recorded fix",
         )
+    proposals = validate_proposals(root["proposals"]) if schema_version >= "5" else []
     root_causes = validate_root_causes(
         root["root_causes"],
         finding_by_id,
@@ -2917,6 +3019,7 @@ def validate(payload: Any) -> dict[str, Any]:
         "scoring": scoring,
         "venture_assessment": venture_assessment,
         "root_causes": root_causes,
+        **({"proposals": proposals} if schema_version >= "5" else {}),
         "evidence": evidence,
         "evidence_lanes": evidence_lanes,
         "gates": gates,
@@ -3013,6 +3116,9 @@ LABELS = {
         "root_causes": "Root causes",
         "condition_sweep": "Extent of condition",
         "class_state": "Defect classes",
+        "proposals": "Not promised, worth considering",
+        "who_for": "Who it is for",
+        "not_a_finding": "Why this is not a finding",
         "unconverted_tag": "UNCONVERTED",
         "unconvertible_tag": "NEED RESTRUCTURING",
         "symptom_count": "counted against a reviewer-invented pattern, not a structural population",
@@ -3118,6 +3224,9 @@ LABELS = {
         "root_causes": "共同根因",
         "condition_sweep": "同类实例扫描",
         "class_state": "缺陷类",
+        "proposals": "产品没承诺过、但值得考虑的",
+        "who_for": "谁会用到",
+        "not_a_finding": "为什么不算缺陷",
         "unconverted_tag": "处未转换",
         "unconvertible_tag": "处需重构才能转换",
         "symptom_count": "这个计数的分母是审查者自拟的模式,不是结构性总体",
@@ -3514,6 +3623,21 @@ def render_markdown(data: dict[str, Any], language: str) -> str:
                 lines.append(f"  - {sweep_line}")
     else:
         lines.append(label["none"])
+
+    if data.get("proposals"):
+        # Not issues. A reader who finds these under findings would conclude the
+        # product broke promises it never made.
+        lines.extend(["", f"## {label['proposals']}", ""])
+        for item in data["proposals"]:
+            line = (
+                f"- **{item['id']} · {markdown_text(item['title'])}** "
+                f"[{item['status']}] — {markdown_text(item['absent_capability'])} "
+                f"{label['who_for']}: {markdown_text(item['who_would_use_it'])}. "
+                f"{label['not_a_finding']}: {markdown_text(item['why_not_a_finding'])}"
+            )
+            if item["note"]:
+                line += f" ({markdown_text(item['note'])})"
+            lines.append(line)
 
     lines.extend(["", f"## {label['gates']}", ""])
     if data["gates"]:
@@ -3962,6 +4086,10 @@ def summary(data: dict[str, Any]) -> dict[str, Any]:
         # Findings closing and classes closing are different facts. This summary
         # is the surface a CI gate reads, so leaving the class state out of it
         # reproduces the whole defect one layer down: green counts, open class.
+        "proposals": len(data.get("proposals", [])),
+        "proposals_open": sum(
+            1 for item in data.get("proposals", []) if item["status"] == "proposed"
+        ),
         "defect_classes": len(data["root_causes"]),
         "classes_open": sum(
             1

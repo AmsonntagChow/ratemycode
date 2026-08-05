@@ -58,7 +58,7 @@ Schema versions coexist. The validator keeps the rules of every supported versio
 
 Bump the version on any change to a required field, not only on a large one. Before this rule existed, version 3 silently meant four different field sets inside one day, so the number stopped carrying information and a document written that morning was refused that evening for lacking fields that had not existed when it was written. Decide the evolution strategy while the chain is short: rebuilding every snapshot under new rules works for two or three of them and stops working the moment the chain is itself the evidence, because regenerating an old snapshot means inventing results for checks that were never run.
 
-Each snapshot carries `snapshot_index`, an integer starting at 1 that must be exactly one greater than the prior snapshot's. A root snapshot is the only one allowed to pair index 1 with a null `previous_ledger_ref`. The pair makes a lost or skipped snapshot detectable: a hash mismatch says the prior file changed, while an index gap says a whole round went missing. `recorded_at` is optional and either null or an RFC 3339 UTC timestamp such as `2026-07-31T04:05:06Z`; it is caller-supplied context for reading history, never evidence of when anything ran.
+Each snapshot carries `snapshot_index`, an integer starting at 1 that must be exactly one greater than the prior snapshot's. A root snapshot is the only one allowed to pair index 1 with a null `previous_ledger_ref`. The pair makes a lost or skipped snapshot detectable: a hash mismatch says the prior file changed, while an index gap says a whole round went missing. The `recorded_at` field is required; its value is either null or an RFC 3339 UTC timestamp such as `2026-07-31T04:05:06Z`. It is caller-supplied context for reading history, never evidence of when anything ran.
 
 The first snapshot sets `previous_ledger_ref` to `null`. Before writing each later snapshot, preserve the prior JSON file and set `previous_ledger_ref` to `sha256:` plus the SHA-256 digest of that file's exact bytes. Whitespace and key-order changes therefore create a different prior reference. Pass the preserved file through `--prior`; the CLI rejects a non-null `previous_ledger_ref` when the prior file is absent because current-file validation alone cannot prove continuity.
 
@@ -108,11 +108,13 @@ Set `ai_behavior` from behavior actually in scope, not from the implementation l
 
 ## Use the exact ledger schema
 
-The bundled validator rejects missing and undeclared fields. Include nullable fields as `null`.
+The bundled validator rejects missing and undeclared fields. Include nullable fields as `null`. The interfaces below are the exact version 4 contract for new snapshots. Preserved version 3 snapshots omit only `Retest.revert_mutation` and `ConditionSweep.seeded_write`; keep those snapshots at version 3 rather than rewriting history.
 
 ```text
 AuditLedger = {
-  schema_version: "1",
+  schema_version: "5",
+  snapshot_index: integer_1_or_more,
+  recorded_at: RFC_3339_UTC_timestamp | null,
   ledger_id,
   previous_ledger_ref: sha256:<64 lowercase hex> | null,
   artifact: {
@@ -135,6 +137,7 @@ AuditLedger = {
   scoring: Scoring,
   venture_assessment: VentureAssessment | null,
   root_causes: RootCause[],
+  proposals: Proposal[],
   evidence: LedgerEvidence[],
   evidence_lanes: EvidenceLanes,
   gates: Gate[],
@@ -155,16 +158,49 @@ RootCause = {
   cause_sweep: CauseSweep | null
 }
 
+PromiseSource = {
+  kind: ui-copy | documentation | api-contract | implied-by-behavior |
+        user-stated | regulatory,
+  locator
+}
+
+Proposal = {
+  id: P-###,
+  title,
+  absent_capability,
+  who_would_use_it,
+  why_not_a_finding,
+  status: proposed | scheduled | declined,
+  note: string | null
+}
+
 ConditionSweep = {
   state: unswept | unsweepable | swept | closed,
   method: none | text-search | static-query | type-check | manual-enumeration,
   expression: string | null,
   scope: string | null,
+  denominator: structural | pattern | null,
+  population: string | null,
   instances_found: integer_0_or_more,
   instances_converted: integer_0_or_more,
+  instances_unconvertible: integer_0_or_more,
   closure: converted | chokepoint | ratchet | accepted-risk | null,
   closure_ref: string | null,
-  note: string | null
+  closure_evidence_id: E-### | null,
+  note: string | null,
+  seeded_check: SeededCheck | null,
+  seeded_write: SeededWrite | null
+}
+
+SeededCheck = {
+  status: killed | survived | not-applicable,
+  seed_description: string | null,
+  reason: string | null
+}
+
+SeededWrite = {
+  status: unwritable | written | not-attempted,
+  attempt_description: string | null
 }
 
 CauseSweep = {
@@ -187,7 +223,7 @@ LedgerEvidence = {
   locator,
   subject_id: F-### | U-### | null,
   procedure: reproduction | acceptance | adjacent-regression | mutation |
-             unknown-resolution | release-lane,
+             unknown-resolution | release-lane | class-sweep,
   gate_id?: fixed_gate_id,
   workflow_blocker_id?: B-###,
   release_check_id?: stable_check_id,
@@ -230,6 +266,7 @@ LedgerFinding = {
   severity: BLOCKER | HIGH | MEDIUM | LOW,
   title,
   promise_or_invariant,
+  promise_source: PromiseSource,
   preconditions: string[1..],
   reproduction_steps: string[1..],
   expected,
@@ -266,7 +303,12 @@ Retest = {
   acceptance_test: pass | fail | unverified,
   adjacent_regression_check: pass | fail | unverified,
   mutation_test: {status: killed | survived} |
-                 {status: not-applicable, reason}
+                 {status: not-applicable, reason},
+  revert_mutation: RevertMutation
+}
+RevertMutation = {
+  status: killed | survived | not-applicable,
+  reason: string | null
 }
 RiskAcceptance = {
   accepted_by: "user",
@@ -363,6 +405,7 @@ Every evidence record answers both “what record does this support?” and “w
 | `mutation` | Its `F-###` |
 | `unknown-resolution` | Its `U-###` |
 | `release-lane` | `null` |
+| `class-sweep` | A non-null `F-###` or `U-###` |
 
 Original finding evidence must be `reproduction` evidence bound to that finding. A confirmed finding needs at least one E1/E2/E3 `fail` or `mixed` record; E0 never proves a finding, clears an unknown, resolves a workflow blocker, closes a fix, closes a gate, passes a release check, proves a venture signal, or passes a lane. Unknown clearance requires fresh current-release E2/E3 passing runtime, test, log, metric, or eval evidence. A gate-bound record must name the gate, point to one of its linked findings, and appear in that gate's evidence or retest list. A workflow-blocker, release-check, or venture-signal record must use `procedure: release-lane`, a null `subject_id`, and its matching optional binding field, and it must appear in the named blocker, check, or signal. One evidence record may carry at most one of `gate_id`, `workflow_blocker_id`, `release_check_id`, and `venture_signal_id`; do not cite unrelated proof merely because its result is favorable.
 
@@ -497,6 +540,12 @@ The states are ordered by what has been established, not by how much work was do
 `cause_sweep` covers the separate, expanding question of what else the same cause produced, and stays `null` where it was not performed.
 
 Because the sweep hangs off the root cause, a finding with no root cause would skip it. A `verified-fixed` finding therefore requires a `root_cause_id`, and a root cause holding one finding is legal — the lone observed instance is the likeliest of all to have unobserved siblings, so it is the last case that should be exempt. Assigning a previously ungrouped finding to a root cause in a later snapshot is expected; the existing bidirectional link and preserved-finding-links rules already prevent regrouping it afterwards.
+
+A finding says the product broke a promise, and that assertion needs a source like any other. `promise_source` names where the promise lives — the words on a screen, a line of documentation, an API contract, a regulation, something the user said, or the product's own behaviour — and the locator has to point at it. An inferred promise is legal and says so; an unsourced one is not, because a finding nobody can trace back to a promise is a request wearing a defect's clothes.
+
+That distinction has a second half. A capability the product never promised is not a defect, and calling it one asserts a promise that does not exist — which is the same unverified claim this record refuses everywhere else. Those belong in `proposals`, and they behave differently on purpose: no severity, since severity measures the consequence of a broken promise; no ability to activate a gate; and they close by being `scheduled` or `declined` rather than fixed or risk-accepted, because "we never built that" is not a risk anyone accepted. `why_not_a_finding` is required, so the promise test is on the record with its answer rather than left to taste. The rendered report gives them their own section, well away from the issue list, and the summary counts them apart from findings.
+
+The test is one question: can you point at something the product itself says or does that this contradicts? A signup form a screen-reader user cannot complete contradicts a public product's offer to sign up — a finding. A list that stops at a hundred items contradicts nothing unless the product claimed to show them all — a proposal. The line is not always obvious, and the point is that answering it is now part of filing, rather than something the reader has to reconstruct.
 
 A mutation check proves the acceptance test can see the defect. It does not prove the shipped change is what makes that test pass — a guard computing an identity, or a value folded straight back by a default, satisfies every rule above and can be deleted with nothing going red. `retest.revert_mutation` records what happened when the change was taken back out. `survived` means the change is not load-bearing and cannot support `verified-fixed`; `not-applicable` needs a reason and is refused outright at `launch-gate` and above. The retest records it, never the pass that wrote the fix.
 

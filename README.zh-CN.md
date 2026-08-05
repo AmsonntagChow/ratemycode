@@ -67,6 +67,10 @@ build → audit → complete verdict
                   └─ authorized fixes → same-path + adjacent retests → updated audit ledger
 ```
 
+[![RateMyCode 从找到一个产品到判断能否安全上线的五步审查](docs/diagrams/audit-pipeline.svg)](docs/diagrams/audit-pipeline.svg)
+
+*审查：先找到一个产品，像用户一样真用一遍，再照证据决定能否上线。*
+
 它刻意把四件事分开。通用审查者经常把这四件事混为一谈：
 
 - 原始产品质量
@@ -169,6 +173,10 @@ Retest plan:
 
 已确认的文字矛盾，作为普通问题进入开头清单。打不开的内部文档或在线页面，明确保留为未知。它不会被偷偷算成“一致”。文档本身，永远不能当成运行时行为的证明。
 
+[![RateMyCode 从致命问题到可以上线的顺序判断](docs/diagrams/decision-engine.svg)](docs/diagrams/decision-engine.svg)
+
+*决策：按顺序问五个问题；先遇到的严重问题直接决定结果。*
+
 ## 审计台账与修复闭环
 
 你要求保存审计结果，或授权直接修复时，RateMyCode 会保存一份规范 JSON 台账。它还会生成易读的英文或中文 Markdown 视图。JSON 始终是唯一事实来源。
@@ -226,6 +234,10 @@ external-change ─────→ fixed-pending-retest
 any work or verification state → blocked (named reason, missing requirement, resolving action)
 any technically unresolved state → accepted-risk (only from an explicit user statement)
 ```
+
+[![RateMyCode 修改后必须换一个检查者复测的四步修复闭环](docs/diagrams/fix-retest-loop.svg)](docs/diagrams/fix-retest-loop.svg)
+
+*修复：先留底，一次修一类，再换一个检查者重新验证。*
 
 Agent 直接修复使用 `origin: authorized-agent`。它保留用户原话和明确范围。在别处已经完成的修改使用 `origin: external-change`。授权字段保持 `null`。RateMyCode 可以复测它，但不会虚构追溯授权。
 
@@ -338,6 +350,7 @@ python3 skills/ratemycode/scripts/score_review.py --pretty evals/scorecards/bloc
 .agents/plugins/        Codex 仓库市场
 plugins/ratemycode/     自包含的 Codex 插件和商店素材
 skills/ratemycode/      规范 skill、审查/台账/评分契约、UI 元数据、校验器和渲染器
+docs/diagrams/          用于 GitHub 的审查、决策和修复闭环图
 evals/trigger_cases.json 包含近似负例的触发选择评估
 evals/execution_cases.json 有 skill 与无 skill 的行为对比评估
 evals/fixtures/          可复现的本地测试产物

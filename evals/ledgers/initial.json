@@ -1,5 +1,5 @@
 {
-  "schema_version": "4",
+  "schema_version": "5",
   "snapshot_index": 1,
   "recorded_at": "2026-07-31T02:10:00Z",
   "ledger_id": "RMC-checkout-example-001",
@@ -207,7 +207,11 @@
       "fix": null,
       "retest": null,
       "risk_acceptance": null,
-      "blocker": null
+      "blocker": null,
+      "promise_source": {
+        "kind": "ui-copy",
+        "locator": "order confirmation screen: “Your order is confirmed”"
+      }
     },
     {
       "id": "F-002",
@@ -237,7 +241,11 @@
       "fix": null,
       "retest": null,
       "risk_acceptance": null,
-      "blocker": null
+      "blocker": null,
+      "promise_source": {
+        "kind": "implied-by-behavior",
+        "locator": "the app retries a timed-out request on its own, so it implies the retry is safe"
+      }
     }
   ],
   "unknowns": [
@@ -250,6 +258,26 @@
       "status": "open",
       "resolution_evidence_ids": [],
       "finding_id": null
+    }
+  ],
+  "proposals": [
+    {
+      "id": "P-001",
+      "title": "No way to revoke a share link",
+      "absent_capability": "The backend exposes list and revoke endpoints; no screen calls them.",
+      "who_would_use_it": "Anyone who shared a link and changed their mind.",
+      "why_not_a_finding": "Nothing on the share screen or in the docs says a link can be revoked, so its absence contradicts no stated or implied promise.",
+      "status": "proposed",
+      "note": null
+    },
+    {
+      "id": "P-002",
+      "title": "The product list stops at one hundred",
+      "absent_capability": "There is no pagination; the query is hard-capped.",
+      "who_would_use_it": "Any account with more than a hundred products.",
+      "why_not_a_finding": "The list never claims to show every item, so nothing the product says is contradicted. It becomes a finding the day the copy says “all”.",
+      "status": "proposed",
+      "note": null
     }
   ]
 }
