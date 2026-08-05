@@ -3,7 +3,7 @@
   <desc id="desc">A first-match software release ladder. A hard blocker comes before failed must-pass checks, failed checks stay distinct from missing evidence, the evidence-supported release may be lower than requested, and a score can lower but never rescue the verdict.</desc>
   <defs>
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
-      <feDropShadow dx="0" dy="8" stdDeviation="14" flood-color="#000000" flood-opacity="0.10"/>
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000000" flood-opacity="0.08"/>
     </filter>
     <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
       <path d="M0 0L12 6L0 12Z" fill="#A8A49E"/>
@@ -18,16 +18,16 @@
   <rect x="1298" y="151" width="232" height="50" rx="6" fill="#FFFFFF" stroke="#D8D6D1"/>
   <text x="1414" y="183" text-anchor="middle" fill="#C4500F" font-size="20" font-weight="800" letter-spacing="1.2" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">FIRST YES WINS</text>
 
-  <path d="M346 407H364" stroke="#A8A49E" stroke-width="4" marker-end="url(#arrow)"/>
-  <path d="M642 407H660" stroke="#A8A49E" stroke-width="4" marker-end="url(#arrow)"/>
-  <path d="M938 407H956" stroke="#A8A49E" stroke-width="4" marker-end="url(#arrow)"/>
-  <path d="M1234 407H1252" stroke="#A8A49E" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M342 407H357" stroke="#A8A49E" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M639 407H654" stroke="#A8A49E" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M936 407H951" stroke="#A8A49E" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M1233 407H1248" stroke="#A8A49E" stroke-width="4" marker-end="url(#arrow)"/>
   <g filter="url(#shadow)">
-    <rect x="70" y="258" width="276" height="298" rx="18" fill="#FFFFFF" stroke="#D8D6D1"/>
-    <rect x="366" y="258" width="276" height="298" rx="18" fill="#FFFFFF" stroke="#D8D6D1"/>
-    <rect x="662" y="258" width="276" height="298" rx="18" fill="#FFFFFF" stroke="#D8D6D1"/>
-    <rect x="958" y="258" width="276" height="298" rx="18" fill="#FFFFFF" stroke="#D8D6D1"/>
-    <rect x="1254" y="258" width="276" height="298" rx="18" fill="#FFFFFF" stroke="#D8D6D1"/>
+    <rect x="70" y="258" width="272" height="298" rx="18" fill="#FFFFFF" stroke="#D8D6D1"/>
+    <rect x="367" y="258" width="272" height="298" rx="18" fill="#FFFFFF" stroke="#D8D6D1"/>
+    <rect x="664" y="258" width="272" height="298" rx="18" fill="#FFFFFF" stroke="#D8D6D1"/>
+    <rect x="961" y="258" width="272" height="298" rx="18" fill="#FFFFFF" stroke="#D8D6D1"/>
+    <rect x="1258" y="258" width="272" height="298" rx="18" fill="#FFFFFF" stroke="#D8D6D1"/>
   </g>
 
   <!-- Question 1 -->
@@ -45,6 +45,7 @@
   <text x="208" y="526" text-anchor="middle" fill="#C4362C" font-size="20" font-weight="800" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">YES → BLOCKED</text>
 
   <!-- Question 2 -->
+  <g transform="translate(1 0)">
   <circle cx="412" cy="309" r="23" fill="#F5EEE5"/>
   <text x="412" y="317" text-anchor="middle" fill="#8F6100" font-size="22" font-weight="800" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">2</text>
   <g transform="translate(472 297)" fill="none" stroke="#8F6100" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
@@ -56,8 +57,10 @@
   <text x="390" y="477" fill="#6B6B70" font-size="22" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">did not work.</text>
   <rect x="390" y="498" width="228" height="42" rx="6" fill="#F5EEE5"/>
   <text x="504" y="526" text-anchor="middle" fill="#8F6100" font-size="20" font-weight="800" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">YES → NOT READY</text>
+  </g>
 
   <!-- Question 3 -->
+  <g transform="translate(2 0)">
   <circle cx="708" cy="309" r="23" fill="#EEEDEA"/>
   <text x="708" y="317" text-anchor="middle" fill="#6B6B70" font-size="22" font-weight="800" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">3</text>
   <g transform="translate(765 293)" fill="none" stroke="#6B6B70" stroke-width="6" stroke-linecap="round">
@@ -70,21 +73,25 @@
   <text x="686" y="477" fill="#6B6B70" font-size="22" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">was not checked.</text>
   <rect x="686" y="498" width="228" height="42" rx="6" fill="#EEEDEA"/>
   <text x="800" y="526" text-anchor="middle" fill="#6B6B70" font-size="18" font-weight="800" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">YES → NEED PROOF</text>
+  </g>
 
   <!-- Question 4 -->
+  <g transform="translate(3 0)">
   <circle cx="1004" cy="309" r="23" fill="#F5EFE1"/>
   <text x="1004" y="317" text-anchor="middle" fill="#8F6100" font-size="22" font-weight="800" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">4</text>
   <g transform="translate(1061 299)" fill="none" stroke="#8F6100" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
     <path d="M2 17H68M2 36H54M2 55H40"/>
     <path d="M74 48L84 58L104 36"/>
   </g>
-  <text x="982" y="407" fill="#1A1A1C" font-size="29" font-weight="750" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">Only small gaps?</text>
+  <text x="982" y="407" fill="#1A1A1C" font-size="28" font-weight="750" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">Small gaps only?</text>
   <text x="982" y="447" fill="#6B6B70" font-size="22" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">The important things</text>
   <text x="982" y="477" fill="#6B6B70" font-size="22" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">are safe.</text>
   <rect x="982" y="498" width="228" height="42" rx="6" fill="#F5EFE1"/>
   <text x="1096" y="526" text-anchor="middle" fill="#8F6100" font-size="18" font-weight="800" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">YES → WITH CONDITIONS</text>
+  </g>
 
   <!-- Question 5 -->
+  <g transform="translate(4 0)">
   <circle cx="1300" cy="309" r="23" fill="#E7F1EB"/>
   <text x="1300" y="317" text-anchor="middle" fill="#1D7A46" font-size="22" font-weight="800" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">5</text>
   <g transform="translate(1360 296)" fill="none" stroke="#1D7A46" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
@@ -96,6 +103,7 @@
   <text x="1278" y="477" fill="#6B6B70" font-size="22" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">came first.</text>
   <rect x="1278" y="498" width="228" height="42" rx="6" fill="#E7F1EB"/>
   <text x="1392" y="526" text-anchor="middle" fill="#1D7A46" font-size="20" font-weight="800" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif">YES → READY</text>
+  </g>
 
   <!-- Second-read algorithm rail -->
   <text x="72" y="594" fill="#6B6B70" font-size="18" font-weight="700" letter-spacing="2.2" font-family="ui-monospace,'SF Mono',SFMono-Regular,Menlo,Consolas,monospace">HOW TO READ THE RESULT</text>

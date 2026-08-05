@@ -2,9 +2,13 @@
 
 English | [简体中文](README.zh-CN.md)
 
-On most apps nobody can say for certain which features actually work. This is the Staff-level product review that finds out.
+An Agent Skill that audits code and fixes it. It exists because a coding agent
+marks its own homework: it decides for itself that a change worked, and you get
+fixes that do nothing — take one back out and every test still passes.
 
-> Your app is finished. Now it has to survive a Staff-level review.
+I built it so that more people with an idea can get it shipped.
+
+> Your app being finished is not the same as being safe to ship.
 
 Ask for one review and you get one verdict:
 
