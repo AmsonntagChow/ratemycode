@@ -24,10 +24,9 @@ Attach a durable session goal (`/goal` in Codex; the same sentence as a first me
 
 The goal does not have to spell out how much to do. It will not sign off on its own fix — a change has to survive a fresh retest first. And whatever is still open, it says so.
 
-[![MIT License](https://img.shields.io/badge/license-MIT-2f855a.svg)](LICENSE)
+[![skills.sh](https://skills.sh/b/AmsonntagChow/ratemycode)](https://skills.sh/amsonntagchow/ratemycode/ratemycode)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-5b5bd6.svg)](https://agentskills.io/)
 [![ratemy.sh](https://img.shields.io/badge/ratemy.sh-code-C4500F.svg)](https://code.ratemy.sh/)
-[![skills.sh](https://skills.sh/b/AmsonntagChow/ratemycode)](https://skills.sh/amsonntagchow/ratemycode/ratemycode)
 
 Choose one installation method. The `skills` CLI is the shortest and works in Codex, Claude Code, Cursor, and every other Agent Skills client:
 

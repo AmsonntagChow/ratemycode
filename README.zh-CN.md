@@ -23,10 +23,9 @@
 
 不用你规定 goal 要做多少。它不会自己说自己修好了，改完得重新验过才算。还剩什么没弄完，它也会讲。
 
-[![MIT License](https://img.shields.io/badge/license-MIT-2f855a.svg)](LICENSE)
+[![skills.sh](https://skills.sh/b/AmsonntagChow/ratemycode)](https://skills.sh/amsonntagchow/ratemycode/ratemycode)
 [![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-5b5bd6.svg)](https://agentskills.io/)
 [![ratemy.sh](https://img.shields.io/badge/ratemy.sh-code-C4500F.svg)](https://code.ratemy.sh/zh/)
-[![skills.sh](https://skills.sh/b/AmsonntagChow/ratemycode)](https://skills.sh/amsonntagchow/ratemycode/ratemycode)
 
 请选择一种安装方式。`skills` CLI 最短，且在 Codex、Claude Code、Cursor 以及其他所有 Agent Skills 客户端都能用：
 
