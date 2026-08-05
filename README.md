@@ -69,9 +69,7 @@ build → audit → complete verdict
                   └─ authorized fixes → same-path + adjacent retests → updated audit ledger
 ```
 
-<table><tr><td>
-<a href="docs/diagrams/audit-pipeline.svg"><img src="docs/diagrams/audit-pipeline.svg" width="1200" alt="Five-step RateMyCode audit from finding one app to a safe-release verdict"></a>
-</td></tr></table>
+[![Five-step RateMyCode audit from finding one app to a safe-release verdict](docs/diagrams/audit-pipeline.svg)](docs/diagrams/audit-pipeline.svg)
 
 *Find one product, test it like a user, separate facts from unknowns, and decide what is safe.*
 
