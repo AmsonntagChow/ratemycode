@@ -15,7 +15,8 @@ vertical list of numbered steps; the old landscape canvas was flattening it.
 import pathlib
 from xml.sax.saxutils import escape
 
-W = 460
+W_TALL = 460
+W_WIDE = 1000
 PAPER, INK, GRAPHITE, RULE, ACCENT = "#FFFFFF", "#1A1A1C", "#6B6B70", "#D8D6D1", "#C4500F"
 SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
 MONO = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
@@ -120,7 +121,7 @@ def build(spec):
         body.append(text(pad, y, line, 22, GRAPHITE))
         y += 30
     y -= 4
-    body.append(f'<line x1="{pad}" y1="{y}" x2="{W-pad}" y2="{y}" stroke="{RULE}" stroke-width="1"/>')
+    body.append(f'<line x1="{pad}" y1="{y}" x2="{W_TALL-pad}" y2="{y}" stroke="{RULE}" stroke-width="1"/>')
 
     for n, step in enumerate(spec["steps"], 1):
         title, details = step[0], step[1]
@@ -150,7 +151,7 @@ def build(spec):
         y += 26
         body.append(text(pad, y, value, 21, INK))
     y += 28
-    band = (f'<rect x="{pad-16}" y="{band_top}" width="{W-2*pad+32}" height="{y-band_top}" '
+    band = (f'<rect x="{pad-16}" y="{band_top}" width="{W_TALL-2*pad+32}" height="{y-band_top}" '
             f'fill="#F6F4F1" stroke="{RULE}" stroke-width="1" rx="4"/>')
 
     y += 44
@@ -159,16 +160,80 @@ def build(spec):
         y += 28
     height = y + 20
 
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{height}" '
-            f'viewBox="0 0 {W} {height}" role="img">\n'
-            f'  <rect width="{W}" height="{height}" fill="{PAPER}"/>\n  '
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{W_TALL}" height="{height}" '
+            f'viewBox="0 0 {W_TALL} {height}" role="img">\n'
+            f'  <rect width="{W_TALL}" height="{height}" fill="{PAPER}"/>\n  '
+            + band + "\n  " + "\n  ".join(body) + "\n</svg>\n")
+
+def build_wide(spec):
+    """Same content, laid out across. Generated from the identical spec so the two
+    cannot drift — the reason a hand-kept second copy was not an option."""
+    pad = 44
+    steps = spec["steps"]
+    col_w = (W_WIDE - 2 * pad) // len(steps)
+    body = []
+
+    body.append(text(pad, 62, spec["eyebrow"], 19, ACCENT, "600", MONO, spacing="0.12em"))
+    body.append(text(pad, 108, spec["title"], 38, INK, "600"))
+    body.append(text(pad, 142, spec["subtitle"], 21, GRAPHITE))
+    body.append(f'<line x1="{pad}" y1="{170}" x2="{W_WIDE-pad}" y2="{170}" stroke="{RULE}" stroke-width="1"/>')
+
+    for n, step in enumerate(steps):
+        x = pad + n * col_w
+        title, details = step[0], step[1]
+        verdict = step[2] if len(step) > 2 else None
+        body.append(f'<circle cx="{x+16}" cy="{212}" r="16" fill="none" stroke="{ACCENT}" stroke-width="2"/>')
+        body.append(text(x + 16, 219, str(n + 1), 19, ACCENT, "600", MONO, anchor="middle"))
+        yy = 262
+        for line in wrap(title, 16):
+            body.append(text(x, yy, line, 22, INK, "600"))
+            yy += 26
+        yy += 4
+        for d in details:
+            for line in wrap(d, 21):
+                body.append(text(x, yy, line, 18, GRAPHITE))
+                yy += 24
+        if verdict:
+            # A long verdict runs into the next column; wrap it inside its own.
+            vy = yy + 12
+            for line in wrap(verdict, 15):
+                body.append(text(x, vy, line, 16, ACCENT, "600", MONO, spacing="0.02em"))
+                vy += 20
+        if n < len(steps) - 1:
+            body.append(f'<line x1="{x+col_w-18}" y1="{206}" x2="{x+col_w-8}" y2="{212}" '
+                        f'stroke="{RULE}" stroke-width="2"/>')
+
+    band_top = 410
+    body.append(text(pad, band_top + 34, spec["band_title"], 17, GRAPHITE, "600", MONO, spacing="0.12em"))
+    bw = (W_WIDE - 2 * pad) // len(spec["band"])
+    for i, (label, value) in enumerate(spec["band"]):
+        x = pad + i * bw
+        body.append(text(x, band_top + 72, label, 16, ACCENT, "600", MONO, spacing="0.08em"))
+        yy = band_top + 98
+        for line in wrap(value, 24):
+            body.append(text(x, yy, line, 18, INK))
+            yy += 22
+    band = (f'<rect x="{pad-20}" y="{band_top}" width="{W_WIDE-2*pad+40}" height="130" '
+            f'fill="#F6F4F1" stroke="{RULE}" stroke-width="1" rx="4"/>')
+
+    yy = band_top + 176
+    for line in wrap(spec["closing"], 96):
+        body.append(text(pad, yy, line, 19, GRAPHITE))
+        yy += 26
+    H = yy + 12
+
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{W_WIDE}" height="{H}" '
+            f'viewBox="0 0 {W_WIDE} {H}" role="img">\n'
+            f'  <rect width="{W_WIDE}" height="{H}" fill="{PAPER}"/>\n  '
             + band + "\n  " + "\n  ".join(body) + "\n</svg>\n")
 
 
 if __name__ == "__main__":
     out = pathlib.Path(__file__).resolve().parents[1] / "docs" / "diagrams"
     for name, spec in DIAGRAMS.items():
-        svg = build(spec)
-        (out / f"{name}.svg").write_text(svg, encoding="utf-8")
-        h = svg.split('height="', 2)[1].split('"')[0]
-        print(f"{name}.svg  {W}x{h}  ({len(svg)} 字节)")
+        tall = build(spec)
+        (out / f"{name}-tall.svg").write_text(tall, encoding="utf-8")
+        wide_svg = build_wide(spec)
+        (out / f"{name}.svg").write_text(wide_svg, encoding="utf-8")
+        h = tall.split('height="', 2)[1].split('"')[0]
+        print(f"{name}.svg  {W_WIDE}x560 (宽)   {name}-tall.svg  {W_TALL}x{h} (窄)")

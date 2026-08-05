@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="460" height="1398" viewBox="0 0 460 1398" role="img">
+  <rect width="460" height="1398" fill="#FFFFFF"/>
+  <rect x="16" y="984" width="428" height="294" fill="#F6F4F1" stroke="#D8D6D1" stroke-width="1" rx="4"/>
+  <text x="32" y="52" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" font-weight="600" fill="#C4500F" text-anchor="start" letter-spacing="0.12em">THE DECISION · 02</text>
+  <text x="32" y="98" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="34" font-weight="600" fill="#1A1A1C" text-anchor="start">The first serious</text>
+  <text x="32" y="138" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="34" font-weight="600" fill="#1A1A1C" text-anchor="start">problem decides.</text>
+  <text x="32" y="172" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">Ask these questions in order. The first</text>
+  <text x="32" y="202" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">“yes” wins.</text>
+  <line x1="32" y1="228" x2="428" y2="228" stroke="#D8D6D1" stroke-width="1"/>
+  <circle cx="48" cy="260" r="17" fill="none" stroke="#C4500F" stroke-width="2"/>
+  <text x="48" y="268" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" font-weight="600" fill="#C4500F" text-anchor="middle">1</text>
+  <text x="80" y="268" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="26" font-weight="600" fill="#1A1A1C" text-anchor="start">Big danger?</text>
+  <text x="80" y="296" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">Someone could lose money,</text>
+  <text x="80" y="324" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">data, or access.</text>
+  <text x="80" y="354" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" font-weight="600" fill="#C4500F" text-anchor="start" letter-spacing="0.04em">YES → BLOCKED</text>
+  <circle cx="48" cy="408" r="17" fill="none" stroke="#C4500F" stroke-width="2"/>
+  <text x="48" y="416" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" font-weight="600" fill="#C4500F" text-anchor="middle">2</text>
+  <text x="80" y="416" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="26" font-weight="600" fill="#1A1A1C" text-anchor="start">Must-pass failed?</text>
+  <text x="80" y="444" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">An important test</text>
+  <text x="80" y="472" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">did not work.</text>
+  <text x="80" y="502" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" font-weight="600" fill="#C4500F" text-anchor="start" letter-spacing="0.04em">YES → NOT READY</text>
+  <circle cx="48" cy="556" r="17" fill="none" stroke="#C4500F" stroke-width="2"/>
+  <text x="48" y="564" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" font-weight="600" fill="#C4500F" text-anchor="middle">3</text>
+  <text x="80" y="564" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="26" font-weight="600" fill="#1A1A1C" text-anchor="start">Proof missing?</text>
+  <text x="80" y="592" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">Something important</text>
+  <text x="80" y="620" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">was not checked.</text>
+  <text x="80" y="650" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" font-weight="600" fill="#C4500F" text-anchor="start" letter-spacing="0.04em">YES → NEED PROOF</text>
+  <circle cx="48" cy="704" r="17" fill="none" stroke="#C4500F" stroke-width="2"/>
+  <text x="48" y="712" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" font-weight="600" fill="#C4500F" text-anchor="middle">4</text>
+  <text x="80" y="712" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="26" font-weight="600" fill="#1A1A1C" text-anchor="start">Small gaps only?</text>
+  <text x="80" y="740" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">The important things</text>
+  <text x="80" y="768" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">are safe.</text>
+  <text x="80" y="798" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" font-weight="600" fill="#C4500F" text-anchor="start" letter-spacing="0.04em">YES → WITH CONDITIONS</text>
+  <circle cx="48" cy="852" r="17" fill="none" stroke="#C4500F" stroke-width="2"/>
+  <text x="48" y="860" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" font-weight="600" fill="#C4500F" text-anchor="middle">5</text>
+  <text x="80" y="860" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="26" font-weight="600" fill="#1A1A1C" text-anchor="start">All clear?</text>
+  <text x="80" y="888" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">No bigger problem</text>
+  <text x="80" y="916" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">came first.</text>
+  <text x="80" y="946" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" font-weight="600" fill="#C4500F" text-anchor="start" letter-spacing="0.04em">YES → READY</text>
+  <text x="32" y="1018" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" font-weight="600" fill="#6B6B70" text-anchor="start" letter-spacing="0.12em">HOW TO READ THE RESULT</text>
+  <text x="32" y="1050" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" font-weight="600" fill="#C4500F" text-anchor="start" letter-spacing="0.08em">FIRST MATCH</text>
+  <text x="32" y="1076" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="400" fill="#1A1A1C" text-anchor="start">Stop at the first yes</text>
+  <text x="32" y="1108" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" font-weight="600" fill="#C4500F" text-anchor="start" letter-spacing="0.08em">FAIL ≠ UNKNOWN</text>
+  <text x="32" y="1134" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="400" fill="#1A1A1C" text-anchor="start">Broken and untested differ</text>
+  <text x="32" y="1166" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" font-weight="600" fill="#C4500F" text-anchor="start" letter-spacing="0.08em">SAFE LIMIT</text>
+  <text x="32" y="1192" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="400" fill="#1A1A1C" text-anchor="start">May sit below your request</text>
+  <text x="32" y="1224" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" font-weight="600" fill="#C4500F" text-anchor="start" letter-spacing="0.08em">SCORE AFTER GATES</text>
+  <text x="32" y="1250" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="400" fill="#1A1A1C" text-anchor="start">Can lower; never rescue</text>
+  <text x="32" y="1322" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="400" fill="#6B6B70" text-anchor="start">A high score cannot erase a blocker, a failed</text>
+  <text x="32" y="1350" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="400" fill="#6B6B70" text-anchor="start">must-pass check, or missing proof.</text>
+</svg>

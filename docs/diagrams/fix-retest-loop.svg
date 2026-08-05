@@ -1,42 +1,48 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="460" height="1158" viewBox="0 0 460 1158" role="img">
-  <rect width="460" height="1158" fill="#FFFFFF"/>
-  <rect x="16" y="716" width="428" height="294" fill="#F6F4F1" stroke="#D8D6D1" stroke-width="1" rx="4"/>
-  <text x="32" y="52" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" font-weight="600" fill="#C4500F" text-anchor="start" letter-spacing="0.12em">THE FIX LOOP · 03</text>
-  <text x="32" y="98" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="34" font-weight="600" fill="#1A1A1C" text-anchor="start">Changed does not mean</text>
-  <text x="32" y="138" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="34" font-weight="600" fill="#1A1A1C" text-anchor="start">fixed.</text>
-  <text x="32" y="172" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">A fresh reviewer has to prove the change</text>
-  <text x="32" y="202" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">really works.</text>
-  <line x1="32" y1="228" x2="428" y2="228" stroke="#D8D6D1" stroke-width="1"/>
-  <circle cx="48" cy="260" r="17" fill="none" stroke="#C4500F" stroke-width="2"/>
-  <text x="48" y="268" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" font-weight="600" fill="#C4500F" text-anchor="middle">1</text>
-  <text x="80" y="268" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="26" font-weight="600" fill="#1A1A1C" text-anchor="start">Save the audit</text>
-  <text x="80" y="296" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">Keep the old truth</text>
-  <text x="80" y="324" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">before any edit.</text>
-  <circle cx="48" cy="378" r="17" fill="none" stroke="#C4500F" stroke-width="2"/>
-  <text x="48" y="386" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" font-weight="600" fill="#C4500F" text-anchor="middle">2</text>
-  <text x="80" y="386" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="26" font-weight="600" fill="#1A1A1C" text-anchor="start">Fix one kind</text>
-  <text x="80" y="414" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">Find the same cause.</text>
-  <text x="80" y="442" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">Change one small batch.</text>
-  <circle cx="48" cy="496" r="17" fill="none" stroke="#C4500F" stroke-width="2"/>
-  <text x="48" y="504" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" font-weight="600" fill="#C4500F" text-anchor="middle">3</text>
-  <text x="80" y="504" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="26" font-weight="600" fill="#1A1A1C" text-anchor="start">A fresh reviewer tests</text>
-  <text x="80" y="532" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">same task · new damage · same bug</text>
-  <text x="80" y="560" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">The fixer cannot sign it off.</text>
-  <circle cx="48" cy="614" r="17" fill="none" stroke="#C4500F" stroke-width="2"/>
-  <text x="48" y="622" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" font-weight="600" fill="#C4500F" text-anchor="middle">4</text>
-  <text x="80" y="622" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="26" font-weight="600" fill="#1A1A1C" text-anchor="start">Save the result</text>
-  <text x="80" y="650" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">Write what passed</text>
-  <text x="80" y="678" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#6B6B70" text-anchor="start">and what did not.</text>
-  <text x="32" y="750" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" font-weight="600" fill="#6B6B70" text-anchor="start" letter-spacing="0.12em">WHAT MAKES THE LOOP AUDITABLE</text>
-  <text x="32" y="782" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" font-weight="600" fill="#C4500F" text-anchor="start" letter-spacing="0.08em">HISTORY</text>
-  <text x="32" y="808" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="400" fill="#1A1A1C" text-anchor="start">Old snapshot stays</text>
-  <text x="32" y="840" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" font-weight="600" fill="#C4500F" text-anchor="start" letter-spacing="0.08em">SCOPE</text>
-  <text x="32" y="866" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="400" fill="#1A1A1C" text-anchor="start">One cause · serial batch</text>
-  <text x="32" y="898" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" font-weight="600" fill="#C4500F" text-anchor="start" letter-spacing="0.08em">INDEPENDENCE</text>
-  <text x="32" y="924" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="400" fill="#1A1A1C" text-anchor="start">Three checks · same release</text>
-  <text x="32" y="956" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" font-weight="600" fill="#C4500F" text-anchor="start" letter-spacing="0.08em">RESULT</text>
-  <text x="32" y="982" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="400" fill="#1A1A1C" text-anchor="start">Pass · partial · blocked · risk</text>
-  <text x="32" y="1054" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="400" fill="#6B6B70" text-anchor="start">Still open → next batch. Independently</text>
-  <text x="32" y="1082" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="400" fill="#6B6B70" text-anchor="start">verified → close. Accepted risk is named,</text>
-  <text x="32" y="1110" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="400" fill="#6B6B70" text-anchor="start">never called fixed.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="650" viewBox="0 0 1000 650" role="img">
+  <rect width="1000" height="650" fill="#FFFFFF"/>
+  <rect x="24" y="410" width="952" height="130" fill="#F6F4F1" stroke="#D8D6D1" stroke-width="1" rx="4"/>
+  <text x="44" y="62" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" font-weight="600" fill="#C4500F" text-anchor="start" letter-spacing="0.12em">THE FIX LOOP · 03</text>
+  <text x="44" y="108" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="38" font-weight="600" fill="#1A1A1C" text-anchor="start">Changed does not mean fixed.</text>
+  <text x="44" y="142" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="400" fill="#6B6B70" text-anchor="start">A fresh reviewer has to prove the change really works.</text>
+  <line x1="44" y1="170" x2="956" y2="170" stroke="#D8D6D1" stroke-width="1"/>
+  <circle cx="60" cy="212" r="16" fill="none" stroke="#C4500F" stroke-width="2"/>
+  <text x="60" y="219" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" font-weight="600" fill="#C4500F" text-anchor="middle">1</text>
+  <text x="44" y="262" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="600" fill="#1A1A1C" text-anchor="start">Save the audit</text>
+  <text x="44" y="292" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#6B6B70" text-anchor="start">Keep the old truth</text>
+  <text x="44" y="316" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#6B6B70" text-anchor="start">before any edit.</text>
+  <line x1="254" y1="206" x2="264" y2="212" stroke="#D8D6D1" stroke-width="2"/>
+  <circle cx="288" cy="212" r="16" fill="none" stroke="#C4500F" stroke-width="2"/>
+  <text x="288" y="219" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" font-weight="600" fill="#C4500F" text-anchor="middle">2</text>
+  <text x="272" y="262" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="600" fill="#1A1A1C" text-anchor="start">Fix one kind</text>
+  <text x="272" y="292" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#6B6B70" text-anchor="start">Find the same cause.</text>
+  <text x="272" y="316" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#6B6B70" text-anchor="start">Change one small</text>
+  <text x="272" y="340" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#6B6B70" text-anchor="start">batch.</text>
+  <line x1="482" y1="206" x2="492" y2="212" stroke="#D8D6D1" stroke-width="2"/>
+  <circle cx="516" cy="212" r="16" fill="none" stroke="#C4500F" stroke-width="2"/>
+  <text x="516" y="219" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" font-weight="600" fill="#C4500F" text-anchor="middle">3</text>
+  <text x="500" y="262" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="600" fill="#1A1A1C" text-anchor="start">A fresh reviewer</text>
+  <text x="500" y="288" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="600" fill="#1A1A1C" text-anchor="start">tests</text>
+  <text x="500" y="318" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#6B6B70" text-anchor="start">same task · new</text>
+  <text x="500" y="342" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#6B6B70" text-anchor="start">damage · same bug</text>
+  <text x="500" y="366" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#6B6B70" text-anchor="start">The fixer cannot sign</text>
+  <text x="500" y="390" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#6B6B70" text-anchor="start">it off.</text>
+  <line x1="710" y1="206" x2="720" y2="212" stroke="#D8D6D1" stroke-width="2"/>
+  <circle cx="744" cy="212" r="16" fill="none" stroke="#C4500F" stroke-width="2"/>
+  <text x="744" y="219" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" font-weight="600" fill="#C4500F" text-anchor="middle">4</text>
+  <text x="728" y="262" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="600" fill="#1A1A1C" text-anchor="start">Save the result</text>
+  <text x="728" y="292" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#6B6B70" text-anchor="start">Write what passed</text>
+  <text x="728" y="316" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#6B6B70" text-anchor="start">and what did not.</text>
+  <text x="44" y="444" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" font-weight="600" fill="#6B6B70" text-anchor="start" letter-spacing="0.12em">WHAT MAKES THE LOOP AUDITABLE</text>
+  <text x="44" y="482" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" font-weight="600" fill="#C4500F" text-anchor="start" letter-spacing="0.08em">HISTORY</text>
+  <text x="44" y="508" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#1A1A1C" text-anchor="start">Old snapshot stays</text>
+  <text x="272" y="482" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" font-weight="600" fill="#C4500F" text-anchor="start" letter-spacing="0.08em">SCOPE</text>
+  <text x="272" y="508" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#1A1A1C" text-anchor="start">One cause · serial batch</text>
+  <text x="500" y="482" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" font-weight="600" fill="#C4500F" text-anchor="start" letter-spacing="0.08em">INDEPENDENCE</text>
+  <text x="500" y="508" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#1A1A1C" text-anchor="start">Three checks · same</text>
+  <text x="500" y="530" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#1A1A1C" text-anchor="start">release</text>
+  <text x="728" y="482" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" font-weight="600" fill="#C4500F" text-anchor="start" letter-spacing="0.08em">RESULT</text>
+  <text x="728" y="508" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#1A1A1C" text-anchor="start">Pass · partial · blocked</text>
+  <text x="728" y="530" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" font-weight="400" fill="#1A1A1C" text-anchor="start">· risk</text>
+  <text x="44" y="586" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="400" fill="#6B6B70" text-anchor="start">Still open → next batch. Independently verified → close. Accepted risk is named, never called</text>
+  <text x="44" y="612" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="19" font-weight="400" fill="#6B6B70" text-anchor="start">fixed.</text>
 </svg>
