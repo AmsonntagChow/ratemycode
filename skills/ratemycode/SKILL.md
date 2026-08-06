@@ -1,6 +1,6 @@
 ---
 name: ratemycode
-description: "Use this skill to rate, audit, grade, stress-test, red-team, or issue a ship/no-ship verdict on a vibe-coded, AI-built, prototype, or MVP app, repository, or live deployment. Use for Staff-level product, systems, or frontend audits; adversarial testing; cross-surface documentation consistency; evidence-grounded VC reviews; release readiness, browser behavior, accessibility, performance, payment safety, security, data integrity, and reliability; oral defense; authorized fixes; audit ledgers; and same-rubric re-reviews. Trigger for equivalent wording such as rate my code/app, Staff frontend review, would you ship this, try to break it, roast my app, 挑刺, 前端审查, 答辩, 能上线或能收钱吗, 文档是否一致, or VC 打分, even before a product is attached. Resolve an actual product artifact or concrete evidence before settings or audit. Do not use for isolated snippets, routine fixes, generic code review or startup advice, stylistic copy editing or file sync, interview prep, or fundamentals teaching unless evaluating the product itself."
+description: "Use this skill to rate, audit, red-team, or issue a ship/no-ship verdict on a vibe-coded, AI-built, prototype, or MVP app, repository, or deployment. Use for Staff-level product, systems, or frontend audits; adversarial testing; documentation consistency; evidence-grounded VC reviews; release readiness, accessibility, payment safety, and security; hardcoded or mock data that should come from an API; unfinished work a user can reach; missing loading, empty, or error states; oral defense; authorized fixes; audit ledgers; and re-reviews. Trigger for wording such as rate my code/app, would you ship this, try to break it, roast my app, is this data real, did it hardcode this, 挑刺, 前端审查, 答辩, 能上线吗, 写死的数据, 假数据, 接口没接上, or 占位没做完, even before a product is attached. Resolve an actual artifact or concrete evidence before settings or audit. Do not use for isolated snippets, routine fixes, generic code review or startup advice, copy editing, interview prep, or fundamentals teaching unless evaluating the product itself."
 ---
 
 # RateMyCode
@@ -81,7 +81,7 @@ If the resolved product exists but cannot run, continue statically, limit the ve
 
 When safely runnable:
 
-1. Complete the golden path, and check that what it shows has something behind it: a value that varies by account, user, or time needs a request or a server response producing it, and a control the user can reach needs an implementation rather than a placeholder or a swallowed error.
+1. Complete the golden path, and check that what it shows has something behind it: a value that varies by account, user, or time needs a request or a server response producing it, and a control the user can reach needs an implementation rather than leftover work or a swallowed error, and a data surface needs a defined behavior in each state it can occupy rather than only loading and loaded.
 2. Trigger one realistic failure path.
 3. Repeat, refresh, retry, or resume one state-changing action.
 4. Fire one concurrent burst: several simultaneous requests for the same state-changing action, then inspect durable state for duplicate effects, lost updates, or split invariants. Serial repetition does not test this.

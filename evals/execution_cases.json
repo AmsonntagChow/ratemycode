@@ -294,7 +294,7 @@
       "id": "screen-shows-data-that-came-from-nowhere",
       "route": "staff-frontend-engineer",
       "degree": "strict-review",
-      "artifact": "A running dashboard whose header reads 1,284 active users and whose activity list renders six entries, both from literals in the component; the pricing page below them is legitimately static copy. The same build has a TODO in a build script, an empty catch around the save call, and a Delete account button whose handler is an empty arrow function.",
+      "artifact": "A running dashboard whose header reads 1,284 active users and whose activity list renders six entries, both from literals in the component; the pricing page below them is legitimately static copy. The same build has a TODO in a build script, an empty catch around the save call, and a Delete account button whose handler is an empty arrow function. The activity list has a proper skeleton while loading, and an empty state when a filter matches nothing; neither surface has anything designed for a failed request.",
       "prompt": "Staff frontend review of this dashboard before we show it to customers.",
       "skill_specific_assertions": [
         "Loads the screen fresh and compares what rendered against the requests that fired, rather than concluding the dashboard works because it rendered without errors",
@@ -304,7 +304,9 @@
         "Files it as a finding rather than a proposal, on the grounds that displaying a number asserts the number is true, with promise_source implied-by-behavior naming the screen and the value",
         "Does not excuse a server-rendered value for having no client request; reads the first response instead of only the request list",
         "Reports the Delete account button as a defect because a user can reach it and nothing happens, and leaves the build-script TODO alone because no user path arrives there",
-        "Treats the empty catch as a placeholder wearing the costume of handling, not as error handling that exists, since it makes a failed save look successful"
+        "Treats the empty catch as a placeholder wearing the costume of handling, not as error handling that exists, since it makes a failed save look successful",
+        "Leaves the skeleton and the empty state alone: both are the professional vocabulary for saying not yet, and flagging them would be a false positive on the part that was built correctly",
+        "Reports the missing error state instead, because a failed request renders as though nothing were wrong"
       ]
     }
   ]
