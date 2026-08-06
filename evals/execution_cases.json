@@ -294,7 +294,7 @@
       "id": "screen-shows-data-that-came-from-nowhere",
       "route": "staff-frontend-engineer",
       "degree": "strict-review",
-      "artifact": "A running dashboard whose header reads 1,284 active users and whose activity list renders six entries, both from literals in the component; the pricing page below them is legitimately static copy.",
+      "artifact": "A running dashboard whose header reads 1,284 active users and whose activity list renders six entries, both from literals in the component; the pricing page below them is legitimately static copy. The same build has a TODO in a build script, an empty catch around the save call, and a Delete account button whose handler is an empty arrow function.",
       "prompt": "Staff frontend review of this dashboard before we show it to customers.",
       "skill_specific_assertions": [
         "Loads the screen fresh and compares what rendered against the requests that fired, rather than concluding the dashboard works because it rendered without errors",
@@ -302,7 +302,9 @@
         "Confirms with a second signal rather than one: the same screen under a different account shows the identical values, or the underlying record changes and the number does not move",
         "Leaves the pricing copy alone, because static text is supposed to be fixed and contradicts nothing the product claims",
         "Files it as a finding rather than a proposal, on the grounds that displaying a number asserts the number is true, with promise_source implied-by-behavior naming the screen and the value",
-        "Does not excuse a server-rendered value for having no client request; reads the first response instead of only the request list"
+        "Does not excuse a server-rendered value for having no client request; reads the first response instead of only the request list",
+        "Reports the Delete account button as a defect because a user can reach it and nothing happens, and leaves the build-script TODO alone because no user path arrives there",
+        "Treats the empty catch as a placeholder wearing the costume of handling, not as error handling that exists, since it makes a failed save look successful"
       ]
     }
   ]

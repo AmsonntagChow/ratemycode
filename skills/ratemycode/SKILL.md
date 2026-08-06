@@ -81,7 +81,7 @@ If the resolved product exists but cannot run, continue statically, limit the ve
 
 When safely runnable:
 
-1. Complete the golden path, and confirm the data it displays came from somewhere: a value that varies by account, user, or time must have a request or a server response behind it, and must differ when the account does.
+1. Complete the golden path, and check that what it shows has something behind it: a value that varies by account, user, or time needs a request or a server response producing it, and a control the user can reach needs an implementation rather than a placeholder or a swallowed error.
 2. Trigger one realistic failure path.
 3. Repeat, refresh, retry, or resume one state-changing action.
 4. Fire one concurrent burst: several simultaneous requests for the same state-changing action, then inspect durable state for duplicate effects, lost updates, or split invariants. Serial repetition does not test this.

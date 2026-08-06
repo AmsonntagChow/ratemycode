@@ -10,6 +10,7 @@ Review the shipped client experience as a Staff Frontend engineer: correct, incl
 - Is loading, responsiveness, and visual stability acceptable on representative devices and networks, based on a reproducible trace or product metric rather than intuition?
 - Do supported browsers, viewport sizes, orientation changes, pointer types, virtual keyboards, safe areas, long content, and localized text preserve every critical control?
 - Does text hold together as set at every supported width: no last line stranded with a single word or character, no punctuation pushed to a line start, a readable measure and leading, and line-breaking correct for every script the product ships?
+- Is there anything behind what the user can reach? Placeholders announce themselves — TODO, not implemented, an empty catch, a handler that does nothing, copy that still says coming soon, a key that still says your-key-here. Finding them is a search; the judgement is whether a user can reach one, and what happens when they do.
 - Did the data on screen come from anywhere? For every value that varies by account, user, or time, a first load must show a request that produced it, the value must differ across two accounts, and it must move when the underlying record changes. A screen that renders numbers with no request behind them is not displaying data; it is asserting one.
 - - Do components, tokens, variants, states, and interaction conventions form one coherent system, with justified exceptions rather than parallel one-offs?
 - Are forms, pending states, validation, duplicate submission, partial failure, destructive actions, and retry or undo paths safe and recoverable?
@@ -24,21 +25,23 @@ Rate only dimensions that apply to the product and target. For numeric scoring, 
 | Dimension | Weight |
 |---|---:|
 | Browser and runtime correctness | 12 |
-| Data provenance | 10 |
+| Real data and real behavior | 12 |
 | State and data flow | 10 |
 | Accessibility and inclusive input | 12 |
 | Performance and perceived responsiveness | 9 |
-| Responsive and cross-browser behavior | 4 |
+| Responsive and cross-browser behavior | 3 |
 | Design-system consistency | 3 |
 | Typography and text setting | 3 |
 | Forms, errors, and recovery | 9 |
 | Interaction and motion craft | 3 |
 | Client security and privacy boundaries | 9 |
 | Testability | 7 |
-| Observability | 4 |
+| Observability | 3 |
 | Change safety | 5 |
 
 A hardcoded value is the defect this audience ships most and the one a review is least likely to catch: it renders, it never crashes, every test passes, and it looks exactly like the real thing. Three checks, cheapest first. Load the screen fresh and watch the network — data on screen with no request behind it is fabricated. Open the same screen as a second account and compare; a real value differs, an invented one does not. Change the underlying record and reload; a real value moves.
+
+Placeholders are the cheaper half of the same problem and are graded here too. A search finds the markers in seconds; every codebase has some, so presence is not the finding. Trace each one to a path a user can reach and say what happens when they arrive — a TODO in a build script is nothing, a no-op handler on the button that deletes an account is a blocker. The subclass worth hunting deliberately is the one that does not announce itself: an empty catch, or an error folded into a default, is a placeholder wearing the costume of handling, and it makes the failure invisible rather than visible.
 
 Bound it to what should vary. Server-rendered and statically generated data legitimately arrives without a client request, so read the first response rather than the request list. A repeat visit may be served from cache, so test the first load. Pricing copy and legal text are supposed to be fixed and are not findings. The rule covers what varies by account, user, or time.
 
