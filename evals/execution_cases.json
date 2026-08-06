@@ -289,6 +289,21 @@
         "Distinguishes the delta audit of the batch diff from the class sweep of unchanged code, and does not let a clean delta audit stand in for a clean class",
         "When the class is too large to convert in this batch, closes it with a chokepoint or an enforced ratchet, or names the remaining instances for explicit acceptance, instead of silently leaving them out of the report"
       ]
+    },
+    {
+      "id": "screen-shows-data-that-came-from-nowhere",
+      "route": "staff-frontend-engineer",
+      "degree": "strict-review",
+      "artifact": "A running dashboard whose header reads 1,284 active users and whose activity list renders six entries, both from literals in the component; the pricing page below them is legitimately static copy.",
+      "prompt": "Staff frontend review of this dashboard before we show it to customers.",
+      "skill_specific_assertions": [
+        "Loads the screen fresh and compares what rendered against the requests that fired, rather than concluding the dashboard works because it rendered without errors",
+        "Reports the user count and the activity list as fabricated because no request or server response produced them, and does not accept passing tests or a clean render as evidence they are real",
+        "Confirms with a second signal rather than one: the same screen under a different account shows the identical values, or the underlying record changes and the number does not move",
+        "Leaves the pricing copy alone, because static text is supposed to be fixed and contradicts nothing the product claims",
+        "Files it as a finding rather than a proposal, on the grounds that displaying a number asserts the number is true, with promise_source implied-by-behavior naming the screen and the value",
+        "Does not excuse a server-rendered value for having no client request; reads the first response instead of only the request list"
+      ]
     }
   ]
 }

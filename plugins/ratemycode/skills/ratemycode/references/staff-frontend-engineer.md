@@ -10,7 +10,8 @@ Review the shipped client experience as a Staff Frontend engineer: correct, incl
 - Is loading, responsiveness, and visual stability acceptable on representative devices and networks, based on a reproducible trace or product metric rather than intuition?
 - Do supported browsers, viewport sizes, orientation changes, pointer types, virtual keyboards, safe areas, long content, and localized text preserve every critical control?
 - Does text hold together as set at every supported width: no last line stranded with a single word or character, no punctuation pushed to a line start, a readable measure and leading, and line-breaking correct for every script the product ships?
-- Do components, tokens, variants, states, and interaction conventions form one coherent system, with justified exceptions rather than parallel one-offs?
+- Did the data on screen come from anywhere? For every value that varies by account, user, or time, a first load must show a request that produced it, the value must differ across two accounts, and it must move when the underlying record changes. A screen that renders numbers with no request behind them is not displaying data; it is asserting one.
+- - Do components, tokens, variants, states, and interaction conventions form one coherent system, with justified exceptions rather than parallel one-offs?
 - Are forms, pending states, validation, duplicate submission, partial failure, destructive actions, and retry or undo paths safe and recoverable?
 - Is interaction feedback immediate and predictable? Is motion purposeful for its frequency, interruptible, performant, input-aware, and respectful of reduced motion?
 - Are authorization and sensitive-data boundaries enforced beyond the client? Can untrusted content reach unsafe rendering, navigation, storage, messaging, upload, or telemetry paths?
@@ -22,19 +23,26 @@ Rate only dimensions that apply to the product and target. For numeric scoring, 
 
 | Dimension | Weight |
 |---|---:|
-| Browser and runtime correctness | 13 |
-| State and data flow | 11 |
+| Browser and runtime correctness | 12 |
+| Data provenance | 10 |
+| State and data flow | 10 |
 | Accessibility and inclusive input | 12 |
-| Performance and perceived responsiveness | 10 |
-| Responsive and cross-browser behavior | 5 |
-| Design-system consistency | 4 |
-| Typography and text setting | 5 |
+| Performance and perceived responsiveness | 9 |
+| Responsive and cross-browser behavior | 4 |
+| Design-system consistency | 3 |
+| Typography and text setting | 3 |
 | Forms, errors, and recovery | 9 |
-| Interaction and motion craft | 4 |
+| Interaction and motion craft | 3 |
 | Client security and privacy boundaries | 9 |
 | Testability | 7 |
-| Observability | 5 |
-| Change safety | 6 |
+| Observability | 4 |
+| Change safety | 5 |
+
+A hardcoded value is the defect this audience ships most and the one a review is least likely to catch: it renders, it never crashes, every test passes, and it looks exactly like the real thing. Three checks, cheapest first. Load the screen fresh and watch the network — data on screen with no request behind it is fabricated. Open the same screen as a second account and compare; a real value differs, an invented one does not. Change the underlying record and reload; a real value moves.
+
+Bound it to what should vary. Server-rendered and statically generated data legitimately arrives without a client request, so read the first response rather than the request list. A repeat visit may be served from cache, so test the first load. Pricing copy and legal text are supposed to be fixed and are not findings. The rule covers what varies by account, user, or time.
+
+File it as a finding, not a proposal: a screen that shows a number asserts that number is true, and that is a promise the product makes by behaving that way — `promise_source` is `implied-by-behavior`, with the locator naming the screen and the value.
 
 For every scored finding, name the exact journey, environment, browser or device when relevant, state and data preconditions, expected versus actual behavior, user consequence, evidence locator, confidence, and a falsifiable acceptance check. Prefer a real-browser reproduction, accessibility tree, network capture, runtime trace, or product metric. Static code may explain an observed failure but is not automatically runtime proof.
 
