@@ -310,6 +310,20 @@
         "Measures the skeleton by the shift its removal causes rather than by how it looks, and reports the three-versus-twelve row mismatch as the layout jump it produces when data lands",
         "Reports the shimmer continuing under prefers-reduced-motion, since an infinite animation is exactly what that setting exists to stop"
       ]
+    },
+    {
+      "id": "state-that-does-not-reset-or-does-not-survive",
+      "route": "staff-frontend-engineer",
+      "degree": "strict-review",
+      "artifact": "A filterable table whose rows are rendered from array index keys, a search box whose value persists after navigating to another record, and a total held in useState that was computed once from a list the user can still edit.",
+      "prompt": "Staff frontend review of this table before we ship it.",
+      "skill_specific_assertions": [
+        "Reorders or filters the table and reports that typed input moves to the wrong row, tracing it to keys taken from the array index rather than the row identity",
+        "Navigates to a second record and reports the search box still carrying the first one's query, naming the state that should have been cleared by the route change",
+        "Edits the list and reports the total no longer matching it, because the value was captured into state once instead of derived from its source",
+        "Reproduces each in the running product rather than reporting them from reading the code, and says which are inferred if it could not run it",
+        "Does not report the three as one finding: their reproductions and acceptance tests differ even though the habit behind them is shared"
+      ]
     }
   ]
 }

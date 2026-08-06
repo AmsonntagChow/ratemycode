@@ -6,6 +6,7 @@ Review the shipped client experience as a Staff Frontend engineer: correct, incl
 
 - Do critical journeys survive clean load, hard refresh, deep links, back/forward navigation, session expiry, resource failure, and offline/online transitions?
 - Are URL, local, cached, and server state reconciled predictably under cancellation, retry, optimistic updates, duplicate actions, multi-tab use, and out-of-order responses?
+- Does component state survive the things that should not disturb it and reset for the things that should? Name the failures rather than the principle: an effect reading a value captured on an earlier render, state holding something derived from a source that later changes without it, an effect whose own write re-triggers it, a list rendered without stable keys so a reorder remounts rows and drops what was typed into them, and state that outlives a route change it should have been cleared by.
 - Can critical tasks be completed with keyboard, screen reader, zoom/reflow, touch, and reduced motion, with correct semantics, focus, announcements, contrast, and error association?
 - Is loading, responsiveness, and visual stability acceptable on representative devices and networks, based on a reproducible trace or product metric rather than intuition?
 - Do supported browsers, viewport sizes, orientation changes, pointer types, virtual keyboards, safe areas, long content, and localized text preserve every critical control?
